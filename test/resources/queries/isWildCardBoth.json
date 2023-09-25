@@ -1,0 +1,1626 @@
+{
+	"title": "isWildCardBoth",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_instructor": "*ind*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg",
+				"sections_instructor"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 61.33,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 62.06,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 63.4,
+			"sections_instructor": "lindsay, alan"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 64.54,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 64.76,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 65.28,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 65.46,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 65.66,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 65.67,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 65.95,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "phil",
+			"sections_avg": 66.19,
+			"sections_instructor": "guindon, bruno"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 66.49,
+			"sections_instructor": "lindstrom, michael"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 66.51,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 66.56,
+			"sections_instructor": "lindstrom, michael"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 66.86,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 66.96,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 67.08,
+			"sections_instructor": "blois, cindy"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 67.16,
+			"sections_instructor": "gilley, brett;hodge, kirsten;mindell, randal;stull, roland;sutherland, stuart;ver, leah may"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 67.25,
+			"sections_instructor": "barha, cindy"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 67.49,
+			"sections_instructor": "quiney, linda"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 67.63,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 67.71,
+			"sections_instructor": "ducharme, michel;quiney, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 67.76,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 68.02,
+			"sections_instructor": "lindenberg, erin"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.21,
+			"sections_instructor": "thomas, lindsey anne"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.23,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.33,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.35,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 68.36,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.42,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 68.5,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.54,
+			"sections_instructor": "linden, wolfgang"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.61,
+			"sections_instructor": "thomas, lindsey anne"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 68.72,
+			"sections_instructor": "thomas, lindsey anne"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 68.85,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 68.88,
+			"sections_instructor": "gilley, brett;hodge, kirsten;mindell, randal;russell, james kelly;stull, roland;sutherland, stuart;ver, leah may"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 69.03,
+			"sections_instructor": "thomas, lindsey anne"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 69.11,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 69.33,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 69.43,
+			"sections_instructor": "gilley, brett;hodge, kirsten;mindell, randal;stull, roland;sutherland, stuart;ver, leah may"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 69.66,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 69.81,
+			"sections_instructor": "lindstrom, michael"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 69.85,
+			"sections_instructor": "gilley, brett;mindell, randal;porritt, lucy;stull, roland;sutherland, stuart;ver, leah may;woodell, daniel"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 69.87,
+			"sections_instructor": "kopylova, maya;mindell, randal"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 70,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 70.01,
+			"sections_instructor": "gilley, brett;mindell, randal;porritt, lucy;stull, roland;sutherland, stuart;ver, leah may;woodell, daniel"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 70.08,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "astr",
+			"sections_avg": 70.12,
+			"sections_instructor": "richer, harvey;samra, raminder"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 70.33,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 70.4,
+			"sections_instructor": "linden, wolfgang"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 70.45,
+			"sections_instructor": "mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "arcl",
+			"sections_avg": 70.47,
+			"sections_instructor": "martindale, andrew"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 70.82,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 70.87,
+			"sections_instructor": "kopylova, maya;mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 70.9,
+			"sections_instructor": "kopylova, maya;mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "psyc",
+			"sections_avg": 70.91,
+			"sections_instructor": "scratchley, linda"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 70.95,
+			"sections_instructor": "blois, cindy"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 71.07,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 71.15,
+			"sections_instructor": "lindstrom, michael"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 71.17,
+			"sections_instructor": "windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "asic",
+			"sections_avg": 71.27,
+			"sections_instructor": "kandlikar, milind"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 71.31,
+			"sections_instructor": "eberhardt, erik;haque, shama emy;mindell, randal;peterson, holly"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 71.4,
+			"sections_instructor": "blois, cindy"
+		},
+		{
+			"sections_dept": "scie",
+			"sections_avg": 71.59,
+			"sections_instructor": "matsuuchi, linda;steyn, douw gerbrand"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 71.6,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 71.75,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 71.85,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 71.94,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 72.04,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.08,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 72.09,
+			"sections_instructor": "blois, cindy"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 72.13,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 72.31,
+			"sections_instructor": "lindstrom, michael"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 72.39,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 72.46,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "math",
+			"sections_avg": 72.46,
+			"sections_instructor": "indurskis, gabriel"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.49,
+			"sections_instructor": "gilley, brett;hodge, kirsten;mindell, randal;russell, james kelly;stull, roland;sutherland, stuart;ver, leah may"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.59,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 72.59,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 72.71,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 72.73,
+			"sections_instructor": "tran, linda"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.82,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.84,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 72.89,
+			"sections_instructor": "hodge, kirsten;mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.04,
+			"sections_instructor": "mindell, randal;mortensen, james;sutherland, stuart"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.06,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.22,
+			"sections_instructor": "gully, linda;watson, michelle tanya"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 73.24,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 73.33,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.34,
+			"sections_instructor": "hearn, elizabeth;mindell, randal"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.36,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.42,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.46,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.46,
+			"sections_instructor": "mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 73.47,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "musc",
+			"sections_avg": 73.5,
+			"sections_instructor": "lind, stephanie k.;simpson, rebecca"
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 73.53,
+			"sections_instructor": "lindenberg, erin"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 73.57,
+			"sections_instructor": "quiney, linda"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.58,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.58,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.62,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.63,
+			"sections_instructor": "bevier, mary lou;mindell, randal;scoates, james stewart"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.68,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "laso",
+			"sections_avg": 73.71,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 73.72,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 73.73,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 73.78,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 73.93,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 73.95,
+			"sections_instructor": "bevier, mary lou;mindell, randal;mortensen, james;smith, paul laurence"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 74,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 74,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 74.1,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.13,
+			"sections_instructor": "mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 74.21,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.31,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.33,
+			"sections_instructor": "mindell, randal;scoates, james stewart"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.35,
+			"sections_instructor": "bevier, mary lou;mindell, randal;mortensen, james;tba"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.39,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.41,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.5,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.5,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.51,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.51,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.55,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.56,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.57,
+			"sections_instructor": "gully, linda;watson, michelle tanya"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.57,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.6,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.63,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.68,
+			"sections_instructor": "gilley, brett;mindell, randal"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.74,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.76,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.78,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 74.9,
+			"sections_instructor": "francois, roger;mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.94,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "astr",
+			"sections_avg": 74.96,
+			"sections_instructor": "boley, aaron;strubbe, linda"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 74.96,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.97,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 74.98,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "laso",
+			"sections_avg": 75,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "phys",
+			"sections_avg": 75.03,
+			"sections_instructor": "stang, jared;strubbe, linda"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.05,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.1,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.12,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.17,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 75.2,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.27,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 75.27,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 75.27,
+			"sections_instructor": "quiney, linda"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.32,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.38,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.46,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.48,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 75.5,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 75.52,
+			"sections_instructor": "francois, roger;mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.71,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.72,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.73,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 75.73,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.76,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.78,
+			"sections_instructor": "gully, linda;watson, michelle tanya"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 75.8,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 75.83,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 75.84,
+			"sections_instructor": "dawe, jordan;mindell, randal"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.91,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.93,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 75.93,
+			"sections_instructor": "mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 75.95,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 75.95,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.1,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.14,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.15,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 76.16,
+			"sections_instructor": "mindell, randal;sutherland, stuart"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.24,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.24,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 76.27,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.31,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.4,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.44,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 76.44,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.46,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.54,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 76.62,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 76.67,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.71,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.77,
+			"sections_instructor": "raina, rajinder"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.83,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.83,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 76.86,
+			"sections_instructor": "stewart, cindy"
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 76.87,
+			"sections_instructor": "price, ingrid;tran, linda"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 76.94,
+			"sections_instructor": "windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 77.2,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 77.41,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 77.44,
+			"sections_instructor": "tran, linda"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 77.5,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 77.53,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 77.62,
+			"sections_instructor": "stewart, cindy"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 77.8,
+			"sections_instructor": "carr, geoffrey;windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 77.86,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "hist",
+			"sections_avg": 77.88,
+			"sections_instructor": "sindelar, arlene marie"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 77.91,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 78,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 78,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "arcl",
+			"sections_avg": 78.27,
+			"sections_instructor": "martindale, andrew"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 78.36,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 78.38,
+			"sections_instructor": "windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 78.43,
+			"sections_instructor": "gully, linda;watson, michelle tanya"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 78.43,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 78.45,
+			"sections_instructor": "windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "fren",
+			"sections_avg": 78.74,
+			"sections_instructor": "winder, william"
+		},
+		{
+			"sections_dept": "dhyg",
+			"sections_avg": 79,
+			"sections_instructor": "kindler, pawel;roberts, clive"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 79.36,
+			"sections_instructor": "gully, linda;watson, michelle"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 79.4,
+			"sections_instructor": "linde, mari-ann"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 79.48,
+			"sections_instructor": "stewart, cindy"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 79.78,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 79.81,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 79.93,
+			"sections_instructor": "dawe, jordan;mindell, randal"
+		},
+		{
+			"sections_dept": "econ",
+			"sections_avg": 80.11,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "arth",
+			"sections_avg": 80.13,
+			"sections_instructor": "windsor-liscombe, rhodri"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 80.19,
+			"sections_instructor": "gully, linda;watson, michelle"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 80.2,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 80.25,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 80.34,
+			"sections_instructor": "tran, linda"
+		},
+		{
+			"sections_dept": "soci",
+			"sections_avg": 80.38,
+			"sections_instructor": "tindall, david"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 80.59,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 80.6,
+			"sections_instructor": "raina, rajinder"
+		},
+		{
+			"sections_dept": "soci",
+			"sections_avg": 80.6,
+			"sections_instructor": "tindall, david"
+		},
+		{
+			"sections_dept": "rsot",
+			"sections_avg": 80.8,
+			"sections_instructor": "holsti, liisa;suto, melinda"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 81.04,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "rhsc",
+			"sections_avg": 81.2,
+			"sections_instructor": "dawes, diana;suto, melinda"
+		},
+		{
+			"sections_dept": "chem",
+			"sections_avg": 81.25,
+			"sections_instructor": "johnson, kayli;lindenberg, erin"
+		},
+		{
+			"sections_dept": "biol",
+			"sections_avg": 81.29,
+			"sections_instructor": "matsuuchi, linda"
+		},
+		{
+			"sections_dept": "comm",
+			"sections_avg": 81.29,
+			"sections_instructor": "lindsey, charles"
+		},
+		{
+			"sections_dept": "epse",
+			"sections_avg": 81.48,
+			"sections_instructor": "siegel, linda"
+		},
+		{
+			"sections_dept": "basm",
+			"sections_avg": 81.54,
+			"sections_instructor": "raina, rajinder"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 81.61,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "phys",
+			"sections_avg": 81.79,
+			"sections_instructor": "strubbe, linda"
+		},
+		{
+			"sections_dept": "phar",
+			"sections_avg": 81.9,
+			"sections_instructor": "tran, linda"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 82.04,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "ends",
+			"sections_avg": 82.53,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 82.69,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 83.21,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "epse",
+			"sections_avg": 83.28,
+			"sections_instructor": "narang, preetinder"
+		},
+		{
+			"sections_dept": "rsot",
+			"sections_avg": 83.35,
+			"sections_instructor": "suto, melinda;zwicker, jill"
+		},
+		{
+			"sections_dept": "ends",
+			"sections_avg": 83.38,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 83.42,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "ends",
+			"sections_avg": 83.52,
+			"sections_instructor": "brock, linda dale"
+		},
+		{
+			"sections_dept": "phys",
+			"sections_avg": 83.75,
+			"sections_instructor": "strubbe, linda"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 83.86,
+			"sections_instructor": "eltis, lindsay;thompson, charles"
+		},
+		{
+			"sections_dept": "ufor",
+			"sections_avg": 84.08,
+			"sections_instructor": "prescott, cindy"
+		},
+		{
+			"sections_dept": "scie",
+			"sections_avg": 84.29,
+			"sections_instructor": "matsuuchi, linda;oberg, gunilla"
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 84.47,
+			"sections_instructor": "kandlikar, milind;satterfield, theresa"
+		},
+		{
+			"sections_dept": "lled",
+			"sections_avg": 84.53,
+			"sections_instructor": "lindquist, teri mae"
+		},
+		{
+			"sections_dept": "basm",
+			"sections_avg": 84.55,
+			"sections_instructor": "raina, rajinder"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 84.59,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "rsot",
+			"sections_avg": 84.6,
+			"sections_instructor": "holsti, liisa;suto, melinda"
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 84.91,
+			"sections_instructor": "kandlikar, milind"
+		},
+		{
+			"sections_dept": "caps",
+			"sections_avg": 85,
+			"sections_instructor": "baimbridge, kenneth;clee, susanne michelle;hammond, geoffrey lewis;hoffman, bradford;kieffer, tim;kindler, pawel;luciani, dan;verchere, bruce;viau, victor"
+		},
+		{
+			"sections_dept": "soci",
+			"sections_avg": 85.18,
+			"sections_instructor": "tindall, david"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 85.3,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "lled",
+			"sections_avg": 85.44,
+			"sections_instructor": "lindquist, teri mae"
+		},
+		{
+			"sections_dept": "arch",
+			"sections_avg": 85.6,
+			"sections_instructor": "wilson, cindy"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 85.76,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "caps",
+			"sections_avg": 85.89,
+			"sections_instructor": "haas, kurt;hammond, geoffrey lewis;kindler, pawel;osborne, salma"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 85.96,
+			"sections_instructor": "avery, lisa ann;ciocca, valter;rammage, linda"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 85.96,
+			"sections_instructor": "marshall, tracy;parhar, reena;sinden, eavan"
+		},
+		{
+			"sections_dept": "educ",
+			"sections_avg": 86,
+			"sections_instructor": "brindley, jane"
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 86,
+			"sections_instructor": "kandlikar, milind;satterfield, theresa"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 86.32,
+			"sections_instructor": "reynolds, cindy"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 86.33,
+			"sections_instructor": "avery, lisa ann;rammage, linda"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 86.35,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 86.45,
+			"sections_instructor": "avery, lisa ann;rammage, linda"
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 86.55,
+			"sections_instructor": "kandlikar, milind"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 86.67,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "soci",
+			"sections_avg": 86.67,
+			"sections_instructor": "tindall, david"
+		},
+		{
+			"sections_dept": "cnps",
+			"sections_avg": 86.91,
+			"sections_instructor": "bedi, robinder"
+		},
+		{
+			"sections_dept": "lled",
+			"sections_avg": 86.95,
+			"sections_instructor": "lindquist, teri mae"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.09,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.1,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.17,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.29,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "soci",
+			"sections_avg": 87.33,
+			"sections_instructor": "tindall, david"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 87.42,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 87.48,
+			"sections_instructor": "avery, lisa ann;rammage, linda;reynolds, cindy"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.5,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "caps",
+			"sections_avg": 87.63,
+			"sections_instructor": "baimbridge, kenneth;clee, susanne michelle;hammond, geoffrey lewis;hoffman, bradford;kieffer, tim;kindler, pawel;luciani, dan;verchere, bruce;viau, victor"
+		},
+		{
+			"sections_dept": "rmes",
+			"sections_avg": 87.64,
+			"sections_instructor": "kandlikar, milind;oberg, gunilla"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 87.75,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 87.83,
+			"sections_instructor": "eltis, lindsay"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 87.87,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "bioc",
+			"sections_avg": 87.91,
+			"sections_instructor": "eltis, lindsay;molday, robert"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 88,
+			"sections_instructor": "rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 88,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 88.03,
+			"sections_instructor": "noland, andrea;rammage, linda"
+		},
+		{
+			"sections_dept": "caps",
+			"sections_avg": 88.14,
+			"sections_instructor": "accili, eric;clee, susanne michelle;horne, andrew;kindler, pawel;kwok, yin nam kenny;osborne, salma;tanentzapf, guy"
+		},
+		{
+			"sections_dept": "micb",
+			"sections_avg": 88.25,
+			"sections_instructor": "eltis, lindsay;thompson, charles"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 88.58,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 88.67,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 88.68,
+			"sections_instructor": "reynolds, cindy"
+		},
+		{
+			"sections_dept": "biol",
+			"sections_avg": 89,
+			"sections_instructor": "matsuuchi, linda"
+		},
+		{
+			"sections_dept": "gsat",
+			"sections_avg": 89.36,
+			"sections_instructor": "bohlmann, jorg;cullis, pieter;eltis, lindsay;hieter, philip;hirst, martin;marra, marco;rieseberg, loren;ryan, katherine"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 89.4,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "cnps",
+			"sections_avg": 89.4,
+			"sections_instructor": "bedi, robinder"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 89.5,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "cnps",
+			"sections_avg": 89.54,
+			"sections_instructor": "bedi, robinder"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 89.58,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "gsat",
+			"sections_avg": 89.82,
+			"sections_instructor": "bohlmann, jorg;bryan, jennifer frazier;eltis, lindsay;foster, leonard;hallam, steven;hansen, carl;hieter, philip;kastrup, christian;kobor, michael;marra, marco;mostafavi, sara;nislow, corey;stirling, peter;tokuriki, nobuhiko"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 90,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 90.12,
+			"sections_instructor": "bernhardt, barbara;rammage, linda;small, jeff alan"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 90.38,
+			"sections_instructor": "avery, lisa ann;rammage, linda;reynolds, cindy"
+		},
+		{
+			"sections_dept": "audi",
+			"sections_avg": 90.5,
+			"sections_instructor": "reynolds, cindy"
+		},
+		{
+			"sections_dept": "eosc",
+			"sections_avg": 90.62,
+			"sections_instructor": "mindell, randal"
+		},
+		{
+			"sections_dept": "lled",
+			"sections_avg": 91.37,
+			"sections_instructor": "greig, linda elizabeth"
+		},
+		{
+			"sections_dept": "lled",
+			"sections_avg": 91.68,
+			"sections_instructor": "greig, linda elizabeth"
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 94,
+			"sections_instructor": "svendsen, linda jane"
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 94.5,
+			"sections_instructor": "svendsen, linda jane"
+		},
+		{
+			"sections_dept": "crwr",
+			"sections_avg": 95,
+			"sections_instructor": "svendsen, linda jane"
+		}
+	]
+}
