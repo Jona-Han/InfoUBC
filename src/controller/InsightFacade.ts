@@ -6,6 +6,7 @@ import {
 	InsightResult,
 	NotFoundError,
 } from "./IInsightFacade";
+import Dataset from "./Dataset";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -13,10 +14,10 @@ import {
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasets: string[];
+	private datasets: {[key: string]: Dataset};
 
 	constructor() {
-		this.datasets = [];
+		this.datasets = {};
 		console.log("InsightFacadeImpl::init()");
 	}
 
@@ -59,9 +60,9 @@ export default class InsightFacade implements IInsightFacade {
 	// 5. return output
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 		return new Promise((resolve, reject) => {
-			if (this.datasets.length === 0) {
-				reject(new InsightError("No datasets available for query"));
-			}
+			// if (this.datasets === 0) {
+			// 	reject(new InsightError("No datasets available for query"));
+			// }
 			if (this.isNotValidQuery(query)) {
 				reject(new InsightError("Invalid query"));
 			}
