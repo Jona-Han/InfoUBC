@@ -1,0 +1,19 @@
+{
+	"title": "orderInvalidType",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_instructor": "lind*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": []
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

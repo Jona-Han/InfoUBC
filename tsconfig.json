@@ -6,6 +6,7 @@
 		"removeComments": true,
 		"preserveConstEnums": true,
 		"sourceMap": true,
+        "esModuleInterop": true,
 		"typeRoots": [
 			"./node_modules/@types"
 		]

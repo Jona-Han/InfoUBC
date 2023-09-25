@@ -1,0 +1,17 @@
+{
+	"title": "invalidField",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_invalidfield"
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
