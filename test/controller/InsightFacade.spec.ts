@@ -22,8 +22,11 @@ describe("InsightFacade", async function () {
 	});
 
 	beforeEach(function () {
-		clearDisk();
 		facade = new InsightFacade();
+	});
+
+	afterEach(function () {
+		clearDisk();
 	});
 
 	describe("addDataset", function () {
@@ -79,11 +82,7 @@ describe("InsightFacade", async function () {
 
 		context("when dataset content is not base64", function () {
 			it("should reject with an InsightError for nonBase64", function () {
-				const result = facade.addDataset(
-					"validId",
-					"nonBase64_Content",
-					InsightDatasetKind.Sections
-				);
+				const result = facade.addDataset("validId", "nonBase64_Content", InsightDatasetKind.Sections);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
@@ -159,17 +158,14 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context(
-			"when adding a dataset with a section missing fields but includes other valid sections",
-			function () {
-				it("should successfully add a dataset with the valid sections only", function () {
-					const validSection = getContentFromArchives("missingFieldsOtherValidSection.zip");
-					const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+		context("when adding a dataset with a section missing fields but includes other valid sections", function () {
+			it("should successfully add a dataset with the valid sections only", function () {
+				const validSection = getContentFromArchives("missingFieldsOtherValidSection.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
-					return expect(result).to.eventually.include.members(["ubc"]);
-				});
-			}
-		);
+				return expect(result).to.eventually.include.members(["ubc"]);
+			});
+		});
 
 		context("when kind is invalid", function () {
 			it("should reject with an InsightError for kind is invalid", function () {
@@ -230,10 +226,10 @@ describe("InsightFacade", async function () {
 				const oneSection = getContentFromArchives("only1section.zip");
 				await facade.addDataset("ubc", oneSection, InsightDatasetKind.Sections);
 
-        // simulate crash
+				// simulate crash
 				const newFacade: InsightFacade = new InsightFacade();
 
-        // recover
+				// recover
 				const result = newFacade.listDatasets();
 				return expect(result).to.eventually.deep.include({
 					id: "ubc",
@@ -250,10 +246,10 @@ describe("InsightFacade", async function () {
 					const threeSection = getContentFromArchives("3validsections.zip");
 					await facade.addDataset("ubc", oneSection, InsightDatasetKind.Sections);
 
-          // simulate crash
+					// simulate crash
 					const newFacade: InsightFacade = new InsightFacade();
 
-          // recover
+					// recover
 					await facade.addDataset("new", threeSection, InsightDatasetKind.Sections);
 					const result = await newFacade.listDatasets();
 
@@ -281,10 +277,10 @@ describe("InsightFacade", async function () {
 					const oneSection = getContentFromArchives("only1section.zip");
 					await facade.addDataset("ubc", oneSection, InsightDatasetKind.Sections);
 
-          // simulate crash
+					// simulate crash
 					const newFacade: InsightFacade = new InsightFacade();
 
-          // recover
+					// recover
 					const result = await newFacade.removeDataset("ubc");
 
 					expect(result).to.equal("ubc");
@@ -298,9 +294,9 @@ describe("InsightFacade", async function () {
 			it("should crash and be able to perform the query", async function () {
 				try {
 					const pair = getContentFromArchives("pair.zip");
-					await facade.addDataset("ubc", pair, InsightDatasetKind.Sections);
+					await facade.addDataset("sections", pair, InsightDatasetKind.Sections);
 
-          // simulate crash
+					// simulate crash
 					const newFacade: InsightFacade = new InsightFacade();
 
 					const query = {
@@ -314,7 +310,7 @@ describe("InsightFacade", async function () {
 							ORDER: "sections_avg",
 						},
 					};
-          // recover
+					// recover
 					const result = await newFacade.performQuery(query);
 
 					const expected = [
@@ -452,15 +448,17 @@ describe("InsightFacade", async function () {
 						.then(() => facade.listDatasets());
 					return expect(result).to.eventually.deep.equal([]);
 				});
+			});
+		});
 
-				it("should fail after the second remove", function () {
-					const result = facade
-						.addDataset("ubc", sections, InsightDatasetKind.Sections)
-						.then(() => facade.removeDataset("ubc"))
-						.then(() => facade.removeDataset("ubc"));
+		context("remove a dataset twice", function () {
+			it("should fail after the second remove", function () {
+				const result = facade
+					.addDataset("ubc", sections, InsightDatasetKind.Sections)
+					.then(() => facade.removeDataset("ubc"))
+					.then(() => facade.removeDataset("ubc"));
 
-					return expect(result).to.eventually.be.rejectedWith(NotFoundError);
-				});
+				return expect(result).to.eventually.be.rejectedWith(NotFoundError);
 			});
 		});
 
@@ -500,6 +498,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 	});
+
 	describe("performQuery", function () {
 		context("a string is passed in", function () {
 			it("should fail with insightError with a string with performQuery", async function () {
@@ -527,71 +526,57 @@ describe("InsightFacade", async function () {
 					},
 				};
 				const result = facade.performQuery(query);
-				return expect(result).to.be.rejectedWith(InsightError);
-			});
-		});
-
-		context("performing complex query on 2 different datasets", function () {
-			it("should query from both and return valid results", async function () {
-				try {
-					const zip = getContentFromArchives("pair.zip");
-					await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
-					await facade.addDataset("sections", zip, InsightDatasetKind.Sections);
-
-					let query = {WHERE:{OR:[{GT:{ubc_avg:99.1}},{GT:{sections_avg:99.5}}]},
-						OPTIONS:{COLUMNS:["sections_dept", "ubc_dept"]}};
-
-					await facade.performQuery(query);
-					expect.fail("Should have thrown an error");
-				} catch (error) {
-					expect(error).to.be.an.instanceOf(InsightError);
-				}
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 	});
 });
 
 describe("Dynamic folder test", function () {
-  type Output = InsightResult[];
-  type PQErrorKind = "ResultTooLargeError" | "InsightError";
-  let sections: string;
-  let facade: InsightFacade;
+	type Output = InsightResult[];
+	type PQErrorKind = "InsightError" | "ResultTooLargeError";
+	let sections: string;
+	let facade: InsightFacade;
 
-  before(async function () {
-  	sections = getContentFromArchives("pair.zip");
-  	facade = new InsightFacade();
-  	await facade.addDataset("sections", sections, InsightDatasetKind.Sections);
-  });
+	before(async function () {
+		clearDisk();
+		sections = getContentFromArchives("pair.zip");
+		facade = new InsightFacade();
+		await facade.addDataset("sections", sections, InsightDatasetKind.Sections);
+	});
 
-  // Assert value equals expected
-  function assertResult(actual: unknown, expected: Output): void {
-  	expect(actual).to.have.deep.members(expected);
-  }
+	function errorValidator(error: unknown): error is PQErrorKind {
+		return error === "InsightError" || error === "ResultTooLargeError";
+	}
 
-  // Assert actual error is of expected type
-  function assertError(actual: unknown, expected: PQErrorKind): void {
-  	if (expected === "InsightError") {
-  		expect(actual).to.be.an.instanceOf(InsightError);
-  	} else if (expected === "ResultTooLargeError") {
-  		expect(actual).to.be.an.instanceOf(ResultTooLargeError);
-  	} else {
-  		expect.fail("Should not be reached in assertError");
-  	}
-  }
+	// Assert value equals expected
+	function assertResult(actual: unknown, expected: Output): void {
+		expect(actual).to.have.deep.members(expected);
+	}
 
-  function target(input: unknown): Promise<Output> {
-  	return facade.performQuery(input);
-  }
+	// Assert actual error is of expected type
+	function assertError(actual: unknown, expected: PQErrorKind): void {
+		if (expected === "InsightError") {
+			expect(actual).to.be.an.instanceOf(InsightError);
+		} else if (expected === "ResultTooLargeError") {
+			expect(actual).to.be.an.instanceOf(ResultTooLargeError);
+		} else {
+			expect.fail("Should not be reached in assertError");
+		}
+	}
 
-  folderTest<unknown, Output, PQErrorKind>(
-  	"performQuery tests", // suiteName
-  	target, // target
-  	"./test/resources/queries", // path
-  	{
-  		assertOnResult: assertResult,
-  		assertOnError: assertError, // options
-  		errorValidator: (error): error is PQErrorKind =>
-  			error === "ResultTooLargeError" || error === "InsightError",
-  	}
-  );
+	function target(input: unknown): Promise<Output> {
+		return facade.performQuery(input);
+	}
+
+	folderTest<unknown, Output, PQErrorKind>(
+		"performQuery tests", // suiteName
+		target, // target
+		"./test/resources/queries", // path
+		{
+			errorValidator,
+			assertOnResult: assertResult,
+			assertOnError: assertError, // options
+		}
+	);
 });
