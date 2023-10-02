@@ -7,6 +7,11 @@ import {
 	NotFoundError,
 } from "./IInsightFacade";
 import Dataset from "./Dataset";
+import * as fs from "fs-extra";
+import {writeFileSync} from "fs";
+import JSZip from "jszip";
+const persistDir = "./data";
+const tempDir = "./temp";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -15,9 +20,11 @@ import Dataset from "./Dataset";
  */
 export default class InsightFacade implements IInsightFacade {
 	private datasets: {[key: string]: Dataset};
+	private keys: string[];
 
 	constructor() {
 		this.datasets = {};
+		this.keys = [];
 		console.log("InsightFacadeImpl::init()");
 	}
 
@@ -27,16 +34,59 @@ export default class InsightFacade implements IInsightFacade {
 	// 4. Add dataset
 	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return new Promise((resolve, reject) => {
-			if (kind === InsightDatasetKind.Rooms) {
-				reject(new InsightError("kind must be InsightDatasetKind.Sections"));
+			// Reject if InsightDatasetKind is not Sections
+			if (kind !== InsightDatasetKind.Sections) {
+				return reject(new InsightError("kind must be InsightDatasetKind.Sections"));
 			}
+
+			// Reject if ID is not valid
 			if (this.isNotValidID(id)) {
-				reject(new InsightError("Invalid id"));
+				return reject(new InsightError("Invalid id"));
 			}
+
+			// Reject if a dataset with the same id is already present
+			if (this.keys.includes(id)) {
+				return reject(new InsightError("Key already present in dataset"));
+			}
+
+			// Try to write a file, otherwise reject
+			fs.ensureDir(tempDir);
+			console.log("Trying to add dataset to data");
+			const stringBuffer = Buffer.from(content, "base64");
+			const tempPath: string = tempDir + "/" + id;
+			fs.ensureDir(tempPath);
+			// fs.writeFileSync(zipPath, stringBuffer)
+			const zip = new JSZip();
+			zip.loadAsync(stringBuffer)
+				.then(() => {
+					return Promise.all(
+						Object.keys(zip.files).map((filename: string) => {
+							const file = zip.files[filename];
+							const outputPath = tempPath + "/" + filename;
+
+							if (file.dir) {
+								return fs.ensureDir(outputPath);
+							} else {
+								return file.async("nodebuffer").then((filecontent: any) => {
+									fs.writeFile(outputPath, filecontent);
+								});
+							}
+						})
+					);
+				})
+				.catch((error: Error) => {
+					return reject(new InsightError("Error loading data from content"));
+				});
+
+			console.log("successfully added dataset to data");
+			// } catch {
+			// 	console.log("Failed to add dataset to data")
+			// 	return reject(new InsightError("Invalid content"))
+			// }
 			if (this.isValidDataset(content)) {
-				reject("Missing remaining implementation");
+				return reject("Missing remaining implementation");
 			}
-			reject(new InsightError("Invalid dataset"));
+			return reject(new InsightError("Not yet implemented"));
 		});
 	}
 	// 1. Check valid id
