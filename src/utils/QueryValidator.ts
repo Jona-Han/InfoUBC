@@ -88,14 +88,6 @@ function validateWhere(where: object): void {
 	}
 }
 
-function validateNot(object: object): void {
-	const notObject = object as Negation;
-	if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
-		throw new QueryError("NOT value must be object");
-	}
-	validateWhere(notObject.NOT);
-}
-
 function validateLogicComparison(object: object): void {
 	const logicComparison = object as LogicComparison;
 	const logicComparatorKeys = Object.keys(logicComparison);
@@ -109,6 +101,14 @@ function validateLogicComparison(object: object): void {
 	for (const filter of fieldObject) {
 		validateWhere(filter as object); // recursively validate each filter in the array
 	}
+}
+
+function validateNot(object: object): void {
+	const notObject = object as Negation;
+	if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
+		throw new QueryError("NOT value must be object");
+	}
+	validateWhere(notObject.NOT);
 }
 
 function validateMComparison(object: object): void {

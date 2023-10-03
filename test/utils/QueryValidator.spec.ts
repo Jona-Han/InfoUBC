@@ -8,7 +8,8 @@ import {
 	validateMComparison,
 	validateSComparison,
 	validateWhere,
-	validateNot
+	validateNot,
+	validateLogicComparison,
 } from "../../src/utils/QueryValidator"; // Replace with the actual module path
 
 describe("validateQuery", () => {
@@ -358,6 +359,99 @@ describe("validateNot", () => {
 		expect(() => validateNot(invalidNot as Negation)).to.throw(
 			QueryError,
 			"Invalid value for sections_avg in MComparison. Expected a number"
+		);
+	});
+});
+
+describe("validateLogicComparison", () => {
+	it("should not throw an error for valid LogicComparison (AND)", () => {
+		const validLogicComparison = {
+			AND: [
+				{
+					LT: {
+						sections_avg: 95,
+					},
+				},
+				{
+					EQ: {
+						sections_avg: 85,
+					},
+				},
+			],
+		};
+
+		expect(() => validateLogicComparison(validLogicComparison)).to.not.throw();
+	});
+
+	it("should not throw an error for valid LogicComparison (OR)", () => {
+		const validLogicComparison = {
+			OR: [
+				{
+					LT: {
+						sections_avg: 85,
+					},
+				},
+				{
+					GT: {
+						sections_avg: 90,
+					},
+				},
+			],
+		};
+
+		expect(() => validateLogicComparison(validLogicComparison)).to.not.throw();
+	});
+
+	it("should throw QueryError for invalid LogicComparison type", () => {
+		const invalidLogicComparison = {
+			AND: "invalidType",
+		};
+
+		expect(() => validateLogicComparison(invalidLogicComparison)).to.throw(
+			QueryError,
+			"AND should be non-empty array"
+		);
+	});
+
+	it("should throw QueryError for empty LogicComparison array", () => {
+		const invalidLogicComparison = {
+			OR: [],
+		};
+
+		expect(() => validateLogicComparison(invalidLogicComparison)).to.throw(
+			QueryError,
+			"OR should be non-empty array"
+		);
+	});
+
+	it("should throw QueryError for invalid nested WHERE", () => {
+		const invalidLogicComparison = {
+			AND: [
+				{
+					INVALID: {
+						sections_avg: 95,
+					},
+				},
+			],
+		};
+
+		expect(() => validateLogicComparison(invalidLogicComparison)).to.throw(QueryError, "Invalid key in WHERE");
+	});
+
+	it("should throw QueryError for invalid nested SComparison", () => {
+		const invalidLogicComparison = {
+			OR: [
+				{
+					IS: {
+						course_dept: 42,
+					},
+				},
+			],
+		};
+
+		expect(() => validateLogicComparison(invalidLogicComparison)).to.throw(
+			QueryError,
+			"Invalid value for course_dept in SComparison. Expected a string"
 		);
 	});
 });
