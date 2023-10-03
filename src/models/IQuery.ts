@@ -16,11 +16,11 @@ export type MComparison = {
 };
 
 export interface SComparison {
-	IS?: {[key: string]: string};
+	IS: {[key: string]: string};
 };
 
 export interface Negation {
-	NOT?: Filter;
+	NOT: Filter;
 }
 
 export interface Options {
