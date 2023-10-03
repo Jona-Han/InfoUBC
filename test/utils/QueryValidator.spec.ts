@@ -12,7 +12,7 @@ import {
 	validateMKey,
 	validateSKey,
 	validateKey,
-    validateQuery
+	validateQuery,
 } from "../../src/utils/QueryValidator";
 
 describe("validateQuery", () => {

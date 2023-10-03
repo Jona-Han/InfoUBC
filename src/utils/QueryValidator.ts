@@ -219,7 +219,7 @@ function validateKey(input: string): void {
 }
 
 export {
-    validateQuery,
+	validateQuery,
 	validateQueryOutside,
 	validateWhere,
 	validateLogicComparison,
