@@ -1,6 +1,5 @@
 import {
 	Logic,
-	Filter,
 	LogicComparison,
 	SComparison,
 	MComparison,
@@ -10,7 +9,6 @@ import {
 	JSONQuery,
 	QueryError,
 } from "../models/IQuery";
-import {Query} from "../models/Query";
 
 export default class QueryValidator {
 	private dataset;
