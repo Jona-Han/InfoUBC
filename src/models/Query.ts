@@ -1,7 +1,7 @@
 import {InsightError} from "../controller/IInsightFacade";
 import {Filter, IQuery, JSONQuery, Options} from "./IQuery";
 
-import {validateWhere, validateLogicComparison, validateOptions} from "../utils/QueryValidator";
+import {validateQuery} from "../utils/QueryValidator";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -9,16 +9,15 @@ export class Query implements IQuery {
 	public datasetName: string;
 
 	constructor(queryJSON: JSONQuery) {
-		this.validateQuery(queryJSON);
+		this.validate(queryJSON);
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
 		this.datasetName = "";
 		this.setDatasetName();
 	}
 
-	private validateQuery(query: JSONQuery): void {
-		validateWhere(query);
-		validateOptions(query);
+	private validate(query: object): void {
+		validateQuery(query as object);
 	}
 
 	private setDatasetName(): void {
