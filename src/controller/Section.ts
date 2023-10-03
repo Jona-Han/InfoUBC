@@ -5,22 +5,22 @@ export default class Section {
 	private Title: string;
 	private Professor: string;
 	private Subject: string;
-	private year: number;
+	private Year: number;
 	private Avg: number;
 	private Pass: number;
 	private Fail: number;
 	private Audit: number;
 
-	constructor() {
-		this.id = "";
-		this.Course = "";
-		this.Title = "";
-		this.Professor = "";
-		this.Subject = "";
-		this.year = 0;
-		this.Avg = 0;
-		this.Pass = 0;
-		this.Fail = 0;
-		this.Audit = 0;
+	constructor(section: any) {
+		this.id = section["id"];
+		this.Course = section["Course"];
+		this.Title = section["Title"];
+		this.Professor = section["Professor"];
+		this.Subject = section["Subject"];
+		this.Year = section["Year"];
+		this.Avg = section["Avg"];
+		this.Pass = section["Pass"];
+		this.Fail = section["Fail"];
+		this.Audit = section["Audit"];
 	}
 }

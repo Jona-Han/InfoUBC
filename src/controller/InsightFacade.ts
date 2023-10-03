@@ -32,7 +32,7 @@ export default class InsightFacade implements IInsightFacade {
 	// 2. Check valid id
 	// 3. Check Valid content
 	// 4. Add dataset
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		return new Promise((resolve, reject) => {
 			// Reject if InsightDatasetKind is not Sections
 			if (kind !== InsightDatasetKind.Sections) {
@@ -49,46 +49,26 @@ export default class InsightFacade implements IInsightFacade {
 				return reject(new InsightError("Key already present in dataset"));
 			}
 
-			// Try to write a file, otherwise reject
-			fs.ensureDir(tempDir);
-			console.log("Trying to add dataset to data");
-			const stringBuffer = Buffer.from(content, "base64");
-			const tempPath: string = tempDir + "/" + id;
-			fs.ensureDir(tempPath);
-			// fs.writeFileSync(zipPath, stringBuffer)
-			const zip = new JSZip();
-			zip.loadAsync(stringBuffer)
+			// Try to extract content and put in ./temp/id
+			return this.extractContent(id, content)
+				.catch((err) => reject(new InsightError("Unable to extract content")))
 				.then(() => {
-					return Promise.all(
-						Object.keys(zip.files).map((filename: string) => {
-							const file = zip.files[filename];
-							const outputPath = tempPath + "/" + filename;
-
-							if (file.dir) {
-								return fs.ensureDir(outputPath);
-							} else {
-								return file.async("nodebuffer").then((filecontent: any) => {
-									fs.writeFile(outputPath, filecontent);
-								});
-							}
-						})
-					);
+					const dataset = new Dataset(id);
+					this.readFilesToDataset(dataset);
+					resolve(["Stub"]);
 				})
-				.catch((error: Error) => {
-					return reject(new InsightError("Error loading data from content"));
-				});
+				.catch((err) => "Unable to read file");
 
-			console.log("successfully added dataset to data");
+			// Itterate through files in ./temp/id/courses and add them to a new dataset object then write object to JSON file
+			// const dataset = new Dataset(id);
+			// try {
+			// 	this.readFilesToDataset(dataset);
 			// } catch {
-			// 	console.log("Failed to add dataset to data")
-			// 	return reject(new InsightError("Invalid content"))
+			// 	return reject(new InsightError("Unable to read file due to improper format or missing keys"));
 			// }
-			if (this.isValidDataset(content)) {
-				return reject("Missing remaining implementation");
-			}
-			return reject(new InsightError("Not yet implemented"));
 		});
 	}
+
 	// 1. Check valid id
 	// 2. Check id is in dataset
 	// 3. Remove dataset
@@ -147,5 +127,59 @@ export default class InsightFacade implements IInsightFacade {
 	// Returns true if query is not a valid query
 	public isNotValidQuery(query: unknown): boolean {
 		return true; // stub
+	}
+
+	private async extractContent(id: string, content: string): Promise<void> {
+		fs.ensureDir(tempDir);
+		console.log("Trying to add dataset to data");
+		const stringBuffer = Buffer.from(content, "base64");
+		const tempPath: string = tempDir + "/" + id;
+		fs.ensureDir(tempPath);
+		const zip = new JSZip();
+		await zip
+			.loadAsync(stringBuffer)
+			.then(() => {
+				return Promise.all(
+					Object.keys(zip.files).map((filename: string) => {
+						const file = zip.files[filename];
+						const outputPath = tempPath + "/" + filename;
+
+						if (file.dir) {
+							return fs.ensureDir(outputPath);
+						} else {
+							return file.async("nodebuffer").then((filecontent: any) => {
+								fs.writeFile(outputPath, filecontent);
+							});
+						}
+					})
+				);
+			})
+			.catch((error: Error) => {
+				new Error();
+			});
+		console.log("successfully added dataset to data");
+		return Promise.resolve();
+	}
+
+	// addDataset helper function
+	private readFilesToDataset(dataset: Dataset): void {
+		const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
+		fs.readdir(coursesPath, function (err, files) {
+			if (err) {
+				console.error("Could not list the directory.", err);
+				return;
+			}
+			// console.log("start of forEach")
+			files.forEach(function (file, index) {
+				fs.readJson(coursesPath + file, function (err2, object) {
+					if (err2) {
+						console.error("could not read Json file " + file);
+						return;
+					}
+					dataset.addSections(object["result"]);
+					console.log("file");
+				});
+			});
+		});
 	}
 }
