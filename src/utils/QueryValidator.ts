@@ -67,7 +67,7 @@ function validateOptions(options: object): void {
 function validateWhere(where: object): void {
 	const keys = Object.keys(where);
 	if (keys.length !== 1) {
-		throw new QueryError("WHERE must contain 1 key only");
+		throw new QueryError("WHERE must contain 1 key");
 	}
 
 	// Check that key is one of the valid keys
@@ -86,6 +86,14 @@ function validateWhere(where: object): void {
 	} else if (key === "NOT") {
 		validateNot(where);
 	}
+}
+
+function validateNot(object: object): void {
+	const notObject = object as Negation;
+	if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
+		throw new QueryError("NOT value must be object");
+	}
+	validateWhere(notObject.NOT);
 }
 
 function validateLogicComparison(object: object): void {
@@ -145,13 +153,6 @@ function validateSComparison(object: object): void {
 	}
 }
 
-function validateNot(object: Negation): void {
-	if (!object.NOT) {
-		throw new QueryError("NOT must have a value");
-	}
-	validateWhere(object.NOT);
-}
-
 export {
 	validateQueryOutside,
 	validateWhere,
@@ -159,4 +160,5 @@ export {
 	validateMComparison,
 	validateSComparison,
 	validateOptions,
+	validateNot
 };

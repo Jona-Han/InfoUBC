@@ -1,4 +1,4 @@
-import {QueryError} from "../../src/models/IQuery";
+import {Negation, QueryError} from "../../src/models/IQuery";
 
 // Import necessary modules
 import {expect} from "chai";
@@ -7,6 +7,8 @@ import {
 	validateOptions,
 	validateMComparison,
 	validateSComparison,
+	validateWhere,
+	validateNot
 } from "../../src/utils/QueryValidator"; // Replace with the actual module path
 
 describe("validateQuery", () => {
@@ -207,7 +209,7 @@ describe("validateMComparison", () => {
 		const invalidMComparison = {
 			LT: {
 				sections_avg: 97,
-				sections_avgs: 97
+				sections_avgs: 97,
 			},
 		};
 
@@ -272,7 +274,7 @@ describe("validateSComparison", () => {
 		const invalidSComparison = {
 			IS: {
 				course_dept: "CPSC",
-				course_depts: "CPSC"
+				course_depts: "CPSC",
 			},
 		};
 
@@ -300,5 +302,62 @@ describe("validateSComparison", () => {
 		};
 
 		expect(() => validateSComparison(validSComparison)).to.not.throw();
+	});
+});
+
+describe("validateNot", () => {
+	it("should not throw an error for valid NOT", () => {
+		const validNot = {
+			NOT: {
+				EQ: {
+					sections_avg: 97,
+				},
+			},
+		};
+
+		expect(() => validateNot(validNot)).to.not.throw();
+	});
+
+	it("should throw QueryError for object in not missing keys", () => {
+		const invalidNot = {
+			NOT: {},
+		};
+
+		expect(() => validateNot(invalidNot)).to.throw(QueryError, "WHERE must contain 1 key");
+	});
+
+	it("should throw QueryError for invalid NOT value", () => {
+		const invalidNot = {
+			NOT: "invalidType",
+		};
+
+		expect(() => validateNot(invalidNot)).to.throw(QueryError, "NOT value must be object");
+	});
+
+	it("should throw QueryError for invalid nested WHERE", () => {
+		const invalidNot = {
+			NOT: {
+				INVALID: {
+					sections_avg: 97,
+				},
+			},
+		};
+
+		expect(() => validateNot(invalidNot)).to.throw(QueryError, "Invalid key in WHERE");
+	});
+
+	it("should throw QueryError for invalid nested MComparison", () => {
+		const invalidNot = {
+			NOT: {
+				LT: {
+					sections_avg: "invalidValue",
+				},
+			},
+		};
+
+		expect(() => validateNot(invalidNot as Negation)).to.throw(
+			QueryError,
+			"Invalid value for sections_avg in MComparison. Expected a number"
+		);
 	});
 });
