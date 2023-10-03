@@ -134,6 +134,8 @@ function validateMComparison(object: object): void {
 		throw new QueryError(`${comparator} must have exactly one key`);
 	}
 
+	isMField(fieldKeys[0]);
+
 	const fieldValue = fieldObject[fieldKeys[0]];
 	if (typeof fieldValue !== "number") {
 		throw new QueryError(`Invalid value for ${fieldKeys[0]} in MComparison. Expected a number`);
@@ -155,9 +157,41 @@ function validateSComparison(object: object): void {
 		throw new QueryError(`${comparator} must have exactly one key`);
 	}
 
+	isSField(fieldKeys[0]);
+
 	const fieldValue = fieldObject[fieldKeys[0]];
 	if (typeof fieldValue !== "string") {
 		throw new QueryError(`Invalid value for ${fieldKeys[0]} in SComparison. Expected a string`);
+	}
+}
+
+function isMField(input: string): void {
+	const parts = input.split("_");
+
+	// Check if there are exactly two parts separated by an underscore
+	if (parts.length !== 2) {
+		throw new QueryError("Invalid query key");
+	}
+
+	const [contentName, mField] = parts;
+	// Check if mField is a valid MField
+	if (!["avg", "pass", "fail", "audit", "year"].includes(mField)) {
+		throw new QueryError(`Invalid type for MComparison. ${mField} is not a valid type`);
+	}
+}
+
+function isSField(input: string): void {
+	const parts = input.split("_");
+
+	// Check if there are exactly two parts separated by an underscore
+	if (parts.length !== 2) {
+		throw new QueryError("Invalid query key");
+	}
+	const [contentName, sField] = parts;
+
+	// Check if sField is a valid SField
+	if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
+		throw new QueryError(`Invalid type for SComparison. ${sField} is not a valid type`);
 	}
 }
 
@@ -168,5 +202,7 @@ export {
 	validateMComparison,
 	validateSComparison,
 	validateOptions,
-	validateNot
+	validateNot,
+	isMField,
+	isSField,
 };

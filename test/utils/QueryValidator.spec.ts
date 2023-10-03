@@ -9,6 +9,8 @@ import {
 	validateWhere,
 	validateNot,
 	validateLogicComparison,
+	isMField,
+	isSField,
 } from "../../src/utils/QueryValidator";
 
 describe("validateQuery", () => {
@@ -205,6 +207,29 @@ describe("validateMComparison", () => {
 		expect(() => validateMComparison(invalidMComparison)).to.throw(QueryError, "LT must have exactly one key");
 	});
 
+	it("should throw QueryError for missing underscore in mKey", () => {
+		const invalidMComparison = {
+			GT: {
+				coursedept: 83,
+			},
+		};
+
+		expect(() => validateMComparison(invalidMComparison)).to.throw(QueryError, "Invalid query key");
+	});
+
+	it("should throw QueryError for invalid mKey", () => {
+		const invalidMComparison = {
+			GT: {
+				course_dept: 28,
+			},
+		};
+
+		expect(() => validateMComparison(invalidMComparison)).to.throw(
+			QueryError,
+			"Invalid type for MComparison. dept is not a valid type"
+		);
+	});
+
 	it("should throw QueryError for excess field key", () => {
 		const invalidMComparison = {
 			LT: {
@@ -291,6 +316,29 @@ describe("validateSComparison", () => {
 		expect(() => validateSComparison(invalidSComparison)).to.throw(
 			QueryError,
 			"Invalid value for course_dept in SComparison. Expected a string"
+		);
+	});
+
+	it("should throw QueryError for missing underscore in sKey", () => {
+		const invalidSComparison = {
+			IS: {
+				coursedept: "valid",
+			},
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(QueryError, "Invalid query key");
+	});
+
+	it("should throw QueryError for invalid sKey", () => {
+		const invalidSComparison = {
+			IS: {
+				course_avg: "valid",
+			},
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(
+			QueryError,
+			"Invalid type for SComparison. avg is not a valid type"
 		);
 	});
 
@@ -552,5 +600,47 @@ describe("validateWhere", () => {
 		};
 
 		expect(() => validateWhere(invalidWhere)).to.throw(QueryError, "WHERE must contain 1 key");
+	});
+});
+
+describe("isMField", () => {
+	it("should not throw for a valid MField input", () => {
+		expect(() => isMField("validContent_avg")).to.not.throw();
+	});
+
+	it("should throw QueryError for an invalid MField input", () => {
+		expect(() => isMField("validContent_not")).to.throw(
+			QueryError,
+			"Invalid type for MComparison. not is not a valid type"
+		);
+	});
+
+	it("should throw QueryError for input without an underscore", () => {
+		expect(() => isMField("invalidContentavg")).to.throw(QueryError, "Invalid query key");
+	});
+
+	it("should throw QueryError for input with more than one underscore", () => {
+		expect(() => isMField("validContent_avg_extra")).to.throw(QueryError, "Invalid query key");
+	});
+});
+
+describe("isSField", () => {
+	it("should not throw for a valid SField input", () => {
+		expect(() => isSField("validContent_dept")).to.not.throw();
+	});
+
+	it("should throw QueryError for an invalid SField input", () => {
+		expect(() => isSField("validContent_not")).to.throw(
+			QueryError,
+			"Invalid type for SComparison. not is not a valid type"
+		);
+	});
+
+	it("should throw QueryError for input without an underscore", () => {
+		expect(() => isSField("invalidContentdept")).to.throw(QueryError, "Invalid query key");
+	});
+
+	it("should throw QueryError for input with more than one underscore", () => {
+		expect(() => isSField("validContent_dept_extra")).to.throw(QueryError, "Invalid query key");
 	});
 });
