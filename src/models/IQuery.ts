@@ -7,20 +7,20 @@ export type Key = string;
 export type Filter = LogicComparison | MComparison | SComparison | Negation | null;
 
 export type LogicComparison = {
-	[Key in Logic]?: Filter[];
+	[key in Logic]?: Filter[];
 };
 
 export type MComparison = {
-	[Key in MComparator]?: {[key: string]: number};
+	[key in MComparator]?: {[key: string]: number};
 };
 
-export type SComparison = {
+export interface SComparison {
 	IS?: {[key: string]: string};
 };
 
-export type Negation = {
-	filter: Filter;
-};
+export interface Negation {
+	NOT?: Filter;
+}
 
 export interface Options {
 	COLUMNS: Key[];
@@ -36,7 +36,11 @@ export interface IQuery {
 	WHERE: Filter;
 	OPTIONS: Options;
 	datasetName: string;
+}
 
-	validateQuery(query: IQuery): void;
-	setDatasetName(): void;
+export class QueryError extends Error {
+	constructor(message?: string) {
+		super(message);
+		Error.captureStackTrace(this, QueryError);
+	}
 }

@@ -1,13 +1,40 @@
-import {InsightError} from "../controller/IInsightFacade";
-import {Filter, LogicComparison, SComparison, MComparison, MComparator, Options} from "./IQuery";
+import {
+	Logic,
+	Filter,
+	LogicComparison,
+	SComparison,
+	MComparison,
+	MComparator,
+	Negation,
+	Options,
+	JSONQuery,
+	QueryError,
+} from "../models/IQuery";
+
+function validateQuery(query: Object) {
+	const keys = Object.keys(query);
+	if (keys.length !== 2) {
+		throw new QueryError("Excess Keys in Query");
+	}
+
+	if (!("WHERE" in query)) {
+		throw new QueryError("Missing WHERE");
+	}
+
+	if (!("OPTIONS" in query)) {
+		throw new QueryError("Missing OPTIONS");
+	}
+}
 
 function validateWhere(filter: Filter): void {
-	if (!filter) return;
+	if (!filter) {
+		return;
+	}
 
 	const filterKeys = Object.keys(filter);
 
 	if (filterKeys.length !== 1) {
-		throw new InsightError("Each filter should be exactly one key");
+		throw new QueryError("Each filter should be composed of exactly one key");
 	}
 
 	const key = filterKeys[0];
@@ -18,22 +45,18 @@ function validateWhere(filter: Filter): void {
 	} else if (["LT", "GT", "EQ"].includes(key)) {
 		validateMComparison(filter as MComparison);
 	} else if (key === "NOT") {
-		validateWhere(filter[key] as Filter);
+		validateNot(filter as Negation);
 	} else {
-		throw new InsightError(`Invalid key in filter: ${key}`);
+		throw new QueryError(`Invalid key in filter: ${key}`);
 	}
 }
 
 function validateLogicComparison(logicComparison: LogicComparison): void {
 	const logicKeys = Object.keys(logicComparison);
-	if (logicKeys.length !== 1) {
-		throw new InsightError("LogicComparison must have exactly one key (AND or OR)");
-	}
-
-	const filterArray = logicComparison[logicKeys[0]];
+	const filterArray = logicComparison[logicKeys[0] as Logic];
 
 	if (!Array.isArray(filterArray) || filterArray.length === 0) {
-		throw new InsightError(`LogicComparison for ${logicKey} must have a non-empty array of filters`);
+		throw new QueryError(`LogicComparison for ${logicKeys[0]} must have a non-empty array of filters`);
 	}
 
 	for (const filter of filterArray) {
@@ -49,17 +72,17 @@ function validateMComparison(mComparison: MComparison): void {
 
 	const fieldObject = mComparison[comparator];
 	if (!fieldObject) {
-		throw new InsightError(`MComparison for ${comparator} must have a value`);
+		throw new QueryError(`MComparison for ${comparator} must have a value`);
 	}
 
 	const fieldKeys = Object.keys(fieldObject);
 	if (fieldKeys.length !== 1) {
-		throw new InsightError("MComparison value object must have exactly one key");
+		throw new QueryError("MComparison value object must have exactly one key");
 	}
 
 	const fieldValue = fieldObject[fieldKeys[0]];
 	if (typeof fieldValue !== "number") {
-		throw new InsightError(`Invalid value for ${fieldKeys[0]} in MComparison. Expected a number`);
+		throw new QueryError(`Invalid value for ${fieldKeys[0]} in MComparison. Expected a number`);
 	}
 }
 
@@ -67,34 +90,43 @@ function validateSComparison(sComparison: SComparison): void {
 	// Check that IS maps to an object
 	const isObject = sComparison.IS;
 	if (!isObject) {
-		throw new InsightError(`SComparison must have a value`);
+		throw new QueryError("SComparison must have a value");
 	}
 	// todo: Check that IS doesn't map to an array
 
 	// Check that IS maps to an object with only 1 key
 	const isKeys = Object.keys(isObject);
 	if (isKeys.length !== 1) {
-		throw new InsightError("IS object in SComparison must have exactly one key");
+		throw new QueryError("IS object in SComparison must have exactly one key");
 	}
 
 	// Check that skey maps to an input string
 	const fieldKey = isKeys[0];
 	const fieldValue = isObject[fieldKey];
 	if (!fieldValue) {
-		throw new InsightError(`SComparison must have a skey to inputstring mapping`);
+		throw new QueryError("SComparison must have a skey to inputstring mapping");
 	}
 
 	// Check that the skey mapped value is a string
 	if (typeof fieldValue !== "string") {
-		throw new InsightError(`Invalid value for ${fieldKey} in SComparison. Expected a string`);
+		throw new QueryError(`Invalid value for ${fieldKey} in SComparison. Expected a string`);
 	}
 }
 
 function validateOptions(options: Options): void {
 	if (!options.COLUMNS || !Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
-		throw new InsightError("Invalid Options: Missing or empty COLUMNS array");
+		throw new QueryError("Invalid Options: Missing or empty COLUMNS array");
 	}
 	// Add further validation
 }
 
-export {validateWhere, validateLogicComparison, validateMComparison, validateSComparison, validateOptions};
+function validateNot(notObject: Negation): void {}
+
+export {
+	validateQuery,
+	validateWhere,
+	validateLogicComparison,
+	validateMComparison,
+	validateSComparison,
+	validateOptions,
+};
