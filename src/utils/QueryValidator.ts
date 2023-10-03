@@ -88,17 +88,18 @@ function validateWhere(where: object): void {
 	}
 }
 
-function validateLogicComparison(logicObject: LogicComparison): void {
-	const keys = Object.keys(logicObject);
-	if (keys.length !== 1) {
-	  throw new QueryError("LogicComparison must have exactly one key");
+function validateLogicComparison(object: object): void {
+	const logicComparison = object as LogicComparison;
+	const logicComparatorKeys = Object.keys(logicComparison);
+	const comparator = logicComparatorKeys[0] as Logic;
+
+	const fieldObject = logicComparison[comparator];
+	if (!Array.isArray(fieldObject) || fieldObject.length === 0) {
+		throw new QueryError(`${comparator} should be non-empty array`);
 	}
-	const key = keys[0] as Logic;
-	if (!Array.isArray(logicObject[key]) || logicObject[key].length === 0) {
-	  throw new QueryError(`LogicComparison for ${key} must have a non-empty array of filters`);
-	}
-	for (const filter of logicObject[key]) {
-	  validateWhere(filter); // recursively validate each filter in the array
+
+	for (const filter of fieldObject) {
+		validateWhere(filter as object); // recursively validate each filter in the array
 	}
 }
 
@@ -145,9 +146,9 @@ function validateSComparison(object: object): void {
 }
 
 function validateNot(object: Negation): void {
-    if (!object.NOT) {
-        throw new QueryError("NOT must have a value")
-    }
+	if (!object.NOT) {
+		throw new QueryError("NOT must have a value");
+	}
 	validateWhere(object.NOT);
 }
 
