@@ -7,7 +7,6 @@ import {
 	MComparator,
 	SComparator,
 	Negation,
-	Options,
 	JSONQuery,
 	QueryError,
 } from "../models/IQuery";
@@ -71,15 +70,15 @@ function validateOptions(options: object): void {
 		throw new QueryError("Invalid Order type. Must be string.");
 	}
 
-	//Validate keys in columns
+	// Validate keys in columns
 	options.COLUMNS.forEach((columnKey: string) => {
 		validateKey(columnKey);
 	});
 
-    //Validate key for order
-    if ("ORDER" in options) {
-        validateKey(options.ORDER as string)
-    }
+    // Validate key for order
+	if ("ORDER" in options) {
+		validateKey(options.ORDER as string);
+	}
 }
 
 function validateWhere(where: object): void {
@@ -220,6 +219,7 @@ function validateKey(input: string): void {
 }
 
 export {
+    validateQuery,
 	validateQueryOutside,
 	validateWhere,
 	validateLogicComparison,

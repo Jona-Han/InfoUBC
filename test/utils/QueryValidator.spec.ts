@@ -10,8 +10,9 @@ import {
 	validateNot,
 	validateLogicComparison,
 	validateMKey,
-    validateSKey,
-    validateKey
+	validateSKey,
+	validateKey,
+    validateQuery
 } from "../../src/utils/QueryValidator";
 
 describe("validateQuery", () => {
@@ -177,7 +178,7 @@ describe("validateOptions", () => {
 		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid Order type. Must be string.");
 	});
 
-    it("should throw QueryError for invalid ORDER type", () => {
+	it("should throw QueryError for invalid ORDER type", () => {
 		const invalidOptions = {
 			COLUMNS: ["sections_dept", "sections_avg"],
 			ORDER: "sections",
@@ -186,7 +187,7 @@ describe("validateOptions", () => {
 		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid query key");
 	});
 
-    it("should throw QueryError for columns contains invalid key", () => {
+	it("should throw QueryError for columns contains invalid key", () => {
 		const invalidOptions = {
 			COLUMNS: ["sections_avg", "sections"],
 			ORDER: "sections_dept",
@@ -664,28 +665,122 @@ describe("validateSKey", () => {
 	});
 });
 
-describe('validateKey', () => {
-  it('should not throw for a valid column key input', () => {
-    expect(() => validateKey('validContent_dept')).to.not.throw();
-  });
+describe("validateKey", () => {
+	it("should not throw for a valid column key input", () => {
+		expect(() => validateKey("validContent_dept")).to.not.throw();
+	});
 
-  it('should throw QueryError for an invalid column key input', () => {
-    expect(() => validateKey('validContent_not')).to.throw(QueryError, 'Invalid key type. not is not a valid type');
-  });
+	it("should throw QueryError for an invalid column key input", () => {
+		expect(() => validateKey("validContent_not")).to.throw(QueryError, "Invalid key type. not is not a valid type");
+	});
 
-  it('should throw QueryError for input without an underscore', () => {
-    expect(() => validateKey('invalidContentdept')).to.throw(QueryError, 'Invalid query key');
-  });
+	it("should throw QueryError for input without an underscore", () => {
+		expect(() => validateKey("invalidContentdept")).to.throw(QueryError, "Invalid query key");
+	});
 
-  it('should throw QueryError for input with more than one underscore', () => {
-    expect(() => validateKey('validContent_dept_extra')).to.throw(QueryError, 'Invalid query key');
-  });
+	it("should throw QueryError for input with more than one underscore", () => {
+		expect(() => validateKey("validContent_dept_extra")).to.throw(QueryError, "Invalid query key");
+	});
 
-  it('should not throw for a valid column key input with MField', () => {
-    expect(() => validateKey('validContent_avg')).to.not.throw();
-  });
+	it("should not throw for a valid column key input with MField", () => {
+		expect(() => validateKey("validContent_avg")).to.not.throw();
+	});
 
-  it('should not throw for a valid column key input with SField', () => {
-    expect(() => validateKey('validContent_dept')).to.not.throw();
-  });
+	it("should not throw for a valid column key input with SField", () => {
+		expect(() => validateKey("validContent_dept")).to.not.throw();
+	});
+});
+
+describe("Query Validation Integration Tests", () => {
+	it("should validate a valid query", () => {
+		const validQuery = {
+			WHERE: {
+				AND: [
+					{
+						GT: {
+							ubc_avg: 90,
+						},
+					},
+					{
+						EQ: {
+							ubc_avg: 20,
+						},
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["dept_id", "dept_title"],
+				ORDER: "dept_id",
+			},
+		};
+
+		expect(() => validateQuery(validQuery)).to.not.throw();
+	});
+
+	it("should throw an error for missing WHERE in query", () => {
+		const queryWithoutWhere = {
+			OPTIONS: {
+				COLUMNS: ["dept_id", "title"],
+				ORDER: "dept_id",
+			},
+		};
+
+		expect(() => validateQuery(queryWithoutWhere)).to.throw("Missing WHERE");
+	});
+
+	it("should throw an error for invalid WHERE type", () => {
+		const queryWithInvalidWhere = {
+			WHERE: "invalid",
+			OPTIONS: {
+				COLUMNS: ["dept_id", "title"],
+				ORDER: "dept_id",
+			},
+		};
+
+		expect(() => validateQuery(queryWithInvalidWhere)).to.throw("Invalid WHERE type");
+	});
+
+	// Add more test cases for different scenarios
+
+	// Test cases for validateQueryOutside
+	it("should validate the outside query with valid keys", () => {
+		const validOutsideQuery = {
+			WHERE: {
+				AND: [
+					{
+						GT: {
+							ubc_avg: 90,
+						},
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["dept_id", "title"],
+				ORDER: "dept_id",
+			},
+		};
+
+		expect(() => validateQueryOutside(validOutsideQuery)).to.not.throw();
+	});
+
+	it("should throw an error for excess keys in the outside query", () => {
+		const outsideQueryWithExcessKeys = {
+			WHERE: {
+				AND: [
+					{
+						GT: {
+							ubc_avg: 90,
+						},
+					},
+				],
+			},
+			OPTIONS: {
+				COLUMNS: ["dept_id", "title"],
+				ORDER: "dept_id",
+			},
+			INVALID_KEY: "value",
+		};
+
+		expect(() => validateQueryOutside(outsideQueryWithExcessKeys)).to.throw("Excess Keys in Query");
+	});
 });
