@@ -11,9 +11,9 @@ import {
 	QueryError,
 } from "../models/IQuery";
 
-function validateQuery(query: Object) {
+function validateQueryOutside(query: Object) {
 	const keys = Object.keys(query);
-	if (keys.length !== 2) {
+	if (keys.length > 2) {
 		throw new QueryError("Excess Keys in Query");
 	}
 
@@ -24,60 +24,100 @@ function validateQuery(query: Object) {
 	if (!("OPTIONS" in query)) {
 		throw new QueryError("Missing OPTIONS");
 	}
+
+    if (typeof query.WHERE !== 'object' || Array.isArray(query.WHERE)) {
+        throw new QueryError("Invalid WHERE type");
+    }
+
+    if (typeof query.OPTIONS !== 'object' || Array.isArray(query.OPTIONS)) {
+        throw new QueryError("Invalid OPTIONS type");
+    }
 }
 
-function validateWhere(filter: Filter): void {
-	if (!filter) {
-		return;
+function validateOptions(options: Object): void {
+    const keys = Object.keys(options);
+	if (keys.length > 2) {
+		throw new QueryError("Excess Keys in Options");
 	}
 
-	const filterKeys = Object.keys(filter);
+    // Check that options has COLUMNS
+    if (!("COLUMNS" in options)) {
+		throw new QueryError("Options missing COLUMNS");
+	}
+    
+    // Check columns is nonempty array
+    if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
+		throw new QueryError("COLUMNS must be non-empty array");
+    }
 
-	if (filterKeys.length !== 1) {
-		throw new QueryError("Each filter should be composed of exactly one key");
+    // Check for invalid keys
+    for (const key of keys) {
+        if (key !== "COLUMNS" && key !== "ORDER") {
+            throw new QueryError("Options contains invalid keys");
+        }
+    }
+
+    // Check type of Order
+    if ("ORDER" in options && typeof options.ORDER !== "string") {
+        throw new QueryError("Invalid Order type. Must be string.");
+    }
+}
+
+function validateWhere(where: Object): void {
+    const keys = Object.keys(where);
+	if (keys.length !== 1) {
+		throw new QueryError("Excess Keys in WHERE");
 	}
 
-	const key = filterKeys[0];
+    // Check that key is one of the valid keys
+    const key = keys[0];
+    const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
+    if (!validKeys.includes(key)) {
+      throw new QueryError("Invalid key in WHERE");
+    }
+
 	if (key === "AND" || key === "OR") {
-		validateLogicComparison(filter as LogicComparison);
+		validateLogicComparison(where);
 	} else if (key === "IS") {
-		validateSComparison(filter as SComparison);
+		validateSComparison(where);
 	} else if (["LT", "GT", "EQ"].includes(key)) {
-		validateMComparison(filter as MComparison);
+		validateMComparison(where);
 	} else if (key === "NOT") {
-		validateNot(filter as Negation);
-	} else {
-		throw new QueryError(`Invalid key in filter: ${key}`);
+		validateNot(where);
 	}
 }
 
-function validateLogicComparison(logicComparison: LogicComparison): void {
-	const logicKeys = Object.keys(logicComparison);
-	const filterArray = logicComparison[logicKeys[0] as Logic];
+function validateLogicComparison(logicObject: LogicComparison): void {
+    const keys = Object.keys(logicObject);
 
-	if (!Array.isArray(filterArray) || filterArray.length === 0) {
-		throw new QueryError(`LogicComparison for ${logicKeys[0]} must have a non-empty array of filters`);
-	}
-
-	for (const filter of filterArray) {
-		validateWhere(filter); // recursively validate each filter in the array
-	}
+    if (keys.length !== 1) {
+      throw new QueryError("LogicComparison must have exactly one key");
+    }
+  
+    const key = keys[0] as Logic;
+    
+  
+    if (!Array.isArray(logicObject[key]) || logicObject[key].length === 0) {
+      throw new QueryError(`LogicComparison for ${key} must have a non-empty array of filters`);
+    }
+  
+    for (const filter of logicObject[key]) {
+      validateWhere(filter); // recursively validate each filter in the array
+    }
 }
 
 function validateMComparison(mComparison: MComparison): void {
 	const mComparatorKeys = Object.keys(mComparison);
 	const comparator = mComparatorKeys[0] as MComparator;
 
-	// todo: Check that doesn't map to an array
-
 	const fieldObject = mComparison[comparator];
-	if (!fieldObject) {
-		throw new QueryError(`MComparison for ${comparator} must have a value`);
-	}
+    if (typeof fieldObject !== 'object' || Array.isArray(fieldObject)) {
+        throw new QueryError(`MComparison for ${comparator} has invalid type`);
+    }
 
 	const fieldKeys = Object.keys(fieldObject);
 	if (fieldKeys.length !== 1) {
-		throw new QueryError("MComparison value object must have exactly one key");
+		throw new QueryError(`${comparator} must have exactly one key`);
 	}
 
 	const fieldValue = fieldObject[fieldKeys[0]];
@@ -86,9 +126,8 @@ function validateMComparison(mComparison: MComparison): void {
 	}
 }
 
-function validateSComparison(sComparison: SComparison): void {
+function validateSComparison(isObject: Object): void {
 	// Check that IS maps to an object
-	const isObject = sComparison.IS;
 	if (!isObject) {
 		throw new QueryError("SComparison must have a value");
 	}
@@ -102,7 +141,7 @@ function validateSComparison(sComparison: SComparison): void {
 
 	// Check that skey maps to an input string
 	const fieldKey = isKeys[0];
-	const fieldValue = isObject[fieldKey];
+	const fieldValue;
 	if (!fieldValue) {
 		throw new QueryError("SComparison must have a skey to inputstring mapping");
 	}
@@ -113,17 +152,10 @@ function validateSComparison(sComparison: SComparison): void {
 	}
 }
 
-function validateOptions(options: Options): void {
-	if (!options.COLUMNS || !Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
-		throw new QueryError("Invalid Options: Missing or empty COLUMNS array");
-	}
-	// Add further validation
-}
-
-function validateNot(notObject: Negation): void {}
+function validateNot(notObject: Object): void {}
 
 export {
-	validateQuery,
+	validateQueryOutside,
 	validateWhere,
 	validateLogicComparison,
 	validateMComparison,
