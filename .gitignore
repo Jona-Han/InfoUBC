@@ -12,6 +12,7 @@ dist/
 
 # Persist Dir
 data/
+temp/
 
 # Normal Things
 .DS_Store
