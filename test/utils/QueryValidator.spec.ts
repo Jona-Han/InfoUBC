@@ -1,6 +1,5 @@
 import {Negation, QueryError} from "../../src/models/IQuery";
 
-// Import necessary modules
 import {expect} from "chai";
 import {
 	validateQueryOutside,
@@ -10,7 +9,7 @@ import {
 	validateWhere,
 	validateNot,
 	validateLogicComparison,
-} from "../../src/utils/QueryValidator"; // Replace with the actual module path
+} from "../../src/utils/QueryValidator";
 
 describe("validateQuery", () => {
 	it("should not throw an error for a valid query object", () => {
