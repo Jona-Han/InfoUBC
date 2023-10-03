@@ -12,6 +12,14 @@ import {
 	QueryError,
 } from "../models/IQuery";
 
+function validateQuery(query: object) {
+	validateQueryOutside(query);
+
+	const vQuery = query as JSONQuery;
+	validateWhere(vQuery.WHERE as object);
+	validateOptions(vQuery.OPTIONS);
+}
+
 function validateQueryOutside(query: object) {
 	const keys = Object.keys(query);
 	if (keys.length > 2) {

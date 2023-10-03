@@ -454,3 +454,103 @@ describe("validateLogicComparison", () => {
 		);
 	});
 });
+
+describe("validateWhere", () => {
+	it("should not throw an error for valid WHERE (AND)", () => {
+		const validWhere = {
+			AND: [
+				{
+					GT: {
+						sections_avg: 95,
+					},
+				},
+				{
+					EQ: {
+						sections_avg: 85,
+					},
+				},
+			],
+		};
+
+		expect(() => validateWhere(validWhere)).to.not.throw();
+	});
+
+	it("should not throw an error for valid WHERE (IS)", () => {
+		const validWhere = {
+			IS: {
+				course_dept: "CPSC",
+			},
+		};
+
+		expect(() => validateWhere(validWhere)).to.not.throw();
+	});
+
+	it("should throw QueryError for invalid WHERE type", () => {
+		const invalidWhere = {
+			INVALID: {
+				sections_avg: 95,
+			},
+		};
+
+		expect(() => validateWhere(invalidWhere)).to.throw(QueryError, "Invalid key in WHERE");
+	});
+
+	it("should throw QueryError for empty WHERE object", () => {
+		const invalidWhere = {};
+
+		expect(() => validateWhere(invalidWhere)).to.throw(QueryError, "WHERE must contain 1 key");
+	});
+
+	it("should throw QueryError for invalid nested LogicComparison", () => {
+		const invalidWhere = {
+			AND: [
+				{
+					INVALID: {
+						sections_avg: 95,
+					},
+				},
+			],
+		};
+
+		expect(() => validateWhere(invalidWhere)).to.throw(QueryError, "Invalid key in WHERE");
+	});
+
+	it("should throw QueryError for invalid nested MComparison", () => {
+		const invalidWhere = {
+			EQ: {
+				sections_avg: "invalidValue",
+			},
+		};
+
+		expect(() => validateWhere(invalidWhere)).to.throw(
+			QueryError,
+			"Invalid value for sections_avg in MComparison. Expected a number"
+		);
+	});
+
+	it("should throw QueryError for WHERE with multiple keys", () => {
+		const invalidWhere = {
+			AND: [
+				{
+					GT: {
+						sections_avg: 95,
+					},
+				},
+				{
+					EQ: {
+						sections_dept: "CPSC",
+					},
+				},
+			],
+			OR: [
+				{
+					LT: {
+						sections_avg: 85,
+					},
+				},
+			],
+		};
+
+		expect(() => validateWhere(invalidWhere)).to.throw(QueryError, "WHERE must contain 1 key");
+	});
+});
