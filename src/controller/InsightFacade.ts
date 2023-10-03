@@ -7,11 +7,15 @@ import {
 	NotFoundError,
 } from "./IInsightFacade";
 import Dataset from "./Dataset";
+
 import * as fs from "fs-extra";
 import {writeFileSync} from "fs";
 import JSZip from "jszip";
 const persistDir = "./data";
 const tempDir = "./temp";
+import QueryValidator from "../utils/QueryValidator";
+import {Query} from "../models/Query";
+import {JSONQuery} from "../models/IQuery";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -90,13 +94,18 @@ export default class InsightFacade implements IInsightFacade {
 	// 5. return output
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 		return new Promise((resolve, reject) => {
-			// if (this.datasets === 0) {
-			// 	reject(new InsightError("No datasets available for query"));
-			// }
-			if (this.isNotValidQuery(query)) {
-				reject(new InsightError("Invalid query"));
+			let results: InsightResult[] = [];
+			let QV: QueryValidator = new QueryValidator();
+
+			try {
+                // May need to check if query is actually a json object
+				QV.validateQuery(query as object);
+				let parsedQuery = new Query(query as JSONQuery);
+				results = parsedQuery.execute();
+				resolve(results);
+			} catch (error) {
+				reject(new InsightError());
 			}
-			reject("Not implemented");
 		});
 	}
 
