@@ -9,8 +9,9 @@ import {
 	validateWhere,
 	validateNot,
 	validateLogicComparison,
-	isMField,
-	isSField,
+	validateMKey,
+    validateSKey,
+    validateKey
 } from "../../src/utils/QueryValidator";
 
 describe("validateQuery", () => {
@@ -124,8 +125,8 @@ describe("validateQuery", () => {
 describe("validateOptions", () => {
 	it("should not throw an error for valid options", () => {
 		const validOptions = {
-			COLUMNS: ["col1", "col2"],
-			ORDER: "col1",
+			COLUMNS: ["sections_dept", "sections_avg"],
+			ORDER: "sections_dept",
 		};
 
 		expect(() => validateOptions(validOptions)).to.not.throw();
@@ -133,8 +134,8 @@ describe("validateOptions", () => {
 
 	it("should throw QueryError for excess keys", () => {
 		const invalidOptions = {
-			COLUMNS: ["col1", "col2"],
-			ORDER: "col1",
+			COLUMNS: ["sections_dept", "sections_avg"],
+			ORDER: "sections_dept",
 			EXTRA_KEY: "value", // Extra key
 		};
 
@@ -160,8 +161,8 @@ describe("validateOptions", () => {
 
 	it("should throw QueryError for invalid keys", () => {
 		const invalidOptions = {
-			COLUMNS: ["col1", "col2"],
-			INVALID_KEY: "value", // Invalid key
+			COLUMNS: ["sections_dept", "sections_avg"],
+			INVALID: "sections_dept",
 		};
 
 		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Options contains invalid keys");
@@ -169,11 +170,29 @@ describe("validateOptions", () => {
 
 	it("should throw QueryError for invalid ORDER type", () => {
 		const invalidOptions = {
-			COLUMNS: ["col1", "col2"],
-			ORDER: 42, // Invalid type
+			COLUMNS: ["sections_dept", "sections_avg"],
+			ORDER: 52,
 		};
 
 		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid Order type. Must be string.");
+	});
+
+    it("should throw QueryError for invalid ORDER type", () => {
+		const invalidOptions = {
+			COLUMNS: ["sections_dept", "sections_avg"],
+			ORDER: "sections",
+		};
+
+		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid query key");
+	});
+
+    it("should throw QueryError for columns contains invalid key", () => {
+		const invalidOptions = {
+			COLUMNS: ["sections_avg", "sections"],
+			ORDER: "sections_dept",
+		};
+
+		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid query key");
 	});
 });
 
@@ -603,44 +622,70 @@ describe("validateWhere", () => {
 	});
 });
 
-describe("isMField", () => {
+describe("validateMKey", () => {
 	it("should not throw for a valid MField input", () => {
-		expect(() => isMField("validContent_avg")).to.not.throw();
+		expect(() => validateMKey("validContent_avg")).to.not.throw();
 	});
 
 	it("should throw QueryError for an invalid MField input", () => {
-		expect(() => isMField("validContent_not")).to.throw(
+		expect(() => validateMKey("validContent_not")).to.throw(
 			QueryError,
 			"Invalid type for MComparison. not is not a valid type"
 		);
 	});
 
 	it("should throw QueryError for input without an underscore", () => {
-		expect(() => isMField("invalidContentavg")).to.throw(QueryError, "Invalid query key");
+		expect(() => validateMKey("invalidContentavg")).to.throw(QueryError, "Invalid query key for MComparison");
 	});
 
 	it("should throw QueryError for input with more than one underscore", () => {
-		expect(() => isMField("validContent_avg_extra")).to.throw(QueryError, "Invalid query key");
+		expect(() => validateMKey("validContent_avg_extra")).to.throw(QueryError, "Invalid query key for MComparison");
 	});
 });
 
-describe("isSField", () => {
+describe("validateSKey", () => {
 	it("should not throw for a valid SField input", () => {
-		expect(() => isSField("validContent_dept")).to.not.throw();
+		expect(() => validateSKey("validContent_dept")).to.not.throw();
 	});
 
 	it("should throw QueryError for an invalid SField input", () => {
-		expect(() => isSField("validContent_not")).to.throw(
+		expect(() => validateSKey("validContent_not")).to.throw(
 			QueryError,
 			"Invalid type for SComparison. not is not a valid type"
 		);
 	});
 
 	it("should throw QueryError for input without an underscore", () => {
-		expect(() => isSField("invalidContentdept")).to.throw(QueryError, "Invalid query key");
+		expect(() => validateSKey("invalidContentdept")).to.throw(QueryError, "Invalid query key for SComparison");
 	});
 
 	it("should throw QueryError for input with more than one underscore", () => {
-		expect(() => isSField("validContent_dept_extra")).to.throw(QueryError, "Invalid query key");
+		expect(() => validateSKey("validContent_dept_extra")).to.throw(QueryError, "Invalid query key for SComparison");
 	});
+});
+
+describe('validateKey', () => {
+  it('should not throw for a valid column key input', () => {
+    expect(() => validateKey('validContent_dept')).to.not.throw();
+  });
+
+  it('should throw QueryError for an invalid column key input', () => {
+    expect(() => validateKey('validContent_not')).to.throw(QueryError, 'Invalid key type. not is not a valid type');
+  });
+
+  it('should throw QueryError for input without an underscore', () => {
+    expect(() => validateKey('invalidContentdept')).to.throw(QueryError, 'Invalid query key');
+  });
+
+  it('should throw QueryError for input with more than one underscore', () => {
+    expect(() => validateKey('validContent_dept_extra')).to.throw(QueryError, 'Invalid query key');
+  });
+
+  it('should not throw for a valid column key input with MField', () => {
+    expect(() => validateKey('validContent_avg')).to.not.throw();
+  });
+
+  it('should not throw for a valid column key input with SField', () => {
+    expect(() => validateKey('validContent_dept')).to.not.throw();
+  });
 });

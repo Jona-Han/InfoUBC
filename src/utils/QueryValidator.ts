@@ -70,6 +70,16 @@ function validateOptions(options: object): void {
 	if ("ORDER" in options && typeof options.ORDER !== "string") {
 		throw new QueryError("Invalid Order type. Must be string.");
 	}
+
+	//Validate keys in columns
+	options.COLUMNS.forEach((columnKey: string) => {
+		validateKey(columnKey);
+	});
+
+    //Validate key for order
+    if ("ORDER" in options) {
+        validateKey(options.ORDER as string)
+    }
 }
 
 function validateWhere(where: object): void {
@@ -134,7 +144,7 @@ function validateMComparison(object: object): void {
 		throw new QueryError(`${comparator} must have exactly one key`);
 	}
 
-	isMField(fieldKeys[0]);
+	validateMKey(fieldKeys[0]);
 
 	const fieldValue = fieldObject[fieldKeys[0]];
 	if (typeof fieldValue !== "number") {
@@ -157,7 +167,7 @@ function validateSComparison(object: object): void {
 		throw new QueryError(`${comparator} must have exactly one key`);
 	}
 
-	isSField(fieldKeys[0]);
+	validateSKey(fieldKeys[0]);
 
 	const fieldValue = fieldObject[fieldKeys[0]];
 	if (typeof fieldValue !== "string") {
@@ -165,12 +175,12 @@ function validateSComparison(object: object): void {
 	}
 }
 
-function isMField(input: string): void {
+function validateMKey(input: string): void {
 	const parts = input.split("_");
 
 	// Check if there are exactly two parts separated by an underscore
 	if (parts.length !== 2) {
-		throw new QueryError("Invalid query key");
+		throw new QueryError("Invalid query key for MComparison");
 	}
 
 	const [contentName, mField] = parts;
@@ -180,18 +190,32 @@ function isMField(input: string): void {
 	}
 }
 
-function isSField(input: string): void {
+function validateSKey(input: string): void {
 	const parts = input.split("_");
 
 	// Check if there are exactly two parts separated by an underscore
 	if (parts.length !== 2) {
-		throw new QueryError("Invalid query key");
+		throw new QueryError("Invalid query key for SComparison");
 	}
 	const [contentName, sField] = parts;
 
 	// Check if sField is a valid SField
 	if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
 		throw new QueryError(`Invalid type for SComparison. ${sField} is not a valid type`);
+	}
+}
+
+function validateKey(input: string): void {
+	const parts = input.split("_");
+
+	// Check if there are exactly two parts separated by an underscore
+	if (parts.length !== 2) {
+		throw new QueryError("Invalid query key");
+	}
+	const [contentName, field] = parts;
+
+	if (!["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"].includes(field)) {
+		throw new QueryError(`Invalid key type. ${field} is not a valid type`);
 	}
 }
 
@@ -203,6 +227,7 @@ export {
 	validateSComparison,
 	validateOptions,
 	validateNot,
-	isMField,
-	isSField,
+	validateMKey,
+	validateSKey,
+	validateKey,
 };
