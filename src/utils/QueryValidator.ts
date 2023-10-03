@@ -67,7 +67,7 @@ function validateOptions(options: object): void {
 function validateWhere(where: object): void {
 	const keys = Object.keys(where);
 	if (keys.length !== 1) {
-		throw new QueryError("Excess Keys in WHERE");
+		throw new QueryError("WHERE must contain 1 key only");
 	}
 
 	// Check that key is one of the valid keys
@@ -89,17 +89,17 @@ function validateWhere(where: object): void {
 }
 
 function validateLogicComparison(logicObject: LogicComparison): void {
-	// const keys = Object.keys(logicObject);
-	// if (keys.length !== 1) {
-	//   throw new QueryError("LogicComparison must have exactly one key");
-	// }
-	// const key = keys[0] as Logic;
-	// if (!Array.isArray(logicObject[key]) || logicObject[key].length === 0) {
-	//   throw new QueryError(`LogicComparison for ${key} must have a non-empty array of filters`);
-	// }
-	// for (const filter of logicObject[key]) {
-	//   validateWhere(filter); // recursively validate each filter in the array
-	// }
+	const keys = Object.keys(logicObject);
+	if (keys.length !== 1) {
+	  throw new QueryError("LogicComparison must have exactly one key");
+	}
+	const key = keys[0] as Logic;
+	if (!Array.isArray(logicObject[key]) || logicObject[key].length === 0) {
+	  throw new QueryError(`LogicComparison for ${key} must have a non-empty array of filters`);
+	}
+	for (const filter of logicObject[key]) {
+	  validateWhere(filter); // recursively validate each filter in the array
+	}
 }
 
 function validateMComparison(object: object): void {
@@ -144,8 +144,11 @@ function validateSComparison(object: object): void {
 	}
 }
 
-function validateNot(notObject: object): void {
-	throw new QueryError("Not implemented");
+function validateNot(object: Negation): void {
+    if (!object.NOT) {
+        throw new QueryError("NOT must have a value")
+    }
+	validateWhere(object.NOT);
 }
 
 export {
