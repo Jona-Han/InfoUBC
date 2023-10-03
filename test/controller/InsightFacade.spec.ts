@@ -545,6 +545,11 @@ describe("Dynamic folder test", function () {
 		await facade.addDataset("sections", sections, InsightDatasetKind.Sections);
 	});
 
+	after(function () {
+		console.info(`After: ${this.test?.parent?.title}`);
+		clearDisk();
+	});
+
 	function errorValidator(error: unknown): error is PQErrorKind {
 		return error === "InsightError" || error === "ResultTooLargeError";
 	}
