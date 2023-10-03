@@ -2,7 +2,12 @@ import {QueryError} from "../../src/models/IQuery";
 
 // Import necessary modules
 import {expect} from "chai";
-import {validateQueryOutside, validateOptions} from "../../src/utils/QueryValidator"; // Replace with the actual module path
+import {
+	validateQueryOutside,
+	validateOptions,
+	validateMComparison,
+	validateSComparison,
+} from "../../src/utils/QueryValidator"; // Replace with the actual module path
 
 describe("validateQuery", () => {
 	it("should not throw an error for a valid query object", () => {
@@ -165,5 +170,135 @@ describe("validateOptions", () => {
 		};
 
 		expect(() => validateOptions(invalidOptions)).to.throw(QueryError, "Invalid Order type. Must be string.");
+	});
+});
+
+describe("validateMComparison", () => {
+	it("should not throw an error for valid MComparison", () => {
+		const validMComparison = {
+			LT: {
+				sections_avg: 97,
+			},
+		};
+
+		expect(() => validateMComparison(validMComparison)).to.not.throw();
+	});
+
+	it("should throw QueryError for invalid MComparison type", () => {
+		const invalidMComparison = {
+			LT: "invalidType",
+		};
+
+		expect(() => validateMComparison(invalidMComparison)).to.throw(
+			QueryError,
+			"MComparison for LT has invalid type"
+		);
+	});
+
+	it("should throw QueryError for missing field key", () => {
+		const invalidMComparison = {
+			LT: {},
+		};
+
+		expect(() => validateMComparison(invalidMComparison)).to.throw(QueryError, "LT must have exactly one key");
+	});
+
+	it("should throw QueryError for excess field key", () => {
+		const invalidMComparison = {
+			LT: {
+				sections_avg: 97,
+				sections_avgs: 97
+			},
+		};
+
+		expect(() => validateSComparison(invalidMComparison)).to.throw(QueryError, "LT must have exactly one key");
+	});
+
+	it("should throw QueryError for non-number field value", () => {
+		const invalidMComparison = {
+			GT: {
+				sections_avg: "invalidValue",
+			},
+		};
+
+		expect(() => validateMComparison(invalidMComparison)).to.throw(
+			QueryError,
+			"Invalid value for sections_avg in MComparison. Expected a number"
+		);
+	});
+
+	it("should not throw an error for valid MComparison with decimal number", () => {
+		const validMComparison = {
+			EQ: {
+				sections_avg: 97.5,
+			},
+		};
+
+		expect(() => validateMComparison(validMComparison)).to.not.throw();
+	});
+});
+
+describe("validateSComparison", () => {
+	it("should not throw an error for valid SComparison", () => {
+		const validSComparison = {
+			IS: {
+				course_dept: "CPSC",
+			},
+		};
+
+		expect(() => validateSComparison(validSComparison)).to.not.throw();
+	});
+
+	it("should throw QueryError for invalid SComparison type", () => {
+		const invalidSComparison = {
+			IS: "invalidType",
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(
+			QueryError,
+			"SComparison for IS has invalid type"
+		);
+	});
+
+	it("should throw QueryError for missing field key", () => {
+		const invalidSComparison = {
+			IS: {},
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(QueryError, "IS must have exactly one key");
+	});
+
+	it("should throw QueryError for excess field key", () => {
+		const invalidSComparison = {
+			IS: {
+				course_dept: "CPSC",
+				course_depts: "CPSC"
+			},
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(QueryError, "IS must have exactly one key");
+	});
+
+	it("should throw QueryError for non-string field value", () => {
+		const invalidSComparison = {
+			IS: {
+				course_dept: 42,
+			},
+		};
+
+		expect(() => validateSComparison(invalidSComparison)).to.throw(
+			QueryError,
+			"Invalid value for course_dept in SComparison. Expected a string"
+		);
+	});
+
+	it("should not throw an error for valid SComparison with string value", () => {
+		const validSComparison = {
+			IS: {
+				course_dept: "CPSC",
+			},
+		};
+
+		expect(() => validateSComparison(validSComparison)).to.not.throw();
 	});
 });

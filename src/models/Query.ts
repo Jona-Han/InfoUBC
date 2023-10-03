@@ -17,8 +17,8 @@ export class Query implements IQuery {
 	}
 
 	private validateQuery(query: JSONQuery): void {
-		validateWhere(query.WHERE);
-		validateOptions(query.OPTIONS);
+		validateWhere(query);
+		validateOptions(query);
 	}
 
 	private setDatasetName(): void {

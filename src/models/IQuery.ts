@@ -1,5 +1,6 @@
 export type Logic = "AND" | "OR";
 export type MComparator = "LT" | "GT" | "EQ";
+export type SComparator = "IS";
 export type MField = "avg" | "pass" | "fail" | "audit" | "year";
 export type SField = "dept" | "id" | "instructor" | "title" | "uuid";
 export type Key = string;
