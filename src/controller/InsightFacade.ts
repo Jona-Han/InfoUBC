@@ -34,58 +34,45 @@ export default class InsightFacade implements IInsightFacade {
 	// 2. Check valid id
 	// 3. Check Valid content
 	// 4. Add dataset
-	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return new Promise(async (resolve, reject) => {
-			// Reject if InsightDatasetKind is not Sections
-			if (kind !== InsightDatasetKind.Sections) {
-				return reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-			}
+	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		if (kind !== InsightDatasetKind.Sections) {
+			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
+		}
 
-			// Reject if ID is not valid
-			if (this.isNotValidID(id)) {
-				return reject(new InsightError("Invalid id"));
-			}
+		// Reject if ID is not valid
+		if (this.isNotValidID(id)) {
+			return Promise.reject(new InsightError("Invalid id"));
+		}
 
-			// Reject if a dataset with the same id is already present
-			if (this.datasets.has(id)) {
-				return reject(new InsightError("Key already present in dataset"));
-			}
+		// Reject if a dataset with the same id is already present
+		if (this.datasets.has(id)) {
+			return Promise.reject(new InsightError("Key already present in dataset"));
+		}
 
-			// Try to extract content and put in ./temp/id
-			const dataset = new Dataset(id);
-			try {
-				await this.extractContent(id, content);
-			} catch {
-				return reject(new InsightError("Unable to extract data from content"));
-			}
-			try {
-				await this.readFilesToDataset(dataset);
-			} catch {
-				return reject(new InsightError("Incorrectly formatted file or data from content"));
-			}
-			try {
-				await fs.ensureDir(persistDir);
-				const data = {
-					id: dataset.getId(),
-					kind: InsightDatasetKind.Sections,
-					size: dataset.getSize(),
-					sections: dataset.getSections,
-				};
-				await fs.writeJSON(persistDir + "/" + id + ".json", JSON.stringify(data));
-			} catch {
-				return reject(new InsightError("Unable to write dataset to file"));
-			}
+		// Try to extract content and put in ./temp/id
+		const dataset = new Dataset(id);
+		try {
+			await this.extractContent(id, content);
+		} catch {
+			return Promise.reject(new InsightError("Unable to extract data from content"));
+		} try {
+			await this.readFilesToDataset(dataset);
+		} catch {
+			return Promise.reject(new InsightError("Incorrectly formatted file or data from content"));
+		} try {
+			await fs.ensureDir(persistDir);
+			const data = {
+				id: dataset.getId(),
+				kind: InsightDatasetKind.Sections,
+				size: dataset.getSize(),
+				sections: dataset.getSections,
+			};
+			await fs.writeJSON(persistDir + "/" + id + ".json", JSON.stringify(data));
+		} catch {
+			return Promise.reject(new InsightError("Unable to write dataset to file"));
+		}
 
-			resolve(["Stub"]);
-
-			// Itterate through files in ./temp/id/courses and add them to a new dataset object then write object to JSON file
-			// const dataset = new Dataset(id);
-			// try {
-			// 	this.readFilesToDataset(dataset);
-			// } catch {
-			// 	return reject(new InsightError("Unable to read file due to improper format or missing keys"));
-			// }
-		});
+		return Promise.resolve(["Stub"]);
 	}
 
 	// 1. Check valid id

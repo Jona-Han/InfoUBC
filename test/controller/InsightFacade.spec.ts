@@ -151,7 +151,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding a valid dataset", function () {
-			it.only("should successfully add a dataset", function () {
+			it("should successfully add a dataset", function () {
 				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
 
 				return expect(result).to.eventually.include.members(["ubc"]);
