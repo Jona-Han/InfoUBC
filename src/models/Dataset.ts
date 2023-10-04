@@ -39,10 +39,11 @@ export default class Dataset {
 		return this.sections;
 	}
 
-	// Increases size by 1
+	// Adds section to this.section and increases size by 1
 	public addSection(section: any): void {
 		const formattedSection: Section = this.newSection(section);
 		this.sections.push(formattedSection);
+		// console.log(this.sections)
 		this.size++;
 	}
 
@@ -71,22 +72,24 @@ export default class Dataset {
 	}
 
 	private keyToType(section: any, key: string, type: "string" | "number"): string | number {
-		const object = section[key];
-		if (object === undefined) {
+		const obj = section[key];
+		if (obj === undefined) {
 			throw new InsightError(key + " is undefined");
 		}
-		if (typeof object === type) {
-			return object;
+		if (typeof obj === type) {
+			return obj;
 		}
 
 		try {
 			if (type === "string") {
-				return object.toString();
+				// console.log("returning: " + key)
+				return obj.toString();
 			} else {
-				let result = parseInt(object, 10);
+				let result = parseInt(obj, 10);
 				if (!result && result !== 0) {
 					throw new InsightError();
 				}
+				console.log("returning: " + key);
 				return result;
 			}
 		} catch {

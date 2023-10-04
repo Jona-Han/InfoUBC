@@ -1,7 +1,7 @@
 import {InsightError} from "../../src/controller/IInsightFacade";
 import Dataset from "../../src/models/Dataset";
 import {expect, use} from "chai";
-describe("InsightFacade", async function () {
+describe.only("Dataset", async function () {
 	let dataset: Dataset;
 
 	describe("addSection", async function () {
@@ -22,7 +22,10 @@ describe("InsightFacade", async function () {
 				Avg: 60,
 				Subject: "test",
 			};
+
 			dataset.addSection(section);
+
+			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([section]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -39,8 +42,75 @@ describe("InsightFacade", async function () {
 				Avg: "60",
 				Subject: 1234,
 			};
+
+			let expected = {
+				Title: "1234",
+				id: "25945",
+				Professor: "123",
+				Audit: 0,
+				Year: 2013,
+				Course: "100",
+				Pass: 3,
+				Fail: 0,
+				Avg: 60,
+				Subject: "1234",
+			};
+
 			dataset.addSection(section);
+
+			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
+		});
+
+		it("Add an incorrectly formatted object", function () {
+			expect(function () {
+				dataset.addSection({});
+			}).to.throw(InsightError);
+
+			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getSize()).to.equal(0);
+		});
+
+		it("Add a section with a missing key", function () {
+			let section = {
+				Title: "",
+				id: 25945,
+				Professor: "",
+				Audit: 0,
+				Year: "2013",
+				Course: "100",
+				Pass: 3,
+				Avg: 60,
+				Subject: "test",
+			};
+
+			expect(function () {
+				dataset.addSection(section);
+			}).to.throw(InsightError);
+
+			expect(dataset.getSize()).to.equal(0);
+			expect(dataset.getSections()).to.be.empty;
+		});
+
+		it("Add a section with an mkey key of the wrong type", function () {
+			let section = {
+				Title: "",
+				id: 25945,
+				Professor: "",
+				Audit: 0,
+				Year: "2013",
+				Course: "100",
+				Pass: 3,
+				Fail: 0,
+				Avg: "no",
+				Subject: "test",
+			};
+			expect(function () {
+				dataset.addSection(section);
+			}).to.throw(InsightError);
+
+			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getSize()).to.equal(0);
 		});
 
 		it("Add a list of sections", function () {
@@ -73,47 +143,6 @@ describe("InsightFacade", async function () {
 
 			dataset.addSections(sections);
 			expect(dataset.getSize()).to.equal(2);
-		});
-
-		it("Add an incorrectly formatted object", function () {
-			expect(function () {
-				dataset.addSection({});
-			}).to.throw(InsightError);
-		});
-
-		it("Add a section with a missing key", function () {
-			let section = {
-				Title: "",
-				id: 25945,
-				Professor: "",
-				Audit: 0,
-				Year: "2013",
-				Course: "100",
-				Pass: 3,
-				Avg: 60,
-				Subject: "test",
-			};
-			expect(function () {
-				dataset.addSection(section);
-			}).to.throw(InsightError);
-		});
-
-		it("Add a section with an mkey key of the wrong type", function () {
-			let section = {
-				Title: "",
-				id: 25945,
-				Professor: "",
-				Audit: 0,
-				Year: "2013",
-				Course: "100",
-				Pass: 3,
-				Fail: 0,
-				Avg: "no",
-				Subject: "test",
-			};
-			expect(function () {
-				dataset.addSection(section);
-			}).to.throw(InsightError);
 		});
 	});
 });

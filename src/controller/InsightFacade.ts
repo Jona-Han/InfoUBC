@@ -54,12 +54,17 @@ export default class InsightFacade implements IInsightFacade {
 		try {
 			await this.extractContent(id, content);
 		} catch {
+			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("Unable to extract data from content"));
-		} try {
+		}
+		try {
+			fs.removeSync(tempDir);
 			await this.readFilesToDataset(dataset);
 		} catch {
+			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("Incorrectly formatted file or data from content"));
-		} try {
+		}
+		try {
 			await fs.ensureDir(persistDir);
 			const data = {
 				id: dataset.getId(),
@@ -166,7 +171,7 @@ export default class InsightFacade implements IInsightFacade {
 				);
 			})
 			.catch((error: Error) => {
-				new Error();
+				throw new InsightError("Unable to parse data");
 			});
 		console.log("successfully added dataset to data");
 		return Promise.resolve();
@@ -180,17 +185,27 @@ export default class InsightFacade implements IInsightFacade {
 				if (err) {
 					return reject(new InsightError());
 				}
+				let check: number = 0;
 				// console.log("start of forEach")
 				files.forEach(function (file, index) {
 					fs.readJson(coursesPath + file, function (err2, object) {
 						if (err2) {
-							return reject(new InsightError());
+							return reject(new InsightError("Error reading JSON files in courses"));
 						}
+						let result = object["result"];
+						if (result === undefined) {
+							return reject(new InsightError("Contains file with undefined results property"));
+						}
+
 						// console.log(object)
 						dataset.addSections(object["result"]);
+						check++;
 						// console.log("file");
 					});
 				});
+				if (!check) {
+					throw new InsightError("courses file should not be empty");
+				}
 			});
 			return resolve();
 		});
