@@ -6,7 +6,7 @@ import {
 	InsightResult,
 	NotFoundError,
 } from "./IInsightFacade";
-import Dataset from "./Dataset";
+import Dataset from "../models/Dataset";
 
 import * as fs from "fs-extra";
 import {writeFileSync} from "fs";
@@ -23,12 +23,10 @@ import {JSONQuery} from "../models/IQuery";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasets: {[key: string]: Dataset};
-	private keys: string[];
+	private datasets: Map<string, Dataset>;
 
 	constructor() {
-		this.datasets = {};
-		this.keys = [];
+		this.datasets = new Map();
 		console.log("InsightFacadeImpl::init()");
 	}
 
@@ -36,8 +34,8 @@ export default class InsightFacade implements IInsightFacade {
 	// 2. Check valid id
 	// 3. Check Valid content
 	// 4. Add dataset
-	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		return new Promise((resolve, reject) => {
+	public addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
+		return new Promise(async (resolve, reject) => {
 			// Reject if InsightDatasetKind is not Sections
 			if (kind !== InsightDatasetKind.Sections) {
 				return reject(new InsightError("kind must be InsightDatasetKind.Sections"));
@@ -49,19 +47,36 @@ export default class InsightFacade implements IInsightFacade {
 			}
 
 			// Reject if a dataset with the same id is already present
-			if (this.keys.includes(id)) {
+			if (this.datasets.has(id)) {
 				return reject(new InsightError("Key already present in dataset"));
 			}
 
 			// Try to extract content and put in ./temp/id
-			return this.extractContent(id, content)
-				.catch((err) => reject(new InsightError("Unable to extract content")))
-				.then(() => {
-					const dataset = new Dataset(id);
-					this.readFilesToDataset(dataset);
-					resolve(["Stub"]);
-				})
-				.catch((err) => "Unable to read file");
+			const dataset = new Dataset(id);
+			try {
+				await this.extractContent(id, content);
+			} catch {
+				return reject(new InsightError("Unable to extract data from content"));
+			}
+			try {
+				await this.readFilesToDataset(dataset);
+			} catch {
+				return reject(new InsightError("Incorrectly formatted file or data from content"));
+			}
+			try {
+				await fs.ensureDir(persistDir);
+				const data = {
+					id: dataset.getId(),
+					kind: InsightDatasetKind.Sections,
+					size: dataset.getSize(),
+					sections: dataset.getSections,
+				};
+				await fs.writeJSON(persistDir + "/" + id + ".json", JSON.stringify(data));
+			} catch {
+				return reject(new InsightError("Unable to write dataset to file"));
+			}
+
+			resolve(["Stub"]);
 
 			// Itterate through files in ./temp/id/courses and add them to a new dataset object then write object to JSON file
 			// const dataset = new Dataset(id);
@@ -98,7 +113,7 @@ export default class InsightFacade implements IInsightFacade {
 			let QV: QueryValidator = new QueryValidator();
 
 			try {
-                // May need to check if query is actually a json object
+				// May need to check if query is actually a json object
 				QV.validateQuery(query as object);
 				let parsedQuery = new Query(query as JSONQuery);
 				results = parsedQuery.execute();
@@ -171,24 +186,26 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	// addDataset helper function
-	private readFilesToDataset(dataset: Dataset): void {
-		const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
-		fs.readdir(coursesPath, function (err, files) {
-			if (err) {
-				console.error("Could not list the directory.", err);
-				return;
-			}
-			// console.log("start of forEach")
-			files.forEach(function (file, index) {
-				fs.readJson(coursesPath + file, function (err2, object) {
-					if (err2) {
-						console.error("could not read Json file " + file);
-						return;
-					}
-					dataset.addSections(object["result"]);
-					console.log("file");
+	private readFilesToDataset(dataset: Dataset): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
+			fs.readdir(coursesPath, function (err, files) {
+				if (err) {
+					return reject(new InsightError());
+				}
+				// console.log("start of forEach")
+				files.forEach(function (file, index) {
+					fs.readJson(coursesPath + file, function (err2, object) {
+						if (err2) {
+							return reject(new InsightError());
+						}
+						// console.log(object)
+						dataset.addSections(object["result"]);
+						// console.log("file");
+					});
 				});
 			});
+			return resolve();
 		});
 	}
 }
