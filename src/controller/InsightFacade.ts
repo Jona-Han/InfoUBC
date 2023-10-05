@@ -41,7 +41,6 @@ export default class InsightFacade implements IInsightFacade {
 		if (kind !== InsightDatasetKind.Sections) {
 			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
 		}
-
 		// Reject if ID is not valid
 		if (this.isNotValidID(id)) {
 			return Promise.reject(new InsightError("Invalid id"));
@@ -60,29 +59,28 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		try {
 			await this.readFilesToDataset(dataset);
+			if (dataset.getSize() < 1) {
+				return Promise.reject(new InsightError("No valid sections"));
+			}
 		} catch (e) {
-			// console.log(dataset.getSize())
-			// console.log("Here")
+			console.log(dataset.getSize());
+			console.log("Here");
 			fs.removeSync(tempDir);
 
 			return Promise.reject(new InsightError("Incorrectly formatted file or data from content: " + e));
 		}
 		try {
 			await fs.ensureDir(persistDir);
-			const data = {
-				id: dataset.getId(),
+			const data = {id: dataset.getId(),
 				kind: InsightDatasetKind.Sections,
 				size: dataset.getSize(),
-				sections: dataset.getSections(),
-			};
+				sections: dataset.getSections()};
 			await fs.writeJSON(persistDir + "/" + id + ".json", data);
 		} catch (e) {
 			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("Unable to write dataset to file"));
 		}
-
 		this.datasets.set(id, true);
-		// console.log(this.datasets)
 		fs.removeSync(tempDir);
 		let result: string[] = [];
 		for (let k of this.datasets.keys()) {
@@ -202,31 +200,16 @@ export default class InsightFacade implements IInsightFacade {
 				// console.log("start of forEach")
 				files.forEach(function (file, index) {
 					fs.readJson(coursesPath + file, function (err2, object) {
-						if (err2) {
-							return reject(new InsightError("Error reading JSON files in courses"));
-						}
-						if (object === undefined) {
-							return reject(new InsightError("Database courses folder cannot be empty"));
-						}
-						let result;
 						try {
+							let result;
 							result = object["result"];
+							dataset.addSections(result);
 						} catch {
-							return reject(new InsightError("Unable to find results"));
-						}
-
-						if (result === undefined || !Array.isArray(result)) {
-							return reject(new InsightError("Contains file with undefined results property"));
+							// Do nothing
 						}
 
 						// console.log(object)
-						try {
-							// console.log(result);
-							dataset.addSections(result);
-							// console.log("added sections")
-						} catch {
-							return reject(new InsightError("Invalid dataset"));
-						}
+
 						// console.log("file");
 						// console.log("Here " + dataset.getSize())
 						return resolve();
