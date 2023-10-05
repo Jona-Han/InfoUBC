@@ -40,9 +40,7 @@ export default class InsightFacade implements IInsightFacade {
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		if (kind !== InsightDatasetKind.Sections) {
 			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-		}
-		// Reject if ID is not valid
-		if (this.isNotValidID(id)) {
+		} else if (this.isNotValidID(id)) { // Reject if id is not valid
 			return Promise.reject(new InsightError("Invalid id"));
 		}
 		// Reject if a dataset with the same id is already present
@@ -56,25 +54,22 @@ export default class InsightFacade implements IInsightFacade {
 		} catch {
 			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("Unable to extract data from content"));
-		}
-		try {
+		} try {
 			await this.readFilesToDataset(dataset);
 			if (dataset.getSize() < 1) {
 				return Promise.reject(new InsightError("No valid sections"));
 			}
 		} catch (e) {
-			console.log(dataset.getSize());
-			console.log("Here");
 			fs.removeSync(tempDir);
-
 			return Promise.reject(new InsightError("Incorrectly formatted file or data from content: " + e));
-		}
-		try {
+		} try {
 			await fs.ensureDir(persistDir);
-			const data = {id: dataset.getId(),
+			const data = {
+				id: dataset.getId(),
 				kind: InsightDatasetKind.Sections,
 				size: dataset.getSize(),
-				sections: dataset.getSections()};
+				sections: dataset.getSections(),
+			};
 			await fs.writeJSON(persistDir + "/" + id + ".json", data);
 		} catch (e) {
 			fs.removeSync(tempDir);
@@ -161,7 +156,7 @@ export default class InsightFacade implements IInsightFacade {
 		// console.log("Trying to add dataset to data");
 		const stringBuffer = Buffer.from(content, "base64");
 		const tempPath: string = tempDir + "/" + id;
-		fs.ensureDir(tempPath);
+		await fs.ensureDir(tempPath);
 		const zip = new JSZip();
 		await zip
 			.loadAsync(stringBuffer)
