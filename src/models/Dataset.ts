@@ -40,7 +40,10 @@ export default class Dataset {
 	}
 
 	// Adds section to this.section and increases size by 1
-	public addSection(section: any): void {
+	public addSection(section: {[key: string]: string | number}): void {
+		if (section === undefined) {
+			throw new InsightError("Invalid section");
+		}
 		const formattedSection: Section = this.newSection(section);
 		this.sections.push(formattedSection);
 		// console.log(this.sections)
@@ -48,11 +51,16 @@ export default class Dataset {
 	}
 
 	// Adds sections to a dataset
+	// Throws InsightError if input list is empty
 	public addSections(sections: any[]): void {
-		// console.log("adding sections")
+		// console.log(this.getSize())
+		if (sections === undefined || sections.length === 0) {
+			throw new InsightError("No valid sections");
+		}
 		for (let section of sections) {
 			this.addSection(section);
 		}
+		// console.log(this.getSize())
 	}
 
 	private newSection(section: any): Section {
@@ -71,6 +79,7 @@ export default class Dataset {
 		return newSection;
 	}
 
+	// Checks the type of the key and tries to conver to type, otherwise throws InsightError
 	private keyToType(section: any, key: string, type: "string" | "number"): string | number {
 		const obj = section[key];
 		if (obj === undefined) {
@@ -89,7 +98,7 @@ export default class Dataset {
 				if (!result && result !== 0) {
 					throw new InsightError();
 				}
-				console.log("returning: " + key);
+				// console.log("returning: " + key);
 				return result;
 			}
 		} catch {

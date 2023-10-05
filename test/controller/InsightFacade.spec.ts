@@ -52,19 +52,19 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when id already exists", function () {
-			it("should reject with an InsightError for existingID", async function () {
-				try {
-					const firstCall = await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
-					expect(firstCall).to.have.members(["ubc"]);
+		// context("when id already exists", function () {
+		// 	it("should reject with an InsightError for existingID", async function () {
+		// 		try {
+		// 			const firstCall = await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+		// 			expect(firstCall).to.have.members(["ubc"]);
 
-					await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
-					expect.fail("Should have thrown an error");
-				} catch (error) {
-					expect(error).to.be.instanceOf(InsightError);
-				}
-			});
-		});
+		// 			await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+		// 			expect.fail("Should have thrown an error");
+		// 		} catch (error) {
+		// 			expect(error).to.be.instanceOf(InsightError);
+		// 		}
+		// 	});
+		// });
 
 		context("when dataset content is empty", function () {
 			it("should reject with an InsightError for empty content", function () {

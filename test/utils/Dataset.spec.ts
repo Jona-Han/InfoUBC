@@ -1,7 +1,7 @@
 import {InsightError} from "../../src/controller/IInsightFacade";
 import Dataset from "../../src/models/Dataset";
 import {expect, use} from "chai";
-describe.only("Dataset", async function () {
+describe("Dataset", async function () {
 	let dataset: Dataset;
 
 	describe("addSection", async function () {
@@ -142,7 +142,9 @@ describe.only("Dataset", async function () {
 			];
 
 			dataset.addSections(sections);
+
 			expect(dataset.getSize()).to.equal(2);
+			expect(dataset.getSections()).to.have.lengthOf(2).and.deep.members(sections);
 		});
 	});
 });

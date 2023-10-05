@@ -11,11 +11,12 @@ import Dataset from "../models/Dataset";
 import * as fs from "fs-extra";
 import {writeFileSync} from "fs";
 import JSZip from "jszip";
-const persistDir = "./data";
-const tempDir = "./temp";
 import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
+
+const persistDir = "./data";
+const tempDir = "./temp";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -23,7 +24,9 @@ import {JSONQuery} from "../models/IQuery";
  *
  */
 export default class InsightFacade implements IInsightFacade {
-	private datasets: Map<string, Dataset>;
+	// Datasets is a map of dataset ids to if they are used or not.
+	// Will return undefined if id was never used or false if it was removed already.
+	private datasets: Map<string, boolean>;
 
 	constructor() {
 		this.datasets = new Map();
@@ -43,14 +46,12 @@ export default class InsightFacade implements IInsightFacade {
 		if (this.isNotValidID(id)) {
 			return Promise.reject(new InsightError("Invalid id"));
 		}
-
 		// Reject if a dataset with the same id is already present
-		if (this.datasets.has(id)) {
+		if (this.datasets.get(id) !== undefined && this.datasets.get(id)) {
 			return Promise.reject(new InsightError("Key already present in dataset"));
 		}
-
 		// Try to extract content and put in ./temp/id
-		const dataset = new Dataset(id);
+		let dataset = new Dataset(id);
 		try {
 			await this.extractContent(id, content);
 		} catch {
@@ -58,11 +59,13 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Unable to extract data from content"));
 		}
 		try {
-			fs.removeSync(tempDir);
 			await this.readFilesToDataset(dataset);
-		} catch {
+		} catch (e) {
+			// console.log(dataset.getSize())
+			// console.log("Here")
 			fs.removeSync(tempDir);
-			return Promise.reject(new InsightError("Incorrectly formatted file or data from content"));
+
+			return Promise.reject(new InsightError("Incorrectly formatted file or data from content: " + e));
 		}
 		try {
 			await fs.ensureDir(persistDir);
@@ -70,14 +73,24 @@ export default class InsightFacade implements IInsightFacade {
 				id: dataset.getId(),
 				kind: InsightDatasetKind.Sections,
 				size: dataset.getSize(),
-				sections: dataset.getSections,
+				sections: dataset.getSections(),
 			};
-			await fs.writeJSON(persistDir + "/" + id + ".json", JSON.stringify(data));
-		} catch {
+			await fs.writeJSON(persistDir + "/" + id + ".json", data);
+		} catch (e) {
+			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("Unable to write dataset to file"));
 		}
 
-		return Promise.resolve(["Stub"]);
+		this.datasets.set(id, true);
+		// console.log(this.datasets)
+		fs.removeSync(tempDir);
+		let result: string[] = [];
+		for (let k of this.datasets.keys()) {
+			if (this.datasets.get(k)) {
+				result.push(k);
+			}
+		}
+		return Promise.resolve(result);
 	}
 
 	// 1. Check valid id
@@ -147,7 +160,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private async extractContent(id: string, content: string): Promise<void> {
 		fs.ensureDir(tempDir);
-		console.log("Trying to add dataset to data");
+		// console.log("Trying to add dataset to data");
 		const stringBuffer = Buffer.from(content, "base64");
 		const tempPath: string = tempDir + "/" + id;
 		fs.ensureDir(tempPath);
@@ -163,8 +176,8 @@ export default class InsightFacade implements IInsightFacade {
 						if (file.dir) {
 							return fs.ensureDir(outputPath);
 						} else {
-							return file.async("nodebuffer").then((filecontent: any) => {
-								fs.writeFile(outputPath, filecontent);
+							return file.async("nodebuffer").then((fileContent: any) => {
+								fs.writeFile(outputPath, fileContent);
 							});
 						}
 					})
@@ -173,41 +186,53 @@ export default class InsightFacade implements IInsightFacade {
 			.catch((error: Error) => {
 				throw new InsightError("Unable to parse data");
 			});
-		console.log("successfully added dataset to data");
+
+		// console.log("successfully added dataset to data");
 		return Promise.resolve();
 	}
 
 	// addDataset helper function
-	private readFilesToDataset(dataset: Dataset): Promise<void> {
+	private async readFilesToDataset(dataset: Dataset): Promise<void> {
 		return new Promise((resolve, reject) => {
 			const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
 			fs.readdir(coursesPath, function (err, files) {
 				if (err) {
 					return reject(new InsightError());
 				}
-				let check: number = 0;
 				// console.log("start of forEach")
 				files.forEach(function (file, index) {
 					fs.readJson(coursesPath + file, function (err2, object) {
 						if (err2) {
 							return reject(new InsightError("Error reading JSON files in courses"));
 						}
-						let result = object["result"];
-						if (result === undefined) {
+						if (object === undefined) {
+							return reject(new InsightError("Database courses folder cannot be empty"));
+						}
+						let result;
+						try {
+							result = object["result"];
+						} catch {
+							return reject(new InsightError("Unable to find results"));
+						}
+
+						if (result === undefined || !Array.isArray(result)) {
 							return reject(new InsightError("Contains file with undefined results property"));
 						}
 
 						// console.log(object)
-						dataset.addSections(object["result"]);
-						check++;
+						try {
+							// console.log(result);
+							dataset.addSections(result);
+							// console.log("added sections")
+						} catch {
+							return reject(new InsightError("Invalid dataset"));
+						}
 						// console.log("file");
+						// console.log("Here " + dataset.getSize())
+						return resolve();
 					});
 				});
-				if (!check) {
-					throw new InsightError("courses file should not be empty");
-				}
 			});
-			return resolve();
 		});
 	}
 }
