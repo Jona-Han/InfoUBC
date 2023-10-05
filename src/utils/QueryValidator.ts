@@ -56,34 +56,34 @@ export default class QueryValidator {
 			throw new QueryError("Excess Keys in Options");
 		}
 
-        // Check that options has COLUMNS
+		// Check that options has COLUMNS
 		if (!("COLUMNS" in options)) {
 			throw new QueryError("Options missing COLUMNS");
 		}
 
-        // Check columns is nonempty array
+		// Check columns is nonempty array
 		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
 			throw new QueryError("COLUMNS must be non-empty array");
 		}
 
-        // Check for invalid keys
+		// Check for invalid keys
 		for (const key of keys) {
 			if (key !== "COLUMNS" && key !== "ORDER") {
 				throw new QueryError("Options contains invalid keys");
 			}
 		}
 
-        // Check type of Order
+		// Check type of Order
 		if ("ORDER" in options && typeof options.ORDER !== "string") {
 			throw new QueryError("Invalid Order type. Must be string.");
 		}
 
-        // Validate keys in columns
+		// Validate keys in columns
 		options.COLUMNS.forEach((columnKey: string) => {
 			this.validateKey(columnKey);
 		});
 
-        // Validate key for order
+		// Validate key for order
 		if ("ORDER" in options) {
 			this.validateKey(options.ORDER as string);
 		}
@@ -95,7 +95,7 @@ export default class QueryValidator {
 			throw new QueryError("WHERE must contain 1 key");
 		}
 
-        // Check that key is one of the valid keys
+		// Check that key is one of the valid keys
 		const key = keys[0];
 		const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
 		if (!validKeys.includes(key)) {
@@ -185,7 +185,7 @@ export default class QueryValidator {
 	public validateMKey(input: string): void {
 		const parts = input.split("_");
 
-        // Check if there are exactly two parts separated by an underscore
+		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
 			throw new QueryError("Invalid query key for MComparison");
 		}
@@ -197,7 +197,7 @@ export default class QueryValidator {
 			throw new QueryError("Cannot query from multiple datasets");
 		}
 
-        // Check if mField is a valid MField
+		// Check if mField is a valid MField
 		if (!["avg", "pass", "fail", "audit", "year"].includes(mField)) {
 			throw new QueryError(`Invalid type for MComparison. ${mField} is not a valid type`);
 		}
@@ -206,7 +206,7 @@ export default class QueryValidator {
 	public validateSKey(input: string): void {
 		const parts = input.split("_");
 
-        // Check if there are exactly two parts separated by an underscore
+		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
 			throw new QueryError("Invalid query key for SComparison");
 		}
@@ -217,7 +217,7 @@ export default class QueryValidator {
 			throw new QueryError("Cannot query from multiple datasets");
 		}
 
-        // Check if sField is a valid SField
+		// Check if sField is a valid SField
 		if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
 			throw new QueryError(`Invalid type for SComparison. ${sField} is not a valid type`);
 		}
@@ -226,7 +226,7 @@ export default class QueryValidator {
 	public validateKey(input: string): void {
 		const parts = input.split("_");
 
-        // Check if there are exactly two parts separated by an underscore
+		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
 			throw new QueryError("Invalid query key");
 		}
@@ -242,4 +242,3 @@ export default class QueryValidator {
 		}
 	}
 }
-
