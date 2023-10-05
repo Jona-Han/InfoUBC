@@ -883,5 +883,21 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateQuery(queryWithInvalidWhere)).to.throw("Invalid WHERE type");
 		});
+
+        it.only("should pass and return dept", () => {
+			const validQuery = {
+				WHERE: {
+                    EQ: {
+                        dept_avg: 20,
+                    }
+				},
+				OPTIONS: {
+					COLUMNS: ["dept_id", "dept_title"]
+				},
+			};
+            const result = QV.validateQuery(validQuery);
+
+			expect(result).to.equal("dept");
+		});
 	});
 });

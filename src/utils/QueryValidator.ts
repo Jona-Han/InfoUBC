@@ -18,13 +18,11 @@ export default class QueryValidator {
 	}
 
 	public validateQuery(query: object): string {
-		let dataset: string = "";
 		this.validateQueryOutside(query);
-
 		const vQuery = query as JSONQuery;
 		this.validateWhere(vQuery.WHERE as object);
 		this.validateOptions(vQuery.OPTIONS);
-		return dataset;
+		return this.dataset;
 	}
 
 	public validateQueryOutside(query: object) {
@@ -231,6 +229,7 @@ export default class QueryValidator {
 			throw new QueryError("Invalid query key");
 		}
 		const [contentName, field] = parts;
+        console.log(`Before validating key: ${this.dataset}`);
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
