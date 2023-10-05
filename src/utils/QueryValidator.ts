@@ -229,7 +229,6 @@ export default class QueryValidator {
 			throw new QueryError("Invalid query key");
 		}
 		const [contentName, field] = parts;
-        console.log(`Before validating key: ${this.dataset}`);
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {

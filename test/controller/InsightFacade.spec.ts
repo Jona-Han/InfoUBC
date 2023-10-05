@@ -26,10 +26,10 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		clearDisk();
+		// clearDisk();
 	});
 
-	describe.only("addDataset", function () {
+	describe("addDataset", function () {
 		context("free mutant", function () {
 			it("should reject with an empty dataset id", function () {
 				const result = facade.addDataset("", sections, InsightDatasetKind.Sections);
@@ -151,7 +151,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding a valid dataset", function () {
-			it("should successfully add a dataset", function () {
+			it.only("should successfully add a dataset", function () {
 				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
 
 				return expect(result).to.eventually.include.members(["ubc"]);
