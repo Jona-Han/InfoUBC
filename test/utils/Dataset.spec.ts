@@ -1,7 +1,7 @@
 import {InsightError} from "../../src/controller/IInsightFacade";
 import Dataset from "../../src/models/Dataset";
 import {expect, use} from "chai";
-describe.only("Dataset", async function () {
+describe("Dataset", async function () {
 	let dataset: Dataset;
 
 	describe("addSection", async function () {

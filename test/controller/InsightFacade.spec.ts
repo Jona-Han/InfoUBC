@@ -26,10 +26,10 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		// clearDisk();
+		clearDisk();
 	});
 
-	describe.only("addDataset", function () {
+	describe("addDataset", function () {
 		context("free mutant", function () {
 			it("should reject with an empty dataset id", function () {
 				const result = facade.addDataset("", sections, InsightDatasetKind.Sections);
