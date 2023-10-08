@@ -40,7 +40,8 @@ export default class Dataset {
 	}
 
 	// Adds section to this.section and increases size by 1
-	public addSection(section: {[key: string]: string | number}): void {
+	// If section is missing required keys then it does not add
+	public addSection(section: any): void {
 		if (section !== undefined) {
 			try {
 				const formattedSection: Section = this.newSection(section);

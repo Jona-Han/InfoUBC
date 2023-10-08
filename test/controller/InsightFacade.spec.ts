@@ -26,7 +26,7 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		clearDisk();
+		// clearDisk();
 	});
 
 	describe.only("addDataset", function () {
