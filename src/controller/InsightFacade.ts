@@ -86,7 +86,9 @@ export default class InsightFacade implements IInsightFacade {
 		} catch (e) {
 			// console.log(dataset.getSize());
 			// console.log(e);
-			fs.removeSync(tempDir);
+			// fs.ensureDirSync(tempDir);
+			// console.log("4e")
+			await fs.remove(tempDir);
 			return Promise.reject(new InsightError("" + e));
 		}
 	}
@@ -197,7 +199,7 @@ export default class InsightFacade implements IInsightFacade {
 		const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
 		try {
 			let files = await fs.readdir(coursesPath);
-			// console.log("3.2: before ensuring tempPath")
+			// console.log("3.2a: before ensuring tempPath")
 
 			let filesToRead = [];
 			for (let file of files) {
@@ -224,8 +226,9 @@ export default class InsightFacade implements IInsightFacade {
 			// console.log("3.4")
 			// console.log("3.5")
 			return Promise.resolve();
-		} catch {
-			return Promise.reject("Error reading files from id/courses/ directory");
+		} catch (e) {
+			// console.log("3.2")
+			return Promise.reject(new InsightError("" + e));
 		}
 	}
 }
