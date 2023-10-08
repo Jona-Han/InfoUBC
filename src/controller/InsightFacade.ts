@@ -40,7 +40,8 @@ export default class InsightFacade implements IInsightFacade {
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		if (kind !== InsightDatasetKind.Sections) {
 			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-		} else if (this.isNotValidID(id)) { // Reject if id is not valid
+		} else if (this.isNotValidID(id)) {
+			// Reject if id is not valid
 			return Promise.reject(new InsightError("Invalid id"));
 		}
 		// Reject if a dataset with the same id is already present
@@ -82,12 +83,12 @@ export default class InsightFacade implements IInsightFacade {
 				}
 			}
 			return Promise.resolve(result);
-		} catch(e) {
+		} catch (e) {
 			// console.log(dataset.getSize());
 			// console.log(e);
 			fs.removeSync(tempDir);
 			return Promise.reject(new InsightError("" + e));
-		} 
+		}
 	}
 
 	// 1. Check valid id
@@ -156,7 +157,6 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	private async extractContent(id: string, content: string): Promise<void> {
-		
 		// console.log("Trying to add dataset to data");
 		const stringBuffer = Buffer.from(content, "base64");
 		const tempPath: string = tempDir + "/" + id;
@@ -164,7 +164,8 @@ export default class InsightFacade implements IInsightFacade {
 		await fs.ensureDir(tempPath);
 		const zip = new JSZip();
 		// console.log("2.2: before AsyncLoad")
-		await zip.loadAsync(stringBuffer)
+		await zip
+			.loadAsync(stringBuffer)
 			.then(() => {
 				return Promise.all(
 					Object.keys(zip.files).map((filename: string) => {
@@ -175,9 +176,8 @@ export default class InsightFacade implements IInsightFacade {
 						if (file.dir) {
 							return fs.ensureDir(outputPath);
 						} else {
-							return file.async("nodebuffer")
-								.then((fileContent: any) => {
-									fs.writeFile(outputPath, fileContent);
+							return file.async("nodebuffer").then((fileContent: any) => {
+								fs.writeFile(outputPath, fileContent);
 							});
 						}
 					})
@@ -199,32 +199,33 @@ export default class InsightFacade implements IInsightFacade {
 			let files = await fs.readdir(coursesPath);
 			// console.log("3.2: before ensuring tempPath")
 
-			let filesToRead = []
+			let filesToRead = [];
 			for (let file of files) {
-				let thisPromise = fs.readJson(coursesPath + file)
-				.then((object) => {
-					try {
-						// console.log("3.3")
-						let result = object["result"];
-						dataset.addSections(result);
-					} catch {
-						//do nothing
-					}
-				})
-				.catch((e) => Promise.reject(new InsightError(e)));
+				let thisPromise = fs
+					.readJson(coursesPath + file)
+					.then((object) => {
+						try {
+							// console.log("3.3")
+							let result = object["result"];
+							dataset.addSections(result);
+						} catch {
+							// do nothing
+						}
+					})
+					.catch((e) => Promise.reject(new InsightError(e)));
 				// console.log("3.3-1")
 				filesToRead.push(thisPromise);
 				// console.log("3.3-2")
 			}
 
-			let promises = Promise.all(filesToRead)
-			await promises
+			let promises = Promise.all(filesToRead);
+			await promises;
 
 			// console.log("3.4")
 			// console.log("3.5")
 			return Promise.resolve();
 		} catch {
-			return Promise.reject("Error reading files from id/courses/ directory")
+			return Promise.reject("Error reading files from id/courses/ directory");
 		}
 	}
 }

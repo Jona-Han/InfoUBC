@@ -10,7 +10,7 @@ describe.only("Dataset", async function () {
 		});
 
 		it("Add an incorrectly formatted object should do nothing", function () {
-			dataset.addSection({})
+			dataset.addSection({});
 
 			expect(dataset.getSections()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
@@ -48,7 +48,7 @@ describe.only("Dataset", async function () {
 				Fail: 0,
 				Avg: 60,
 				Subject: "test",
-				Section: "overall"
+				Section: "overall",
 			};
 
 			let expected = {
@@ -81,7 +81,7 @@ describe.only("Dataset", async function () {
 				Fail: 0,
 				Avg: 60,
 				Subject: "test",
-				Section: "overall"
+				Section: "overall",
 			};
 
 			let expected = {
@@ -138,42 +138,42 @@ describe.only("Dataset", async function () {
 
 		it("Add a single section where inputs are incorrect types but can be parsed to correct types", function () {
 			let section = {
-				"tier_eighty_five":16,
-				"tier_ninety":10,
-				"Title":"comptr security",
-				"Section":"101",
-				"Detail":"",
-				"tier_seventy_two":4,
-				"Other":0,
-				"Low":57,
-				"tier_sixty_four":3,
-				"id":81239,
-				"tier_sixty_eight":3,
-				"tier_zero":0,
-				"tier_seventy_six":13,
-				"tier_thirty":0,
-				"tier_fifty":0,
-				"Professor":"beznosov, konstantin",
-				"Audit":0,
-				"tier_g_fifty":0,
-				"tier_forty":0,
-				"Withdrew":0,
-				"Year":"2015",
-				"tier_twenty":0,
-				"Stddev":8.78,
-				"Enrolled":68,
-				"tier_fifty_five":2,
-				"tier_eighty":16,
-				"tier_sixty":1,
-				"tier_ten":0,
-				"High":98,
-				"Course":"442",
-				"Session":"w",
-				"Pass":68,
-				"Fail":0,
-				"Avg":81.28,
-				"Campus":"ubc",
-				"Subject":"cpen"
+				tier_eighty_five: 16,
+				tier_ninety: 10,
+				Title: "comptr security",
+				Section: "101",
+				Detail: "",
+				tier_seventy_two: 4,
+				Other: 0,
+				Low: 57,
+				tier_sixty_four: 3,
+				id: 81239,
+				tier_sixty_eight: 3,
+				tier_zero: 0,
+				tier_seventy_six: 13,
+				tier_thirty: 0,
+				tier_fifty: 0,
+				Professor: "beznosov, konstantin",
+				Audit: 0,
+				tier_g_fifty: 0,
+				tier_forty: 0,
+				Withdrew: 0,
+				Year: "2015",
+				tier_twenty: 0,
+				Stddev: 8.78,
+				Enrolled: 68,
+				tier_fifty_five: 2,
+				tier_eighty: 16,
+				tier_sixty: 1,
+				tier_ten: 0,
+				High: 98,
+				Course: "442",
+				Session: "w",
+				Pass: 68,
+				Fail: 0,
+				Avg: 81.28,
+				Campus: "ubc",
+				Subject: "cpen",
 			};
 
 			let expected = {
@@ -195,8 +195,6 @@ describe.only("Dataset", async function () {
 			expect(dataset.getSize()).to.equal(1);
 		});
 
-		
-
 		it("Add a section with a missing key", function () {
 			let section = {
 				Title: "",
@@ -210,7 +208,7 @@ describe.only("Dataset", async function () {
 				Subject: "test",
 			};
 
-			dataset.addSection(section)
+			dataset.addSection(section);
 
 			expect(dataset.getSize()).to.equal(0);
 			expect(dataset.getSections()).to.be.empty;
@@ -230,7 +228,7 @@ describe.only("Dataset", async function () {
 				Subject: "test",
 			};
 
-			dataset.addSection(section)
+			dataset.addSection(section);
 
 			expect(dataset.getSections()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
