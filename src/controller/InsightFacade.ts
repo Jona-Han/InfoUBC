@@ -26,10 +26,11 @@ const tempDir = "./temp";
 export default class InsightFacade implements IInsightFacade {
 	// Datasets is a map of dataset ids to if they are used or not.
 	// Will return undefined if id was never used or false if it was removed already.
-	private datasets: Map<string, boolean>;
+	private datasets: Map<string, InsightDataset | false>;
 
 	constructor() {
 		this.datasets = new Map();
+		this.initialize();
 		console.log("InsightFacadeImpl::init()");
 	}
 
@@ -69,12 +70,17 @@ export default class InsightFacade implements IInsightFacade {
 			const data = {
 				id: dataset.getId(),
 				kind: InsightDatasetKind.Sections,
-				size: dataset.getSize(),
+				numRows: dataset.getSize(),
 				sections: dataset.getSections(),
 			};
 			// console.log("before writing to file")
 			await fs.writeJSON(persistDir + "/" + id + ".json", data);
-			this.datasets.set(id, true);
+			const data2: InsightDataset = {
+				id: data.id,
+				kind: data.kind,
+				numRows: data.numRows,
+			};
+			this.datasets.set(id, data2);
 			fs.removeSync(tempDir);
 			let result: string[] = [];
 			for (let k of this.datasets.keys()) {
@@ -131,8 +137,31 @@ export default class InsightFacade implements IInsightFacade {
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		return new Promise((resolve, reject) => {
-			resolve([]); // stub
+			let result: InsightDataset[] = [];
+			for (let dataset of this.datasets.values()) {
+				if (dataset) {
+					result.push(dataset);
+				}
+			}
+			resolve(result);
 		});
+	}
+
+	private initialize(): void {
+		try {
+			let files = fs.readdirSync(persistDir);
+			for (let file of files) {
+				let object = fs.readJSONSync(persistDir + "/" + file);
+				let data: InsightDataset = {
+					id: object.id,
+					kind: object.kind,
+					numRows: object.numRows,
+				};
+				this.datasets.set(file, data);
+			}
+		} catch {
+			console.error("Unable to initialize directory");
+		}
 	}
 
 	// Returns true if id is an empty string, contains only white space or contains an undersore
@@ -146,11 +175,6 @@ export default class InsightFacade implements IInsightFacade {
 			}
 		}
 		return isNotValid;
-	}
-
-	// Returns true if content is a valid data set
-	public isValidDataset(content: string): boolean {
-		return false; // stub
 	}
 
 	// Returns true if query is not a valid query
