@@ -1,16 +1,16 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 
 export interface Section {
-	uuid: string;
 	id: string;
-	title: string;
-	instructor: string;
-	dept: string;
-	year: number;
-	avg: number;
-	pass: number;
-	fail: number;
-	audit: number;
+	Course: string;
+	Title: string;
+	Professor: string;
+	Subject: string;
+	Year: number;
+	Avg: number;
+	Pass: number;
+	Fail: number;
+	Audit: number;
 }
 
 export default class Dataset {
@@ -65,16 +65,16 @@ export default class Dataset {
 
 	private newSection(section: any): Section {
 		let newSection: Section = {
-			uuid: this.keyToString(section, "uuid"),
 			id: this.keyToString(section, "id"),
-			title: this.keyToString(section, "title"),
-			instructor: this.keyToString(section, "instructor"),
-			dept: this.keyToString(section, "dept"),
-			year: this.keyToNumber(section, "year"),
-			avg: this.keyToNumber(section, "avg"),
-			pass: this.keyToNumber(section, "pass"),
-			fail: this.keyToNumber(section, "fail"),
-			audit: this.keyToNumber(section, "audit"),
+			Course: this.keyToString(section, "Course"),
+			Title: this.keyToString(section, "Title"),
+			Professor: this.keyToString(section, "Professor"),
+			Subject: this.keyToString(section, "Subject"),
+			Year: this.keyToNumber(section, "Year"),
+			Avg: this.keyToNumber(section, "Avg"),
+			Pass: this.keyToNumber(section, "Pass"),
+			Fail: this.keyToNumber(section, "Fail"),
+			Audit: this.keyToNumber(section, "Audit"),
 		};
 		return newSection;
 	}
