@@ -7,9 +7,11 @@ import {
 	LogicComparison,
 	MComparator,
 	MComparison,
+	MField,
 	Negation,
 	Options,
 	SComparison,
+    SField,
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
@@ -22,6 +24,18 @@ export class Query implements IQuery {
 
 	private directory = "./data";
 	private data: Dataset;
+	private datasetToFileMappings = {
+		uuid: "id",
+		id: "Course",
+		title: "Title",
+		instructor: "Professor",
+		dept: "Subject",
+		year: "Year",
+		avg: "Avg",
+		pass: "Pass",
+		fail: "Fail",
+		audit: "Audit",
+	};
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();
@@ -67,9 +81,9 @@ export class Query implements IQuery {
 
 		// Subtract innerResult from allUUIDs to get the result of the NOT filter.
 		const negationResult = new Set<string>();
-	    this.data.getSections().forEach((section) => {
-			if (!innerResult.has(section.uuid)) {
-				negationResult.add(section.uuid);
+		this.data.getSections().forEach((section) => {
+			if (!innerResult.has(section.id)) {
+				negationResult.add(section.id);
 			}
 		});
 
@@ -78,30 +92,30 @@ export class Query implements IQuery {
 
 	public handleSComparison(input: SComparison): Set<string> {
 		const sectionMappings = new Set<string>();
-		const key = Object.keys(input.IS)[0];
-		const sField = key.split("_")[1];
+		const key = Object.keys(input.IS)[0]; // Dataset name + SField
+		const sField = this.datasetToFileMappings[key.split("_")[1] as SField]; // SField
 		const sValue = input.IS[key];
 
 		this.data.getSections().forEach((section: any) => {
 			if (sValue.startsWith("*") && sValue.endsWith("*")) {
 				// Contains inputstring
 				if (section[sField].includes(sValue.substring(1, sValue.length - 1))) {
-					sectionMappings.add(section.uuid);
+					sectionMappings.add(section.id);
 				}
 			} else if (sValue.startsWith("*")) {
 				// Ends with inputstring
 				if (section[sField].endsWith(sValue.substring(1))) {
-					sectionMappings.add(section.uuid);
+					sectionMappings.add(section.id);
 				}
 			} else if (sValue.endsWith("*")) {
 				// Starts with inputstring
 				if (section[sField].startsWith(sValue.substring(0, sValue.length - 1))) {
-					sectionMappings.add(section.uuid);
+					sectionMappings.add(section.id);
 				}
 			} else {
 				// Matches inputstring exactly
 				if (section[sField] === sValue) {
-					sectionMappings.add(section.uuid);
+					sectionMappings.add(section.id);
 				}
 			}
 		});
@@ -110,17 +124,19 @@ export class Query implements IQuery {
 
 	private handleMComparison(input: MComparison): Set<string> {
 		const sectionMappings = new Set<string>();
-		const compareKey = Object.keys(input)[0] as MComparator;
-		const mField = Object.keys(input[compareKey])[0].split("_")[1];
+		const compareKey: MComparator = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
+		const datasetKey: string = Object.keys(input[compareKey as MComparator])[0].split("_")[1]; // MField
+
+		const mField = this.datasetToFileMappings[datasetKey as MField]; // MField but as a File key
 		const mValue = input[compareKey][Object.keys(input[compareKey])[0]];
 
 		this.data.getSections().forEach((section: any) => {
 			if (compareKey === "GT" && section[mField] > mValue) {
-				sectionMappings.add(section.uuid);
+				sectionMappings.add(section.id);
 			} else if (compareKey === "LT" && section[mField] < mValue) {
-				sectionMappings.add(section.uuid);
-			} else if (section[mField] === mValue) {
-				sectionMappings.add(section.uuid);
+				sectionMappings.add(section.id);
+			} else if (compareKey === "EQ" && section[mField] === mValue) {
+				sectionMappings.add(section.id);
 			}
 		});
 		return sectionMappings;
@@ -159,7 +175,7 @@ export class Query implements IQuery {
 		return result;
 	}
 
-    private handleOptions(input: Set<string>): InsightResult[] {
-        throw new InsightError("Not implemented");
-    }
+	private handleOptions(input: Set<string>): InsightResult[] {
+		throw new InsightError("Not implemented");
+	}
 }
