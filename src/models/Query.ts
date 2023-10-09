@@ -45,7 +45,7 @@ export class Query implements IQuery {
 		this.data.addSections(object.sections);
 	}
 
-	private handleWhere(input): Set<string> {
+	private handleWhere(input: Filter): Set<string> {
 		if (!input) {
 			throw new InsightError("this.WHERE should not be NULL after query validated");
 		} else if ("AND" in input || "OR" in input) {
@@ -67,17 +67,11 @@ export class Query implements IQuery {
 		// Handle the filter inside the NOT and get its result.
 		const innerResult = this.handleWhere(input.NOT);
 
-		// Create a set of all UUIDs present in your dataset.
-		const allUUIDs = new Set<string>();
-		this.data.getSections().forEach((section: any) => {
-			allUUIDs.add(section.uuid);
-		});
-
 		// Subtract innerResult from allUUIDs to get the result of the NOT filter.
 		const negationResult = new Set<string>();
-		allUUIDs.forEach((uuid) => {
-			if (!innerResult.has(uuid)) {
-				negationResult.add(uuid);
+	    this.data.getSections().forEach((section) => {
+			if (!innerResult.has(section.uuid)) {
+				negationResult.add(section.uuid);
 			}
 		});
 
