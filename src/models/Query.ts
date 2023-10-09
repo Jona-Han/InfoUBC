@@ -17,8 +17,6 @@ import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
 import Dataset, {Section} from "./Dataset";
 
-type SectionKey = "id" | "Course" | "Title" | "Professor" | "Subject" | "Year" | "Avg" | "Pass" | "Fail" | "Audit";
-
 export class Query implements IQuery {
 	public WHERE: Filter;
 	public OPTIONS: Options;
@@ -127,10 +125,11 @@ export class Query implements IQuery {
 	private handleMComparison(input: MComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
-		const datasetKey: string = Object.keys(input[compareKey]!)[0].split("_")[1]; // MField
+		const compareObject = input[compareKey] as object;
+		const datasetKey: string = Object.keys(compareObject)[0].split("_")[1]; // MField
 
 		const mField = this.datasetToFileMappings[datasetKey as MField]; // MField but as a File key
-		const mValue = input[compareKey]![Object.keys(input[compareKey]!)[0]];
+		const mValue = Object.values(compareObject)[0];
 
 		this.data.getSections().forEach((section: any) => {
 			if (compareKey === "GT" && section[mField] > mValue) {
@@ -194,7 +193,7 @@ export class Query implements IQuery {
 
 		// Handle order
 		if (this.OPTIONS.ORDER) {
-			const datasetKey = Object.keys(this.OPTIONS.ORDER!)[0].split("_")[1];
+			const datasetKey = Object.keys(this.OPTIONS.ORDER)[0].split("_")[1];
 
 			const orderKey: keyof Section = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
 

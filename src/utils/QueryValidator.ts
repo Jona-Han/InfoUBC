@@ -1,3 +1,4 @@
+import {InsightError} from "../controller/IInsightFacade";
 import {
 	Logic,
 	LogicComparison,
@@ -89,8 +90,12 @@ export default class QueryValidator {
 
 	public validateWhere(where: object): void {
 		const keys = Object.keys(where);
-		if (keys.length !== 1) {
-			throw new QueryError("WHERE must contain 1 key");
+		if (!keys) {
+			console.log("-----------------------------------------");
+			console.log(keys);
+			return;
+		} else if (keys.length > 1) {
+			throw new InsightError("Where cannot have more than 1 key");
 		}
 
 		// Check that key is one of the valid keys
@@ -193,7 +198,8 @@ export default class QueryValidator {
 			(asteriskCount === 2 && (!startsWithAsterisk || !endsWithAsterisk))
 		) {
 			throw new QueryError(
-				"Invalid usage of wildcards in string. A valid string can only start with or end with an asterisk, or both."
+				"Invalid usage of wildcards in string. A valid string" +
+					" can only start with or end with an asterisk, or both."
 			);
 		}
 	}
