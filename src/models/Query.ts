@@ -71,11 +71,11 @@ export class Query implements IQuery {
 		} else if ("NOT" in input) {
 			return this.handleNegation(input as Negation);
 		} else {
-            const all = new Set<string>();
-            this.data.getSections().forEach((section) => {
-                all.add(section.id);
-            })
-            return all;
+			const all = new Set<string>();
+			this.data.getSections().forEach((section) => {
+				all.add(section.id);
+			});
+			return all;
 		}
 	}
 
