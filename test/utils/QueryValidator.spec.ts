@@ -1,7 +1,8 @@
-import {Negation, QueryError} from "../../src/models/IQuery";
+import {Negation} from "../../src/models/IQuery";
 
 import {expect} from "chai";
 import QueryValidator from "../../src/utils/QueryValidator";
+import {InsightError} from "../../src/controller/IInsightFacade";
 
 describe("QueryValidator", () => {
 	let QV: QueryValidator;
@@ -26,7 +27,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQueryOutside(validQuery)).to.not.throw();
 		});
 
-		it("should throw QueryError for excess keys in the query", () => {
+		it("should throw InsightError for excess keys in the query", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -40,10 +41,10 @@ describe("QueryValidator", () => {
 				EXTRA_KEY: "value", // Adding an extra key
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Excess Keys in Query");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Excess Keys in Query");
 		});
 
-		it("should throw QueryError for missing WHERE", () => {
+		it("should throw InsightError for missing WHERE", () => {
 			const invalidQuery = {
 				OPTIONS: {
 					COLUMNS: ["sections_dept", "sections_avg"],
@@ -51,10 +52,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Missing WHERE");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Missing WHERE");
 		});
 
-		it("should throw QueryError for missing OPTIONS", () => {
+		it("should throw InsightError for missing OPTIONS", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -63,10 +64,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Missing OPTIONS");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Missing OPTIONS");
 		});
 
-		it("should throw QueryError for invalid WHERE type (string)", () => {
+		it("should throw InsightError for invalid WHERE type (string)", () => {
 			const invalidQuery = {
 				WHERE: "invalidType",
 				OPTIONS: {
@@ -75,10 +76,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Invalid WHERE type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid WHERE type");
 		});
 
-		it("should throw QueryError for invalid WHERE type (array)", () => {
+		it("should throw InsightError for invalid WHERE type (array)", () => {
 			const invalidQuery = {
 				WHERE: [],
 				OPTIONS: {
@@ -87,10 +88,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Invalid WHERE type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid WHERE type");
 		});
 
-		it("should throw QueryError for invalid OPTIONS type (string)", () => {
+		it("should throw InsightError for invalid OPTIONS type (string)", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -100,10 +101,10 @@ describe("QueryValidator", () => {
 				OPTIONS: "invalidType",
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Invalid OPTIONS type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid OPTIONS type");
 		});
 
-		it("should throw QueryError for invalid OPTIONS type (array)", () => {
+		it("should throw InsightError for invalid OPTIONS type (array)", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -113,7 +114,7 @@ describe("QueryValidator", () => {
 				OPTIONS: [],
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(QueryError, "Invalid OPTIONS type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid OPTIONS type");
 		});
 
 		// Test cases for validateQueryOutside
@@ -169,70 +170,70 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateOptions(validOptions)).to.not.throw();
 		});
 
-		it("should throw QueryError for excess keys", () => {
+		it("should throw InsightError for excess keys", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				ORDER: "sections_dept",
 				EXTRA_KEY: "value", // Extra key
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "Excess Keys in Options");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Excess Keys in Options");
 		});
 
-		it("should throw QueryError for missing COLUMNS", () => {
+		it("should throw InsightError for missing COLUMNS", () => {
 			const invalidOptions = {
 				ORDER: "col1",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "Options missing COLUMNS");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Options missing COLUMNS");
 		});
 
-		it("should throw QueryError for empty COLUMNS", () => {
+		it("should throw InsightError for empty COLUMNS", () => {
 			const invalidOptions = {
 				COLUMNS: [],
 				ORDER: "col1",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "COLUMNS must be non-empty array");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "COLUMNS must be non-empty array");
 		});
 
-		it("should throw QueryError for invalid keys", () => {
+		it("should throw InsightError for invalid keys", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				INVALID: "sections_dept",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "Options contains invalid keys");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Options contains invalid keys");
 		});
 
-		it("should throw QueryError for invalid ORDER type", () => {
+		it("should throw InsightError for invalid ORDER type", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				ORDER: 52,
 			};
 
 			expect(() => QV.validateOptions(invalidOptions)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid Order type. Must be string."
 			);
 		});
 
-		it("should throw QueryError for invalid ORDER type", () => {
+		it("should throw InsightError for invalid ORDER type", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				ORDER: "sections",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
 		});
 
-		it("should throw QueryError for columns contains invalid key", () => {
+		it("should throw InsightError for columns contains invalid key", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_avg", "sections"],
 				ORDER: "sections_dept",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(QueryError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
 		});
 	});
 
@@ -247,39 +248,39 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateMComparison(validMComparison)).to.not.throw();
 		});
 
-		it("should throw QueryError for invalid MComparison type", () => {
+		it("should throw InsightError for invalid MComparison type", () => {
 			const invalidMComparison = {
 				LT: "invalidType",
 			};
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"MComparison for LT has invalid type"
 			);
 		});
 
-		it("should throw QueryError for missing field key", () => {
+		it("should throw InsightError for missing field key", () => {
 			const invalidMComparison = {
 				LT: {},
 			};
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"LT must have exactly one key"
 			);
 		});
 
-		it("should throw QueryError for missing underscore in mKey", () => {
+		it("should throw InsightError for missing underscore in mKey", () => {
 			const invalidMComparison = {
 				GT: {
 					coursedept: 83,
 				},
 			};
 
-			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(QueryError, "Invalid query key");
+			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(InsightError, "Invalid query key");
 		});
 
-		it("should throw QueryError for invalid mKey", () => {
+		it("should throw InsightError for invalid mKey", () => {
 			const invalidMComparison = {
 				GT: {
 					course_dept: 28,
@@ -287,12 +288,12 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid type for MComparison. dept is not a valid type"
 			);
 		});
 
-		it("should throw QueryError for excess field key", () => {
+		it("should throw InsightError for excess field key", () => {
 			const invalidMComparison = {
 				LT: {
 					sections_avg: 97,
@@ -301,12 +302,12 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"LT must have exactly one key"
 			);
 		});
 
-		it("should throw QueryError for non-number field value", () => {
+		it("should throw InsightError for non-number field value", () => {
 			const invalidMComparison = {
 				GT: {
 					sections_avg: "invalidValue",
@@ -314,7 +315,7 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid value for sections_avg in MComparison. Expected a number"
 			);
 		});
@@ -341,29 +342,29 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateSComparison(validSComparison)).to.not.throw();
 		});
 
-		it("should throw QueryError for invalid SComparison type", () => {
+		it("should throw InsightError for invalid SComparison type", () => {
 			const invalidSComparison = {
 				IS: "invalidType",
 			};
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"SComparison for IS has invalid type"
 			);
 		});
 
-		it("should throw QueryError for missing field key", () => {
+		it("should throw InsightError for missing field key", () => {
 			const invalidSComparison = {
 				IS: {},
 			};
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"IS must have exactly one key"
 			);
 		});
 
-		it("should throw QueryError for excess field key", () => {
+		it("should throw InsightError for excess field key", () => {
 			const invalidSComparison = {
 				IS: {
 					course_dept: "CPSC",
@@ -372,12 +373,12 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"IS must have exactly one key"
 			);
 		});
 
-		it("should throw QueryError for non-string field value", () => {
+		it("should throw InsightError for non-string field value", () => {
 			const invalidSComparison = {
 				IS: {
 					course_dept: 42,
@@ -385,22 +386,22 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid value for course_dept in SComparison. Expected a string"
 			);
 		});
 
-		it("should throw QueryError for missing underscore in sKey", () => {
+		it("should throw InsightError for missing underscore in sKey", () => {
 			const invalidSComparison = {
 				IS: {
 					coursedept: "valid",
 				},
 			};
 
-			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(QueryError, "Invalid query key");
+			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(InsightError, "Invalid query key");
 		});
 
-		it("should throw QueryError for invalid sKey", () => {
+		it("should throw InsightError for invalid sKey", () => {
 			const invalidSComparison = {
 				IS: {
 					course_avg: "valid",
@@ -408,7 +409,7 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid type for SComparison. avg is not a valid type"
 			);
 		});
@@ -437,23 +438,23 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateNot(validNot)).to.not.throw();
 		});
 
-		it("should throw QueryError for object in not missing keys", () => {
+		it("should throw InsightError for object in not missing keys", () => {
 			const invalidNot = {
 				NOT: {},
 			};
 
-			expect(() => QV.validateNot(invalidNot)).to.throw(QueryError, "WHERE must contain 1 key");
+			expect(() => QV.validateNot(invalidNot)).to.throw(InsightError, "Nested Filter must contain 1 key");
 		});
 
-		it("should throw QueryError for invalid NOT value", () => {
+		it("should throw InsightError for invalid NOT value", () => {
 			const invalidNot = {
 				NOT: "invalidType",
 			};
 
-			expect(() => QV.validateNot(invalidNot)).to.throw(QueryError, "NOT value must be object");
+			expect(() => QV.validateNot(invalidNot)).to.throw(InsightError, "NOT value must be object");
 		});
 
-		it("should throw QueryError for invalid nested WHERE", () => {
+		it("should throw InsightError for invalid nested WHERE", () => {
 			const invalidNot = {
 				NOT: {
 					INVALID: {
@@ -462,10 +463,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateNot(invalidNot)).to.throw(QueryError, "Invalid key in WHERE");
+			expect(() => QV.validateNot(invalidNot)).to.throw(InsightError, "Invalid key in WHERE");
 		});
 
-		it("should throw QueryError for invalid nested MComparison", () => {
+		it("should throw InsightError for invalid nested MComparison", () => {
 			const invalidNot = {
 				NOT: {
 					LT: {
@@ -475,7 +476,7 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateNot(invalidNot as Negation)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid value for sections_avg in MComparison. Expected a number"
 			);
 		});
@@ -520,29 +521,29 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateLogicComparison(validLogicComparison)).to.not.throw();
 		});
 
-		it("should throw QueryError for invalid LogicComparison type", () => {
+		it("should throw InsightError for invalid LogicComparison type", () => {
 			const invalidLogicComparison = {
 				AND: "invalidType",
 			};
 
 			expect(() => QV.validateLogicComparison(invalidLogicComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"AND should be non-empty array"
 			);
 		});
 
-		it("should throw QueryError for empty LogicComparison array", () => {
+		it("should throw InsightError for empty LogicComparison array", () => {
 			const invalidLogicComparison = {
 				OR: [],
 			};
 
 			expect(() => QV.validateLogicComparison(invalidLogicComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"OR should be non-empty array"
 			);
 		});
 
-		it("should throw QueryError for invalid nested WHERE", () => {
+		it("should throw InsightError for invalid nested WHERE", () => {
 			const invalidLogicComparison = {
 				AND: [
 					{
@@ -554,12 +555,12 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateLogicComparison(invalidLogicComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid key in WHERE"
 			);
 		});
 
-		it("should throw QueryError for invalid nested SComparison", () => {
+		it("should throw InsightError for invalid nested SComparison", () => {
 			const invalidLogicComparison = {
 				OR: [
 					{
@@ -571,7 +572,7 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateLogicComparison(invalidLogicComparison)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid value for course_dept in SComparison. Expected a string"
 			);
 		});
@@ -607,23 +608,17 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateWhere(validWhere)).to.not.throw();
 		});
 
-		it("should throw QueryError for invalid WHERE type", () => {
+		it("should throw InsightError for invalid WHERE type", () => {
 			const invalidWhere = {
 				INVALID: {
 					sections_avg: 95,
 				},
 			};
 
-			expect(() => QV.validateWhere(invalidWhere)).to.throw(QueryError, "Invalid key in WHERE");
+			expect(() => QV.validateWhere(invalidWhere)).to.throw(InsightError, "Invalid key in WHERE");
 		});
 
-		it("should throw QueryError for empty WHERE object", () => {
-			const invalidWhere = {};
-
-			expect(() => QV.validateWhere(invalidWhere)).to.throw(QueryError, "WHERE must contain 1 key");
-		});
-
-		it("should throw QueryError for invalid nested LogicComparison", () => {
+		it("should throw InsightError for invalid nested LogicComparison", () => {
 			const invalidWhere = {
 				AND: [
 					{
@@ -634,10 +629,10 @@ describe("QueryValidator", () => {
 				],
 			};
 
-			expect(() => QV.validateWhere(invalidWhere)).to.throw(QueryError, "Invalid key in WHERE");
+			expect(() => QV.validateWhere(invalidWhere)).to.throw(InsightError, "Invalid key in WHERE");
 		});
 
-		it("should throw QueryError for invalid nested MComparison", () => {
+		it("should throw InsightError for invalid nested MComparison", () => {
 			const invalidWhere = {
 				EQ: {
 					sections_avg: "invalidValue",
@@ -645,12 +640,12 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateWhere(invalidWhere)).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid value for sections_avg in MComparison. Expected a number"
 			);
 		});
 
-		it("should throw QueryError for WHERE with multiple keys", () => {
+		it("should throw InsightError for WHERE with multiple keys", () => {
 			const invalidWhere = {
 				AND: [
 					{
@@ -673,7 +668,7 @@ describe("QueryValidator", () => {
 				],
 			};
 
-			expect(() => QV.validateWhere(invalidWhere)).to.throw(QueryError, "WHERE must contain 1 key");
+			expect(() => QV.validateWhere(invalidWhere)).to.throw(InsightError, "Nested Filter must contain 1 key");
 		});
 	});
 
@@ -682,23 +677,23 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateMKey("validContent_avg")).to.not.throw();
 		});
 
-		it("should throw QueryError for an invalid MField input", () => {
+		it("should throw InsightError for an invalid MField input", () => {
 			expect(() => QV.validateMKey("validContent_not")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid type for MComparison. not is not a valid type"
 			);
 		});
 
-		it("should throw QueryError for input without an underscore", () => {
+		it("should throw InsightError for input without an underscore", () => {
 			expect(() => QV.validateMKey("invalidContentavg")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid query key for MComparison"
 			);
 		});
 
-		it("should throw QueryError for input with more than one underscore", () => {
+		it("should throw InsightError for input with more than one underscore", () => {
 			expect(() => QV.validateMKey("validContent_avg_extra")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid query key for MComparison"
 			);
 		});
@@ -709,23 +704,23 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateSKey("validContent_dept")).to.not.throw();
 		});
 
-		it("should throw QueryError for an invalid SField input", () => {
+		it("should throw InsightError for an invalid SField input", () => {
 			expect(() => QV.validateSKey("validContent_not")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid type for SComparison. not is not a valid type"
 			);
 		});
 
-		it("should throw QueryError for input without an underscore", () => {
+		it("should throw InsightError for input without an underscore", () => {
 			expect(() => QV.validateSKey("invalidContentdept")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid query key for SComparison"
 			);
 		});
 
-		it("should throw QueryError for input with more than one underscore", () => {
+		it("should throw InsightError for input with more than one underscore", () => {
 			expect(() => QV.validateSKey("validContent_dept_extra")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid query key for SComparison"
 			);
 		});
@@ -736,19 +731,19 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateKey("validContent_dept")).to.not.throw();
 		});
 
-		it("should throw QueryError for an invalid column key input", () => {
+		it("should throw InsightError for an invalid column key input", () => {
 			expect(() => QV.validateKey("validContent_not")).to.throw(
-				QueryError,
+				InsightError,
 				"Invalid key type. not is not a valid type"
 			);
 		});
 
-		it("should throw QueryError for input without an underscore", () => {
-			expect(() => QV.validateKey("invalidContentdept")).to.throw(QueryError, "Invalid query key");
+		it("should throw InsightError for input without an underscore", () => {
+			expect(() => QV.validateKey("invalidContentdept")).to.throw(InsightError, "Invalid query key");
 		});
 
-		it("should throw QueryError for input with more than one underscore", () => {
-			expect(() => QV.validateKey("validContent_dept_extra")).to.throw(QueryError, "Invalid query key");
+		it("should throw InsightError for input with more than one underscore", () => {
+			expect(() => QV.validateKey("validContent_dept_extra")).to.throw(InsightError, "Invalid query key");
 		});
 
 		it("should not throw for a valid column key input with MField", () => {

@@ -8,7 +8,6 @@ import {
 	SComparator,
 	Negation,
 	JSONQuery,
-	QueryError,
 } from "../models/IQuery";
 
 export default class QueryValidator {
@@ -31,52 +30,52 @@ export default class QueryValidator {
 	public validateQueryOutside(query: object) {
 		const keys = Object.keys(query);
 		if (keys.length > 2) {
-			throw new QueryError("Excess Keys in Query");
+			throw new InsightError("Excess Keys in Query");
 		}
 
 		if (!("WHERE" in query)) {
-			throw new QueryError("Missing WHERE");
+			throw new InsightError("Missing WHERE");
 		}
 
 		if (!("OPTIONS" in query)) {
-			throw new QueryError("Missing OPTIONS");
+			throw new InsightError("Missing OPTIONS");
 		}
 
 		if (typeof query.WHERE !== "object" || Array.isArray(query.WHERE)) {
-			throw new QueryError("Invalid WHERE type");
+			throw new InsightError("Invalid WHERE type");
 		}
 
 		if (typeof query.OPTIONS !== "object" || Array.isArray(query.OPTIONS)) {
-			throw new QueryError("Invalid OPTIONS type");
+			throw new InsightError("Invalid OPTIONS type");
 		}
 	}
 
 	public validateOptions(options: object): void {
 		const keys = Object.keys(options);
 		if (keys.length > 2) {
-			throw new QueryError("Excess Keys in Options");
+			throw new InsightError("Excess Keys in Options");
 		}
 
 		// Check that options has COLUMNS
 		if (!("COLUMNS" in options)) {
-			throw new QueryError("Options missing COLUMNS");
+			throw new InsightError("Options missing COLUMNS");
 		}
 
 		// Check columns is nonempty array
 		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
-			throw new QueryError("COLUMNS must be non-empty array");
+			throw new InsightError("COLUMNS must be non-empty array");
 		}
 
 		// Check for invalid keys
 		for (const key of keys) {
 			if (key !== "COLUMNS" && key !== "ORDER") {
-				throw new QueryError("Options contains invalid keys");
+				throw new InsightError("Options contains invalid keys");
 			}
 		}
 
 		// Check type of Order
 		if ("ORDER" in options && typeof options.ORDER !== "string") {
-			throw new QueryError("Invalid Order type. Must be string.");
+			throw new InsightError("Invalid Order type. Must be string.");
 		}
 
 		// Validate keys in columns
@@ -98,14 +97,14 @@ export default class QueryValidator {
 	public validateWhere(where: object): void {
 		const keys = Object.keys(where);
 		if (keys.length !== 1) {
-			throw new InsightError("Where can only have 1 key");
+			throw new InsightError("Nested Filter must contain 1 key");
 		}
 
 		// Check that key is one of the valid keys
 		const key = keys[0];
 		const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
 		if (!validKeys.includes(key)) {
-			throw new QueryError("Invalid key in WHERE");
+			throw new InsightError("Invalid key in WHERE");
 		}
 
 		if (key === "AND" || key === "OR") {
@@ -126,7 +125,7 @@ export default class QueryValidator {
 
 		const fieldObject = logicComparison[comparator];
 		if (!Array.isArray(fieldObject) || fieldObject.length === 0) {
-			throw new QueryError(`${comparator} should be non-empty array`);
+			throw new InsightError(`${comparator} should be non-empty array`);
 		}
 
 		for (const filter of fieldObject) {
@@ -137,7 +136,7 @@ export default class QueryValidator {
 	public validateNot(object: object): void {
 		const notObject = object as Negation;
 		if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
-			throw new QueryError("NOT value must be object");
+			throw new InsightError("NOT value must be object");
 		}
 		this.validateWhere(notObject.NOT);
 	}
@@ -149,19 +148,19 @@ export default class QueryValidator {
 
 		const fieldObject = mComparison[comparator];
 		if (typeof fieldObject !== "object" || Array.isArray(fieldObject)) {
-			throw new QueryError(`MComparison for ${comparator} has invalid type`);
+			throw new InsightError(`MComparison for ${comparator} has invalid type`);
 		}
 
 		const fieldKeys = Object.keys(fieldObject);
 		if (fieldKeys.length !== 1) {
-			throw new QueryError(`${comparator} must have exactly one key`);
+			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
 		this.validateMKey(fieldKeys[0]);
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "number") {
-			throw new QueryError(`Invalid value for ${fieldKeys[0]} in MComparison. Expected a number`);
+			throw new InsightError(`Invalid value for ${fieldKeys[0]} in MComparison. Expected a number`);
 		}
 	}
 
@@ -172,19 +171,19 @@ export default class QueryValidator {
 
 		const fieldObject = sComparison[comparator];
 		if (typeof fieldObject !== "object" || Array.isArray(fieldObject)) {
-			throw new QueryError(`SComparison for ${comparator} has invalid type`);
+			throw new InsightError(`SComparison for ${comparator} has invalid type`);
 		}
 
 		const fieldKeys = Object.keys(fieldObject);
 		if (fieldKeys.length !== 1) {
-			throw new QueryError(`${comparator} must have exactly one key`);
+			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
 		this.validateSKey(fieldKeys[0]);
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "string") {
-			throw new QueryError(`Invalid value for ${fieldKeys[0]} in SComparison. Expected a string`);
+			throw new InsightError(`Invalid value for ${fieldKeys[0]} in SComparison. Expected a string`);
 		}
 
 		this.validateWildcardUsage(fieldValue);
@@ -200,7 +199,7 @@ export default class QueryValidator {
 			(asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) ||
 			(asteriskCount === 2 && (!startsWithAsterisk || !endsWithAsterisk))
 		) {
-			throw new QueryError(
+			throw new InsightError(
 				"Invalid usage of wildcards in string. A valid string" +
 					" can only start with or end with an asterisk, or both."
 			);
@@ -212,19 +211,19 @@ export default class QueryValidator {
 
 		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
-			throw new QueryError("Invalid query key for MComparison");
+			throw new InsightError("Invalid query key for MComparison");
 		}
 
 		const [contentName, mField] = parts;
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
-			throw new QueryError("Cannot query from multiple datasets");
+			throw new InsightError("Cannot query from multiple datasets");
 		}
 
 		// Check if mField is a valid MField
 		if (!["avg", "pass", "fail", "audit", "year"].includes(mField)) {
-			throw new QueryError(`Invalid type for MComparison. ${mField} is not a valid type`);
+			throw new InsightError(`Invalid type for MComparison. ${mField} is not a valid type`);
 		}
 	}
 
@@ -233,18 +232,18 @@ export default class QueryValidator {
 
 		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
-			throw new QueryError("Invalid query key for SComparison");
+			throw new InsightError("Invalid query key for SComparison");
 		}
 		const [contentName, sField] = parts;
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
-			throw new QueryError("Cannot query from multiple datasets");
+			throw new InsightError("Cannot query from multiple datasets");
 		}
 
 		// Check if sField is a valid SField
 		if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
-			throw new QueryError(`Invalid type for SComparison. ${sField} is not a valid type`);
+			throw new InsightError(`Invalid type for SComparison. ${sField} is not a valid type`);
 		}
 	}
 
@@ -253,17 +252,17 @@ export default class QueryValidator {
 
 		// Check if there are exactly two parts separated by an underscore
 		if (parts.length !== 2) {
-			throw new QueryError("Invalid query key");
+			throw new InsightError("Invalid query key");
 		}
 		const [contentName, field] = parts;
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
-			throw new QueryError("Cannot query from multiple datasets");
+			throw new InsightError("Cannot query from multiple datasets");
 		}
 
 		if (!["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"].includes(field)) {
-			throw new QueryError(`Invalid key type. ${field} is not a valid type`);
+			throw new InsightError(`Invalid key type. ${field} is not a valid type`);
 		}
 	}
 }
