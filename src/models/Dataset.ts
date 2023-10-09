@@ -65,16 +65,16 @@ export default class Dataset {
 
 	private newSection(section: any): Section {
 		let newSection: Section = {
-			uuid: this.keyToString(section, "id"),
-			id: this.keyToString(section, "Course"),
-			title: this.keyToString(section, "Title"),
-			instructor: this.keyToString(section, "Professor"),
-			dept: this.keyToString(section, "Subject"),
-			year: this.keyToNumber(section, "Year"),
-			avg: this.keyToNumber(section, "Avg"),
-			pass: this.keyToNumber(section, "Pass"),
-			fail: this.keyToNumber(section, "Fail"),
-			audit: this.keyToNumber(section, "Audit"),
+			uuid: this.keyToString(section, "uuid"),
+			id: this.keyToString(section, "id"),
+			title: this.keyToString(section, "title"),
+			instructor: this.keyToString(section, "instructor"),
+			dept: this.keyToString(section, "dept"),
+			year: this.keyToNumber(section, "year"),
+			avg: this.keyToNumber(section, "avg"),
+			pass: this.keyToNumber(section, "pass"),
+			fail: this.keyToNumber(section, "fail"),
+			audit: this.keyToNumber(section, "audit"),
 		};
 		return newSection;
 	}

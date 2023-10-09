@@ -26,7 +26,7 @@ describe("loadDataset", () => {
 			const query = new Query({
 				WHERE: {
 					IS: {
-						ubc_dept: "cpsc",
+						ubc_dept: "anat",
 					},
 				},
 				OPTIONS: {
@@ -37,5 +37,5 @@ describe("loadDataset", () => {
 		} catch (error: any) {
 			expect.fail(error.message);
 		}
-    });
+	});
 });
