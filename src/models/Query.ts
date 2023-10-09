@@ -49,20 +49,18 @@ export class Query implements IQuery {
 		if (!input) {
 			throw new InsightError("this.WHERE should not be NULL after query validated");
 		} else if ("AND" in input || "OR" in input) {
-			return this.handleLogicComparison(this.WHERE as LogicComparison);
+			return this.handleLogicComparison(input as LogicComparison);
 		} else if ("LT" in input || "GT" in input || "EQ" in input) {
 			return this.handleMComparison(input as MComparison);
 		} else if ("IS" in input) {
-			const myMap = this.handleSComparison(input as SComparison);
-			const keys = [...myMap.keys()];
-			console.log(keys);
-			return new Set<string>();
+			return this.handleSComparison(input as SComparison);
 		} else if ("NOT" in input) {
 			return this.handleNegation(input as Negation);
 		} else {
-			throw new Error("Invalid filter type");
+			throw new InsightError("Invalid filter type after Query validated");
 		}
 	}
+
 	private handleNegation(input: Negation): Set<string> {
 		// Handle the filter inside the NOT and get its result.
 		const innerResult = this.handleWhere(input.NOT);
@@ -161,7 +159,7 @@ export class Query implements IQuery {
 		return result;
 	}
 
-	private handleOptions(input: Set<string>): InsightResult[] {
-		return [];
-	}
+    private handleOptions(input: Set<string>): InsightResult[] {
+        throw new InsightError("Not implemented");
+    }
 }
