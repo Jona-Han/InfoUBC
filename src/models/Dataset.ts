@@ -40,21 +40,25 @@ export default class Dataset {
 	}
 
 	// Adds section to this.section and increases size by 1
-	public addSection(section: {[key: string]: string | number}): void {
-		if (section === undefined) {
-			throw new InsightError("Invalid section");
+	// If section is missing required keys then it does not add
+	public addSection(section: any): void {
+		if (section !== undefined) {
+			try {
+				const formattedSection: Section = this.newSection(section);
+				this.sections.push(formattedSection);
+				// console.log(this.sections)
+				this.size++;
+			} catch {
+				// do nothing
+			}
 		}
-		const formattedSection: Section = this.newSection(section);
-		this.sections.push(formattedSection);
-		// console.log(this.sections)
-		this.size++;
 	}
 
 	// Adds sections to a dataset
 	// Throws InsightError if input list is empty
 	public addSections(sections: any[]): void {
 		// console.log(this.getSize())
-		if (sections === undefined || sections.length === 0) {
+		if (sections === undefined) {
 			throw new InsightError("No valid sections");
 		}
 		for (let section of sections) {
@@ -70,7 +74,7 @@ export default class Dataset {
 			Title: this.keyToString(section, "Title"),
 			Professor: this.keyToString(section, "Professor"),
 			Subject: this.keyToString(section, "Subject"),
-			Year: this.keyToNumber(section, "Year"),
+			Year: this.getYear(section),
 			Avg: this.keyToNumber(section, "Avg"),
 			Pass: this.keyToNumber(section, "Pass"),
 			Fail: this.keyToNumber(section, "Fail"),
@@ -112,5 +116,13 @@ export default class Dataset {
 
 	private keyToNumber(section: any, key: string): number {
 		return this.keyToType(section, key, "number") as number;
+	}
+
+	private getYear(section: any): number {
+		if (section["Section"] === "overall") {
+			return 1900;
+		} else {
+			return this.keyToNumber(section, "Year");
+		}
 	}
 }
