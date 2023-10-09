@@ -134,7 +134,7 @@ export default class InsightFacade implements IInsightFacade {
 				results = parsedQuery.execute();
 				resolve(results);
 			} catch (error) {
-				reject(new InsightError());
+				reject(error);
 			}
 		});
 	}

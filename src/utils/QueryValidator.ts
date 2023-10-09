@@ -21,7 +21,9 @@ export default class QueryValidator {
 	public validateQuery(query: object): string {
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
-		this.validateWhere(vQuery.WHERE as object);
+        if (Object.keys(vQuery.WHERE as object).length !== 0) {
+            this.validateWhere(vQuery.WHERE as object);
+        }
 		this.validateOptions(vQuery.OPTIONS);
 		return this.dataset;
 	}
@@ -90,12 +92,8 @@ export default class QueryValidator {
 
 	public validateWhere(where: object): void {
 		const keys = Object.keys(where);
-		if (!keys) {
-			console.log("-----------------------------------------");
-			console.log(keys);
-			return;
-		} else if (keys.length > 1) {
-			throw new InsightError("Where cannot have more than 1 key");
+        if (keys.length !== 1) {
+			throw new InsightError("Where can only have 1 key");
 		}
 
 		// Check that key is one of the valid keys
