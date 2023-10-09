@@ -281,11 +281,11 @@ describe("InsightFacade", async function () {
 					const newFacade: InsightFacade = new InsightFacade();
 
 					// recover
-					const result = await newFacade.removeDataset("ubc");
+					const result = newFacade.removeDataset("ubc");
 
-					expect(result).to.equal("ubc");
+					expect(result).to.eventually.equal("ubc");
 				} catch (error) {
-					expect.fail("Error not expected");
+					expect.fail("Error not expected" + error);
 				}
 			});
 		});
@@ -532,7 +532,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe.only("Dynamic folder test", function () {
+describe("Dynamic folder test", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;
