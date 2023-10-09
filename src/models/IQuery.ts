@@ -12,7 +12,7 @@ export type LogicComparison = {
 };
 
 export type MComparison = {
-	[key in MComparator]: {[key: string]: number};
+	[key in MComparator]?: {[key: string]: number};
 };
 
 export interface SComparison {

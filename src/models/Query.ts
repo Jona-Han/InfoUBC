@@ -126,11 +126,11 @@ export class Query implements IQuery {
 
 	private handleMComparison(input: MComparison): Set<string> {
 		const sectionMappings = new Set<string>();
-		const compareKey: MComparator = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
-		const datasetKey: string = Object.keys(input[compareKey as MComparator])[0].split("_")[1]; // MField
+		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
+		const datasetKey: string = Object.keys(input[compareKey]!)[0].split("_")[1]; // MField
 
 		const mField = this.datasetToFileMappings[datasetKey as MField]; // MField but as a File key
-		const mValue = input[compareKey][Object.keys(input[compareKey])[0]];
+		const mValue = input[compareKey]![Object.keys(input[compareKey]!)[0]];
 
 		this.data.getSections().forEach((section: any) => {
 			if (compareKey === "GT" && section[mField] > mValue) {

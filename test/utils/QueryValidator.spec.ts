@@ -884,7 +884,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQuery(queryWithInvalidWhere)).to.throw("Invalid WHERE type");
 		});
 
-		it.only("should pass and return dept", () => {
+		it("should pass and return dept", () => {
 			const validQuery = {
 				WHERE: {
 					EQ: {
