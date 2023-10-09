@@ -39,6 +39,14 @@ export default class Dataset {
 		return this.sections;
 	}
 
+	public getSectionsAsMap(): Map<string, Section> {
+		const map = new Map<string, Section>();
+		this.sections.forEach((section) => {
+            map.set(section.id, section)
+        });
+        return map
+	}
+
 	// Adds section to this.section and increases size by 1
 	public addSection(section: {[key: string]: string | number}): void {
 		if (section === undefined) {

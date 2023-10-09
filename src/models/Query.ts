@@ -176,6 +176,14 @@ export class Query implements IQuery {
 	}
 
 	private handleOptions(input: Set<string>): InsightResult[] {
-		throw new InsightError("Not implemented");
+        // Get all section
+
+        //Handle order
+		if (this.OPTIONS.ORDER) {
+            const orderKey = Object.keys(this.OPTIONS.ORDER!)[0].split('_')[1]
+
+        }
+
+        //Return insightResults
 	}
 }
