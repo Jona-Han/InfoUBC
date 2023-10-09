@@ -71,7 +71,11 @@ export class Query implements IQuery {
 		} else if ("NOT" in input) {
 			return this.handleNegation(input as Negation);
 		} else {
-			throw new InsightError("Invalid filter type after Query validated");
+			const all = new Set<string>();
+			this.data.getSections().forEach((section) => {
+				all.add(section.id);
+			});
+			return all;
 		}
 	}
 
@@ -178,7 +182,7 @@ export class Query implements IQuery {
 
 	private handleOptions(input: Set<string>): InsightResult[] {
 		if (input.size > 5000) {
-			throw new ResultTooLargeError();
+			throw new ResultTooLargeError("Greater than 5000 results");
 		}
 
 		// Get all sections and only add input sections to array
