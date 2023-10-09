@@ -192,14 +192,12 @@ export class Query implements IQuery {
 		if (this.OPTIONS.ORDER) {
 			const datasetKey = Object.keys(this.OPTIONS.ORDER!)[0].split("_")[1];
 
-			const orderKey: string = this.datasetToFileMappings[datasetKey as MField | SField];
+			const orderKey: keyof Section = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
 
 			selectedSections.sort((a, b) => {
-				// Make sure to replace 'any' with the actual type of 'a[orderKey]' and 'b[orderKey]'
-				// and adjust the comparison accordingly
-				if (a[orderKey as sectionKey] < b[orderKey as sectionKey]) {
+				if (a[orderKey] < b[orderKey]) {
 					return -1;
-				} else if (a[orderKey as sectionKey] > b[orderKey as sectionKey]) {
+				} else if (a[orderKey] > b[orderKey]) {
 					return 1;
 				}
 				return 0;
@@ -207,5 +205,15 @@ export class Query implements IQuery {
 		}
 
 		//Return insightResults
+        const result: InsightResult[] = selectedSections.map((section) => {
+            // Only keep the fields listed in this.OPTIONS.COLUMNS
+            const insight: Partial<InsightResult> = {};
+            this.OPTIONS.COLUMNS.forEach((column) => {
+                const key:string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
+                insight[key] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+            });
+            return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
+        });
+		return result;
 	}
 }
