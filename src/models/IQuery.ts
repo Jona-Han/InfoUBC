@@ -1,3 +1,5 @@
+import { InsightError } from "../controller/IInsightFacade";
+
 export type Logic = "AND" | "OR";
 export type MComparator = "LT" | "GT" | "EQ";
 export type SComparator = "IS";
@@ -39,7 +41,7 @@ export interface IQuery {
 	datasetName: string;
 }
 
-export class QueryError extends Error {
+export class QueryError extends InsightError {
 	constructor(message?: string) {
 		super(message);
 		Error.captureStackTrace(this, QueryError);

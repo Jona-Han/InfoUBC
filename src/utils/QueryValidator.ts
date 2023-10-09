@@ -18,13 +18,11 @@ export default class QueryValidator {
 	}
 
 	public validateQuery(query: object): string {
-		let dataset: string = "";
 		this.validateQueryOutside(query);
-
 		const vQuery = query as JSONQuery;
 		this.validateWhere(vQuery.WHERE as object);
 		this.validateOptions(vQuery.OPTIONS);
-		return dataset;
+		return this.dataset;
 	}
 
 	public validateQueryOutside(query: object) {
@@ -180,7 +178,19 @@ export default class QueryValidator {
 		if (typeof fieldValue !== "string") {
 			throw new QueryError(`Invalid value for ${fieldKeys[0]} in SComparison. Expected a string`);
 		}
+
+        this.validateWildcardUsage(fieldValue);
 	}
+
+    private validateWildcardUsage(value: string): void {
+        const startsWithAsterisk = value.startsWith('*');
+        const endsWithAsterisk = value.endsWith('*');
+        const asteriskCount = (value.match(/\*/g) || []).length;
+    
+        if (asteriskCount > 2 || (asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) || (asteriskCount === 2 && (!startsWithAsterisk || !endsWithAsterisk))) {
+            throw new QueryError('Invalid usage of wildcards in string. A valid string can only start with or end with an asterisk, or both.');
+        }
+    }
 
 	public validateMKey(input: string): void {
 		const parts = input.split("_");

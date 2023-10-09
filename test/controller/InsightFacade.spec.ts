@@ -220,7 +220,7 @@ describe("InsightFacade", async function () {
 		});
 	});
 
-	describe.only("crashTesting", function () {
+	describe("crashTesting", function () {
 		context("when adding one dataset and then crashing", function () {
 			it("should crash and return the proper insightDataset", async function () {
 				const oneSection = getContentFromArchives("only1section.zip");
@@ -352,7 +352,7 @@ describe("InsightFacade", async function () {
 		});
 	});
 
-	describe.only("listDataset", function () {
+	describe("listDataset", function () {
 		context("when no datasets have been added", function () {
 			it("should return an empty array with no datasets", function () {
 				const result = facade.listDatasets();
@@ -532,7 +532,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe("Dynamic folder test", function () {
+describe.only("Dynamic folder test", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;
