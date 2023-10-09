@@ -17,7 +17,7 @@ import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
 import Dataset, {Section} from "./Dataset";
 
-type sectionKey = "id" | "Course" | "Title" | "Professor" | "Subject" | "Year" | "Avg" | "Pass" | "Fail" | "Audit";
+type SectionKey = "id" | "Course" | "Title" | "Professor" | "Subject" | "Year" | "Avg" | "Pass" | "Fail" | "Audit";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -178,9 +178,9 @@ export class Query implements IQuery {
 	}
 
 	private handleOptions(input: Set<string>): InsightResult[] {
-        if (input.size > 5000) {
-            throw new ResultTooLargeError();
-        }
+		if (input.size > 5000) {
+			throw new ResultTooLargeError();
+		}
 
 		// Get all sections and only add input sections to array
 		const allSections = this.data.getSectionsAsMap();
@@ -209,15 +209,15 @@ export class Query implements IQuery {
 		}
 
 		//Return insightResults
-        const result: InsightResult[] = selectedSections.map((section) => {
-            // Only keep the fields listed in this.OPTIONS.COLUMNS
-            const insight: Partial<InsightResult> = {};
-            this.OPTIONS.COLUMNS.forEach((column) => {
-                const key:string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
-                insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
-            });
-            return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
-        });
+		const result: InsightResult[] = selectedSections.map((section) => {
+			// Only keep the fields listed in this.OPTIONS.COLUMNS
+			const insight: Partial<InsightResult> = {};
+			this.OPTIONS.COLUMNS.forEach((column) => {
+				const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
+				insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+			});
+			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
+		});
 		return result;
 	}
 }

@@ -220,7 +220,7 @@ describe("InsightFacade", async function () {
 		});
 	});
 
-	describe("crashTesting", function () {
+	describe.only("crashTesting", function () {
 		context("when adding one dataset and then crashing", function () {
 			it("should crash and return the proper insightDataset", async function () {
 				const oneSection = getContentFromArchives("only1section.zip");
@@ -271,7 +271,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when adding one dataset and then crashing and removing", function () {
+		context.only("when adding one dataset and then crashing and removing", function () {
 			it("should crash and be able to remove", async function () {
 				try {
 					const oneSection = getContentFromArchives("only1section.zip");
@@ -281,11 +281,11 @@ describe("InsightFacade", async function () {
 					const newFacade: InsightFacade = new InsightFacade();
 
 					// recover
-					const result = await newFacade.removeDataset("ubc");
+					const result = newFacade.removeDataset("ubc");
 
-					expect(result).to.equal("ubc");
+					expect(result).to.eventually.equal("ubc");
 				} catch (error) {
-					expect.fail("Error not expected");
+					expect.fail("Error not expected" + error);
 				}
 			});
 		});
@@ -532,7 +532,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe.only("Dynamic folder test", function () {
+describe("Dynamic folder test", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;

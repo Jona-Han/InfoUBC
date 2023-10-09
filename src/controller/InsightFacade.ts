@@ -102,15 +102,23 @@ export default class InsightFacade implements IInsightFacade {
 	// 1. Check valid id
 	// 2. Check id is in dataset
 	// 3. Remove dataset
-	public removeDataset(id: string): Promise<string> {
-		return new Promise((resolve, reject) => {
-			if (this.isNotValidID(id)) {
-				reject(new InsightError("Invalid id"));
-				// } if (this.datasets.contains(id)) {
-				// 	reject(new NotFoundError("ID not present in dataset"))
-			}
-			reject("Not implemented");
-		});
+	public async removeDataset(id: string): Promise<string> {
+		if (this.isNotValidID(id)) {
+			return Promise.reject(new InsightError("Invalid id"));
+			// } if (this.datasets.contains(id)) {
+			// 	reject(new NotFoundError("ID not present in dataset"))
+		}
+		if (!this.datasets.get(id)) {
+			return Promise.reject(new NotFoundError("ID not present in dataset"));
+		}
+
+		try {
+			await fs.remove(persistDir + "/" + id + ".json");
+			this.datasets.set(id, false);
+			return Promise.resolve(id);
+		} catch {
+			return Promise.reject(new InsightError("Error removing dataset"));
+		}
 	}
 
 	// 1. Check dataset is present
@@ -126,7 +134,7 @@ export default class InsightFacade implements IInsightFacade {
 			try {
 				if (!fs.pathExistsSync(persistDir)) {
 					throw new InsightError("No datasets added");
-				};
+				}
 
 				// May need to check if query is actually a json object
 				QV.validateQuery(query as object);
@@ -153,6 +161,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private initialize(): void {
 		try {
+			fs.ensureDirSync(persistDir);
 			let files = fs.readdirSync(persistDir);
 			for (let file of files) {
 				let object = fs.readJSONSync(persistDir + "/" + file);
