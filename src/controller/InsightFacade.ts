@@ -8,7 +8,7 @@ import {
 } from "./IInsightFacade";
 import Dataset from "../models/Dataset";
 
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 import {writeFileSync} from "fs";
 import JSZip from "jszip";
 import QueryValidator from "../utils/QueryValidator";
@@ -26,10 +26,11 @@ const tempDir = "./temp";
 export default class InsightFacade implements IInsightFacade {
 	// Datasets is a map of dataset ids to if they are used or not.
 	// Will return undefined if id was never used or false if it was removed already.
-	private datasets: Map<string, boolean>;
+	private datasets: Map<string, InsightDataset | false>;
 
 	constructor() {
 		this.datasets = new Map();
+		this.initialize();
 		console.log("InsightFacadeImpl::init()");
 	}
 
@@ -40,9 +41,8 @@ export default class InsightFacade implements IInsightFacade {
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
 		if (kind !== InsightDatasetKind.Sections) {
 			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-		}
-		// Reject if ID is not valid
-		if (this.isNotValidID(id)) {
+		} else if (this.isNotValidID(id)) {
+			// Reject if id is not valid
 			return Promise.reject(new InsightError("Invalid id"));
 		}
 		// Reject if a dataset with the same id is already present
@@ -51,44 +51,52 @@ export default class InsightFacade implements IInsightFacade {
 		}
 		// Try to extract content and put in ./temp/id
 		let dataset = new Dataset(id);
-		try {
-			await this.extractContent(id, content);
-		} catch {
-			fs.removeSync(tempDir);
-			return Promise.reject(new InsightError("Unable to extract data from content"));
-		}
-		try {
-			await this.readFilesToDataset(dataset);
-			if (dataset.getSize() < 1) {
-				return Promise.reject(new InsightError("No valid sections"));
-			}
-		} catch (e) {
-			console.log(dataset.getSize());
-			console.log("Here");
-			fs.removeSync(tempDir);
 
-			return Promise.reject(new InsightError("Incorrectly formatted file or data from content: " + e));
-		}
 		try {
-			await fs.ensureDir(persistDir);
-			const data = {id: dataset.getId(),
-				kind: InsightDatasetKind.Sections,
-				size: dataset.getSize(),
-				sections: dataset.getSections()};
-			await fs.writeJSON(persistDir + "/" + id + ".json", data);
-		} catch (e) {
-			fs.removeSync(tempDir);
-			return Promise.reject(new InsightError("Unable to write dataset to file"));
-		}
-		this.datasets.set(id, true);
-		fs.removeSync(tempDir);
-		let result: string[] = [];
-		for (let k of this.datasets.keys()) {
-			if (this.datasets.get(k)) {
-				result.push(k);
+			// console.log("1. before ensure tempDir")
+			await fs.ensureDir(tempDir);
+			// console.log("2. before extractContent")
+			await this.extractContent(id, content);
+			// console.log("3. before readFilesToDataset")
+			await this.readFilesToDataset(dataset);
+			// console.log("4. after readFilesToDataset")
+			// console.log(dataset.getSize());
+			if (dataset.getSize() < 1) {
+				// console.log("We here")
+				throw new InsightError("No valid sections");
 			}
+			// console.log("before ensureDir(persistDir)")
+			await fs.ensureDir(persistDir);
+			const data = {
+				id: dataset.getId(),
+				kind: InsightDatasetKind.Sections,
+				numRows: dataset.getSize(),
+				sections: dataset.getSections(),
+			};
+			// console.log("before writing to file")
+			await fs.writeJSON(persistDir + "/" + id + ".json", data);
+			const data2: InsightDataset = {
+				id: data.id,
+				kind: data.kind,
+				numRows: data.numRows,
+			};
+			this.datasets.set(id, data2);
+			fs.removeSync(tempDir);
+			let result: string[] = [];
+			for (let k of this.datasets.keys()) {
+				if (this.datasets.get(k)) {
+					result.push(k);
+				}
+			}
+			return Promise.resolve(result);
+		} catch (e) {
+			// console.log(dataset.getSize());
+			// console.log(e);
+			// fs.ensureDirSync(tempDir);
+			// console.log("4e")
+			await fs.remove(tempDir);
+			return Promise.reject(new InsightError("" + e));
 		}
-		return Promise.resolve(result);
 	}
 
 	// 1. Check valid id
@@ -133,8 +141,31 @@ export default class InsightFacade implements IInsightFacade {
 
 	public listDatasets(): Promise<InsightDataset[]> {
 		return new Promise((resolve, reject) => {
-			resolve([]); // stub
+			let result: InsightDataset[] = [];
+			for (let dataset of this.datasets.values()) {
+				if (dataset) {
+					result.push(dataset);
+				}
+			}
+			resolve(result);
 		});
+	}
+
+	private initialize(): void {
+		try {
+			let files = fs.readdirSync(persistDir);
+			for (let file of files) {
+				let object = fs.readJSONSync(persistDir + "/" + file);
+				let data: InsightDataset = {
+					id: object.id,
+					kind: object.kind,
+					numRows: object.numRows,
+				};
+				this.datasets.set(file, data);
+			}
+		} catch {
+			console.error("Unable to initialize directory");
+		}
 	}
 
 	// Returns true if id is an empty string, contains only white space or contains an undersore
@@ -150,28 +181,25 @@ export default class InsightFacade implements IInsightFacade {
 		return isNotValid;
 	}
 
-	// Returns true if content is a valid data set
-	public isValidDataset(content: string): boolean {
-		return false; // stub
-	}
-
 	// Returns true if query is not a valid query
 	public isNotValidQuery(query: unknown): boolean {
 		return true; // stub
 	}
 
 	private async extractContent(id: string, content: string): Promise<void> {
-		fs.ensureDir(tempDir);
 		// console.log("Trying to add dataset to data");
 		const stringBuffer = Buffer.from(content, "base64");
 		const tempPath: string = tempDir + "/" + id;
-		fs.ensureDir(tempPath);
+		// console.log("2.1: before ensuring tempPath")
+		await fs.ensureDir(tempPath);
 		const zip = new JSZip();
+		// console.log("2.2: before AsyncLoad")
 		await zip
 			.loadAsync(stringBuffer)
 			.then(() => {
 				return Promise.all(
 					Object.keys(zip.files).map((filename: string) => {
+						// console.log("2.3")
 						const file = zip.files[filename];
 						const outputPath = tempPath + "/" + filename;
 
@@ -186,40 +214,49 @@ export default class InsightFacade implements IInsightFacade {
 				);
 			})
 			.catch((error: Error) => {
-				throw new InsightError("Unable to parse data");
+				return new InsightError("Unable to parse data");
 			});
 
-		// console.log("successfully added dataset to data");
+		// console.log("end of extract content");
 		return Promise.resolve();
 	}
 
 	// addDataset helper function
 	private async readFilesToDataset(dataset: Dataset): Promise<void> {
-		return new Promise((resolve, reject) => {
-			const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
-			fs.readdir(coursesPath, function (err, files) {
-				if (err) {
-					return reject(new InsightError());
-				}
-				// console.log("start of forEach")
-				files.forEach(function (file, index) {
-					fs.readJson(coursesPath + file, function (err2, object) {
+		// console.log("3.1")
+		const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
+		try {
+			let files = await fs.readdir(coursesPath);
+			// console.log("3.2a: before ensuring tempPath")
+
+			let filesToRead = [];
+			for (let file of files) {
+				let thisPromise = fs
+					.readJson(coursesPath + file)
+					.then((object) => {
 						try {
-							let result;
-							result = object["result"];
+							// console.log("3.3")
+							let result = object["result"];
 							dataset.addSections(result);
 						} catch {
-							// Do nothing
+							// do nothing
 						}
+					})
+					.catch((e) => Promise.reject(new InsightError(e)));
+				// console.log("3.3-1")
+				filesToRead.push(thisPromise);
+				// console.log("3.3-2")
+			}
 
-						// console.log(object)
+			let promises = Promise.all(filesToRead);
+			await promises;
 
-						// console.log("file");
-						// console.log("Here " + dataset.getSize())
-						return resolve();
-					});
-				});
-			});
-		});
+			// console.log("3.4")
+			// console.log("3.5")
+			return Promise.resolve();
+		} catch (e) {
+			// console.log("3.2")
+			return Promise.reject(new InsightError("" + e));
+		}
 	}
 }

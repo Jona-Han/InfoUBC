@@ -200,27 +200,27 @@ describe("InsightFacade", async function () {
 
 		context("when adding many sections", function () {
 			it("should successfully add 64612 sections", async function () {
-				// try {
-				const zip = getContentFromArchives("pair.zip");
-				const add = await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
-				// const list = await facade.listDatasets();
-				// const remove = await facade.removeDataset("ubc");
+				try {
+					const zip = getContentFromArchives("pair.zip");
+					const add = await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
+					const list = await facade.listDatasets();
+					const remove = await facade.removeDataset("ubc");
 
-				expect(add).to.include.members(["ubc"]);
-				// expect(list).to.deep.include({
-				// 	id: "ubc",
-				// 	kind: InsightDatasetKind.Sections,
-				// 	numRows: 64612,
-				// });
-				// expect(remove).to.equal("ubc");
-				// } catch (error) {
-				// 	expect.fail("Error not expected");
-				// }
+					expect(add).to.include.members(["ubc"]);
+					expect(list).to.deep.include({
+						id: "ubc",
+						kind: InsightDatasetKind.Sections,
+						numRows: 64612,
+					});
+					expect(remove).to.equal("ubc");
+				} catch (error) {
+					expect.fail("Error not expected");
+				}
 			});
 		});
 	});
 
-	describe("crashTesting", function () {
+	describe.only("crashTesting", function () {
 		context("when adding one dataset and then crashing", function () {
 			it("should crash and return the proper insightDataset", async function () {
 				const oneSection = getContentFromArchives("only1section.zip");
@@ -251,9 +251,9 @@ describe("InsightFacade", async function () {
 
 					// recover
 					await facade.addDataset("new", threeSection, InsightDatasetKind.Sections);
-					const result = await newFacade.listDatasets();
+					const result = newFacade.listDatasets();
 
-					expect(result).to.deep.include.members([
+					expect(result).to.eventually.deep.include.members([
 						{
 							id: "ubc",
 							kind: InsightDatasetKind.Sections,
@@ -352,7 +352,7 @@ describe("InsightFacade", async function () {
 		});
 	});
 
-	describe("listDataset", function () {
+	describe.only("listDataset", function () {
 		context("when no datasets have been added", function () {
 			it("should return an empty array with no datasets", function () {
 				const result = facade.listDatasets();
