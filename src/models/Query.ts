@@ -197,7 +197,7 @@ export class Query implements IQuery {
 
 		// Handle order
 		if (this.OPTIONS.ORDER) {
-			const datasetKey = Object.keys(this.OPTIONS.ORDER)[0].split("_")[1];
+			const datasetKey = this.OPTIONS.ORDER.split("_")[1];
 
 			const orderKey: keyof Section = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
 
