@@ -220,7 +220,7 @@ describe("InsightFacade", async function () {
 		});
 	});
 
-	describe.only("crashTesting", function () {
+	describe("crashTesting", function () {
 		context("when adding one dataset and then crashing", function () {
 			it("should crash and return the proper insightDataset", async function () {
 				const oneSection = getContentFromArchives("only1section.zip");
@@ -271,7 +271,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context.only("when adding one dataset and then crashing and removing", function () {
+		context("when adding one dataset and then crashing and removing", function () {
 			it("should crash and be able to remove", async function () {
 				try {
 					const oneSection = getContentFromArchives("only1section.zip");

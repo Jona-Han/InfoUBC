@@ -192,7 +192,7 @@ export class Query implements IQuery {
 			}
 		});
 
-		//Handle order
+		// Handle order
 		if (this.OPTIONS.ORDER) {
 			const datasetKey = Object.keys(this.OPTIONS.ORDER!)[0].split("_")[1];
 
@@ -208,7 +208,7 @@ export class Query implements IQuery {
 			});
 		}
 
-		//Return insightResults
+		// Return insightResults
 		const result: InsightResult[] = selectedSections.map((section) => {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
