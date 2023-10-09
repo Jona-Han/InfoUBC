@@ -532,7 +532,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe("Dynamic folder test", function () {
+describe.only("Dynamic folder test", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;
