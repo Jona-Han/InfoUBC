@@ -11,11 +11,13 @@ import {
 	Negation,
 	Options,
 	SComparison,
-    SField,
+	SField,
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
 import Dataset, {Section} from "./Dataset";
+
+type sectionKey = "id" | "Course" | "Title" | "Professor" | "Subject" | "Year" | "Avg" | "Pass" | "Fail" | "Audit";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -176,14 +178,34 @@ export class Query implements IQuery {
 	}
 
 	private handleOptions(input: Set<string>): InsightResult[] {
-        // Get all section
+		// Get all sections and only add input sections to array
+		const allSections = this.data.getSectionsAsMap();
+		const selectedSections: Section[] = [];
+		input.forEach((uuid) => {
+			const section = allSections.get(uuid);
+			if (section) {
+				selectedSections.push(section);
+			}
+		});
 
-        //Handle order
+		//Handle order
 		if (this.OPTIONS.ORDER) {
-            const orderKey = Object.keys(this.OPTIONS.ORDER!)[0].split('_')[1]
+			const datasetKey = Object.keys(this.OPTIONS.ORDER!)[0].split("_")[1];
 
-        }
+			const orderKey: string = this.datasetToFileMappings[datasetKey as MField | SField];
 
-        //Return insightResults
+			selectedSections.sort((a, b) => {
+				// Make sure to replace 'any' with the actual type of 'a[orderKey]' and 'b[orderKey]'
+				// and adjust the comparison accordingly
+				if (a[orderKey as sectionKey] < b[orderKey as sectionKey]) {
+					return -1;
+				} else if (a[orderKey as sectionKey] > b[orderKey as sectionKey]) {
+					return 1;
+				}
+				return 0;
+			});
+		}
+
+		//Return insightResults
 	}
 }
