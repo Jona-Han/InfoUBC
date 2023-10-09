@@ -80,13 +80,18 @@ export default class QueryValidator {
 		}
 
 		// Validate keys in columns
+		const allColumnKeys: string[] = [];
 		options.COLUMNS.forEach((columnKey: string) => {
 			this.validateKey(columnKey);
+			allColumnKeys.push(columnKey);
 		});
 
 		// Validate key for order
 		if ("ORDER" in options) {
 			this.validateKey(options.ORDER as string);
+			if (!allColumnKeys.includes(options.ORDER as string)) {
+				throw new InsightError("Order key not in column keys");
+			}
 		}
 	}
 
