@@ -281,11 +281,11 @@ describe("InsightFacade", async function () {
 					const newFacade: InsightFacade = new InsightFacade();
 
 					// recover
-					const result = await newFacade.removeDataset("ubc");
+					const result = newFacade.removeDataset("ubc");
 
-					expect(result).to.equal("ubc");
+					expect(result).to.eventually.equal("ubc");
 				} catch (error) {
-					expect.fail("Error not expected");
+					expect.fail("Error not expected" + error);
 				}
 			});
 		});

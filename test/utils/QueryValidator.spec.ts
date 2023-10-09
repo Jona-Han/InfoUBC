@@ -884,10 +884,10 @@ describe("QueryValidator", () => {
 				WHERE: {
 					EQ: {
 						dept_avg: 20,
-					}
+					},
 				},
 				OPTIONS: {
-					COLUMNS: ["dept_id", "dept_title"]
+					COLUMNS: ["dept_id", "dept_title"],
 				},
 			};
 			const result = QV.validateQuery(validQuery);
