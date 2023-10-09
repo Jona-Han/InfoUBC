@@ -1,4 +1,4 @@
-import {InsightError, InsightResult} from "../controller/IInsightFacade";
+import {InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
 import {
 	Filter,
 	IQuery,
@@ -178,6 +178,10 @@ export class Query implements IQuery {
 	}
 
 	private handleOptions(input: Set<string>): InsightResult[] {
+        if (input.size > 5000) {
+            throw new ResultTooLargeError();
+        }
+
 		// Get all sections and only add input sections to array
 		const allSections = this.data.getSectionsAsMap();
 		const selectedSections: Section[] = [];
@@ -210,7 +214,7 @@ export class Query implements IQuery {
             const insight: Partial<InsightResult> = {};
             this.OPTIONS.COLUMNS.forEach((column) => {
                 const key:string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
-                insight[key] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+                insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
             });
             return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
         });
