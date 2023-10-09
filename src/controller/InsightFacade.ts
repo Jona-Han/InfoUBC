@@ -136,9 +136,9 @@ export default class InsightFacade implements IInsightFacade {
 					throw new InsightError("No datasets added");
 				}
 
-                if (typeof query !== "object") {
-                    throw new InsightError("Query must be an object");
-                }
+				if (typeof query !== "object") {
+					throw new InsightError("Query must be an object");
+				}
 				QV.validateQuery(query as object);
 				let parsedQuery = new Query(query as JSONQuery);
 				results = parsedQuery.execute();
