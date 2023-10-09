@@ -1,4 +1,4 @@
-import { InsightError } from "../controller/IInsightFacade";
+import {InsightError} from "../controller/IInsightFacade";
 
 export type Logic = "AND" | "OR";
 export type MComparator = "LT" | "GT" | "EQ";
