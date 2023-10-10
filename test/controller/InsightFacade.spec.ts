@@ -351,7 +351,7 @@ describe("InsightFacade", async function () {
 
 					const newFacade3: InsightFacade = new InsightFacade();
 
-					const result4 = newFacade2.listDatasets();
+					const result4 = newFacade3.listDatasets();
 
 					await expect(result4).to.eventually.include.deep.members([
 						{
