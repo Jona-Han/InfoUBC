@@ -15,5 +15,6 @@
                 "/test/queries/**"
             ]
         }
-    ]
+    ],
+    "github-enterprise.uri": "https://github.students.cs.ubc.ca"
 }
