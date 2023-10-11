@@ -9,12 +9,10 @@ import {
 import Dataset from "../models/Dataset";
 
 import fs from "fs-extra";
-import {writeFileSync} from "fs";
 import JSZip from "jszip";
 import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
-import { promises } from "dns";
 
 const persistDir = "./data";
 // const tempDir = "./temp";
@@ -63,13 +61,13 @@ export default class InsightFacade implements IInsightFacade {
 		// 		})
 		// 		// console.log("3. before readFilesToDataset")
 		// 		.then(() => {
-					
+
 		// 			return this.readFilesToDataset(dataset);
 		// 		})
 		// 		// console.log("4. after readFilesToDataset")
 		// 		// console.log(dataset.getSize());
 		// 		.then(() => {
-					
+
 		// 			if (dataset.getSize() < 1) {
 		// 				// console.log("We here")
 		// 				throw new InsightError("No valid sections");
@@ -108,7 +106,7 @@ export default class InsightFacade implements IInsightFacade {
 		// 			fs.removeSync(tempDir);
 		// 			throw new InsightError("" + e);
 		// 		})
-			// console.log("before ensureDir(persistDir)")
+		// console.log("before ensureDir(persistDir)")
 
 		// console.log("before writing to file")
 	}
@@ -211,80 +209,74 @@ export default class InsightFacade implements IInsightFacade {
 		return true; // stub
 	}
 
-
 	private async addContent(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
 			let dataset = new Dataset(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
-		// console.log("2.2: before AsyncLoad")
+			// console.log("2.2: before AsyncLoad")
 			await zip.loadAsync(stringBuffer);
 			const files = zip.files;
 
 			const promises = [];
 
-		
 			for (let fileName of Object.keys(files)) {
 				try {
 					let newPromise;
 					if (fileName.length > 8 && fileName.substring(0, 8) === "courses/") {
-					
 						let file = zip.files[fileName];
 						if (!file.dir) {
-							newPromise = file.async("text")
-							.then((fileContent) => {
-								let object = JSON.parse(fileContent)
-								let result = object["result"]
-								dataset.addSections(result)
+							newPromise = file.async("text").then((fileContent) => {
+								let object = JSON.parse(fileContent);
+								let result = object["result"];
+								dataset.addSections(result);
 								// console.log(dataset.getSize())
-							})
-							
+							});
 						}
-					
 					}
-					promises.push(newPromise)
+					promises.push(newPromise);
 				} catch {
-				// It's ok to catch a single itteration
+					// It's ok to catch a single itteration
 				}
-
 			}
 
-			await Promise.all(promises)
+			await Promise.all(promises);
 			if (dataset.getSize() < 1) {
-				throw new InsightError("No valid sections")
+				throw new InsightError("No valid sections");
 			}
-			let data = {
-				id: dataset.getId(),
-				kind: InsightDatasetKind.Sections,
-				numRows: dataset.getSize(),
-				sections: dataset.getSections()
-			}
-			await fs.writeFile(persistDir + "/" + id + ".json", JSON.stringify(data))
-
-			let data2: InsightDataset = {
-				id: dataset.getId(),
-				kind: InsightDatasetKind.Sections,
-				numRows: dataset.getSize()
-			}
-			InsightFacade.datasets.set(id, data2);
-			let result = [];
-			
-			for (let potentialDataset of InsightFacade.datasets.keys()) {
-				// console.log(potentialDataset)
-				if (InsightFacade.datasets.get(potentialDataset)) {
-					result.push(potentialDataset)
-				}
-			}
-
-			return Promise.resolve(result);
-
-		} catch(e) {
-			throw new InsightError("Error extracting data: " + e)
+			await this.writeDatasetToFile(dataset);
+			return this.updateDatasets(dataset);
+		} catch (e) {
+			throw new InsightError("Error extracting data: " + e);
 		}
-		
 	}
 
-	// addDataset helper function
+	private writeDatasetToFile(dataset: Dataset): Promise<void> {
+		let data = {
+			id: dataset.getId(),
+			kind: InsightDatasetKind.Sections,
+			numRows: dataset.getSize(),
+			sections: dataset.getSections(),
+		};
+		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
+	}
 
+	private updateDatasets(dataset: Dataset): Promise<string[]> {
+		let results: string[] = [];
+		let data: InsightDataset = {
+			id: dataset.getId(),
+			kind: InsightDatasetKind.Sections,
+			numRows: dataset.getSize(),
+		};
+		InsightFacade.datasets.set(dataset.getId(), data);
+		for (let potentialDataset of InsightFacade.datasets.keys()) {
+			if (InsightFacade.datasets.get(potentialDataset)) {
+				results.push(potentialDataset);
+			}
+		}
+
+		return Promise.resolve(results);
+	}
+	// addDataset helper function
 }
