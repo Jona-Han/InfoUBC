@@ -292,23 +292,23 @@ describe("InsightFacade", async function () {
 
 		context("Adding then removing datasets with various crashes inbetween", function () {
 			it("should return correct sets", async function () {
-				try {
-					const oneSection = getContentFromArchives("only1section.zip");
-					await facade.addDataset("one", oneSection, InsightDatasetKind.Sections);
+				const oneSection = getContentFromArchives("only1section.zip");
+				await facade.addDataset("one", oneSection, InsightDatasetKind.Sections);
 
-					const threeSection = getContentFromArchives("3validsections.zip");
-					await facade.addDataset("three", threeSection, InsightDatasetKind.Sections);
+				const threeSection = getContentFromArchives("3validsections.zip");
+				await facade.addDataset("three", threeSection, InsightDatasetKind.Sections);
 
-					const ubc = getContentFromArchives("pair.zip");
-					await facade.addDataset("ubc", ubc, InsightDatasetKind.Sections);
+				const ubc = getContentFromArchives("pair.zip");
+				await facade.addDataset("ubc", ubc, InsightDatasetKind.Sections);
 
-					// simulate crash
-					const newFacade: InsightFacade = new InsightFacade();
+				// simulate crash
+				const newFacade: InsightFacade = new InsightFacade();
 
-					// recover
-					const result = newFacade.listDatasets();
+				// recover
+				const result = newFacade.listDatasets();
 
-					await expect(result).to.eventually.include.deep.members([
+				await expect(result)
+					.to.eventually.include.deep.members([
 						{
 							id: "one",
 							kind: InsightDatasetKind.Sections,
@@ -322,17 +322,19 @@ describe("InsightFacade", async function () {
 						{
 							id: "ubc",
 							kind: InsightDatasetKind.Sections,
-							numRows: 64612
-						}
-					]).and.have.lengthOf(3);
+							numRows: 64612,
+						},
+					])
+					.and.have.lengthOf(3);
 
-					await newFacade.removeDataset("one");
+				await newFacade.removeDataset("one");
 
-					const newFacade2: InsightFacade = new InsightFacade();
+				const newFacade2: InsightFacade = new InsightFacade();
 
-					const result2 = newFacade2.listDatasets();
+				const result2 = newFacade2.listDatasets();
 
-					await expect(result2).to.eventually.include.deep.members([
+				await expect(result2)
+					.to.eventually.include.deep.members([
 						{
 							id: "three",
 							kind: InsightDatasetKind.Sections,
@@ -341,28 +343,32 @@ describe("InsightFacade", async function () {
 						{
 							id: "ubc",
 							kind: InsightDatasetKind.Sections,
-							numRows: 64612
-						}
-					]).and.have.lengthOf(2);
+							numRows: 64612,
+						},
+					])
+					.and.have.lengthOf(2);
 
-					const result3 = newFacade.removeDataset("ubc");
+				const result3 = newFacade.removeDataset("ubc");
 
-					await expect(result3).to.eventually.equal("ubc");
+				await expect(result3).to.eventually.equal("ubc");
 
-					const newFacade3: InsightFacade = new InsightFacade();
+				const newFacade3: InsightFacade = new InsightFacade();
 
-					const result4 = newFacade3.listDatasets();
+				const result4 = newFacade3.listDatasets();
 
-					await expect(result4).to.eventually.include.deep.members([
+				await expect(result4)
+					.to.eventually.include.deep.members([
 						{
 							id: "three",
 							kind: InsightDatasetKind.Sections,
 							numRows: 3,
-						}
-					]).and.have.lengthOf(1);
-				} catch (error) {
-					expect.fail("Error not expected" + error);
-				}
+						},
+					])
+					.and.have.lengthOf(1);
+
+				const result5 = newFacade.addDataset("one", oneSection, InsightDatasetKind.Sections);
+
+				await expect(result5).to.eventually.have.deep.members(["one", "three"]).and.lengthOf(2);
 			});
 		});
 
