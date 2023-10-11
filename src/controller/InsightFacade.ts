@@ -14,9 +14,10 @@ import JSZip from "jszip";
 import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
+import { promises } from "dns";
 
 const persistDir = "./data";
-const tempDir = "./temp";
+// const tempDir = "./temp";
 
 /**
  * This is the main programmatic entry point for the project.
@@ -46,57 +47,70 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Invalid id"));
 		}
 		// Reject if a dataset with the same id is already present
-		if (InsightFacade.datasets.get(id) !== undefined && InsightFacade.datasets.get(id)) {
-			return Promise.reject(new InsightError("Key already present in dataset"));
+		if (InsightFacade.datasets.get(id)) {
+			return Promise.reject(new InsightError("id already present in dataset"));
 		}
-		// Try to extract content and put in ./temp/id
-		let dataset = new Dataset(id);
 
-		try {
-			// console.log("1. before ensure tempDir")
-			await fs.ensureDir(tempDir);
-			// console.log("2. before extractContent")
-			await this.extractContent(id, content);
-			// console.log("3. before readFilesToDataset")
-			await this.readFilesToDataset(dataset);
-			// console.log("4. after readFilesToDataset")
-			// console.log(dataset.getSize());
-			if (dataset.getSize() < 1) {
-				// console.log("We here")
-				throw new InsightError("No valid sections");
-			}
+		return this.addContent(id, content);
+		// Try to extract content and put in ./temp/id
+		// let dataset = new Dataset(id);
+
+		// // console.log("1. before ensure tempDir")
+		// return fs.ensureDir(tempDir)
+		// 		// console.log("2. before extractContent")
+		// 		.then(() => {
+		// 			return this.extractContent(id, content);
+		// 		})
+		// 		// console.log("3. before readFilesToDataset")
+		// 		.then(() => {
+					
+		// 			return this.readFilesToDataset(dataset);
+		// 		})
+		// 		// console.log("4. after readFilesToDataset")
+		// 		// console.log(dataset.getSize());
+		// 		.then(() => {
+					
+		// 			if (dataset.getSize() < 1) {
+		// 				// console.log("We here")
+		// 				throw new InsightError("No valid sections");
+		// 			}
+		// 			return fs.ensureDir(persistDir);
+		// 		})
+		// 		.then(() => {
+		// 			const data = {
+		// 				id: dataset.getId(),
+		// 				kind: InsightDatasetKind.Sections,
+		// 				numRows: dataset.getSize(),
+		// 				sections: dataset.getSections(),
+		// 			};
+		// 			return fs.writeJSON(persistDir + "/" + id + ".json", data);
+		// 		})
+		// 		.then(() => {
+		// 			const data2: InsightDataset = {
+		// 				id: dataset.getId(),
+		// 				kind: InsightDatasetKind.Sections,
+		// 				numRows: dataset.getSize(),
+		// 			};
+		// 			InsightFacade.datasets.set(id, data2);
+		// 			fs.ensureDirSync(tempDir)
+		// 			fs.removeSync(tempDir);
+		// 			let result: string[] = [];
+		// 			for (let k of InsightFacade.datasets.keys()) {
+		// 				if (InsightFacade.datasets.get(k)) {
+		// 					result.push(k);
+		// 				}
+		// 			}
+		// 			return Promise.resolve(result);
+		// 		})
+		// 		.catch((e) => {
+		// 			// console.log("3")
+		// 			fs.ensureDirSync(tempDir)
+		// 			fs.removeSync(tempDir);
+		// 			throw new InsightError("" + e);
+		// 		})
 			// console.log("before ensureDir(persistDir)")
-			await fs.ensureDir(persistDir);
-			const data = {
-				id: dataset.getId(),
-				kind: InsightDatasetKind.Sections,
-				numRows: dataset.getSize(),
-				sections: dataset.getSections(),
-			};
-			// console.log("before writing to file")
-			await fs.writeJSON(persistDir + "/" + id + ".json", data);
-			const data2: InsightDataset = {
-				id: data.id,
-				kind: data.kind,
-				numRows: data.numRows,
-			};
-			InsightFacade.datasets.set(id, data2);
-			fs.removeSync(tempDir);
-			let result: string[] = [];
-			for (let k of InsightFacade.datasets.keys()) {
-				if (InsightFacade.datasets.get(k)) {
-					result.push(k);
-				}
-			}
-			return Promise.resolve(result);
-		} catch (e) {
-			// console.log(dataset.getSize());
-			// console.log(e);
-			// fs.ensureDirSync(tempDir);
-			// console.log("4e")
-			await fs.remove(tempDir);
-			return Promise.reject(new InsightError("" + e));
-		}
+
+		// console.log("before writing to file")
 	}
 
 	// 1. Check valid id
@@ -197,76 +211,80 @@ export default class InsightFacade implements IInsightFacade {
 		return true; // stub
 	}
 
-	private async extractContent(id: string, content: string): Promise<void> {
+
+	private async addContent(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
-		const stringBuffer = Buffer.from(content, "base64");
-		const tempPath: string = tempDir + "/" + id;
-		// console.log("2.1: before ensuring tempPath")
-		await fs.ensureDir(tempPath);
-		const zip = new JSZip();
+		try {
+			let dataset = new Dataset(id);
+			const stringBuffer = Buffer.from(content, "base64");
+			const zip = new JSZip();
 		// console.log("2.2: before AsyncLoad")
-		await zip.loadAsync(stringBuffer)
-			.then(() => {
-				return Promise.all(
-					Object.keys(zip.files).map((filename: string) => {
-						// console.log("2.3")
-						const file = zip.files[filename];
-						const outputPath = tempPath + "/" + filename;
+			await zip.loadAsync(stringBuffer);
+			const files = zip.files;
 
-						if (file.dir) {
-							return fs.ensureDir(outputPath);
-						} else {
-							return file.async("nodebuffer").then((fileContent: any) => {
-								fs.writeFile(outputPath, fileContent);
-							});
+			const promises = [];
+
+		
+			for (let fileName of Object.keys(files)) {
+				try {
+					let newPromise;
+					if (fileName.length > 8 && fileName.substring(0, 8) === "courses/") {
+					
+						let file = zip.files[fileName];
+						if (!file.dir) {
+							newPromise = file.async("text")
+							.then((fileContent) => {
+								let object = JSON.parse(fileContent)
+								let result = object["result"]
+								dataset.addSections(result)
+								// console.log(dataset.getSize())
+							})
+							
 						}
-					})
-				);
-			})
-			.catch((error: Error) => {
-				return new InsightError("Unable to parse data");
-			});
+					
+					}
+					promises.push(newPromise)
+				} catch {
+				// It's ok to catch a single itteration
+				}
 
-		// console.log("end of extract content");
-		return Promise.resolve();
+			}
+
+			await Promise.all(promises)
+			if (dataset.getSize() < 1) {
+				throw new InsightError("No valid sections")
+			}
+			let data = {
+				id: dataset.getId(),
+				kind: InsightDatasetKind.Sections,
+				numRows: dataset.getSize(),
+				sections: dataset.getSections()
+			}
+			await fs.writeFile(persistDir + "/" + id + ".json", JSON.stringify(data))
+
+			let data2: InsightDataset = {
+				id: dataset.getId(),
+				kind: InsightDatasetKind.Sections,
+				numRows: dataset.getSize()
+			}
+			InsightFacade.datasets.set(id, data2);
+			let result = [];
+			
+			for (let potentialDataset of InsightFacade.datasets.keys()) {
+				// console.log(potentialDataset)
+				if (InsightFacade.datasets.get(potentialDataset)) {
+					result.push(potentialDataset)
+				}
+			}
+
+			return Promise.resolve(result);
+
+		} catch(e) {
+			throw new InsightError("Error extracting data: " + e)
+		}
+		
 	}
 
 	// addDataset helper function
-	private async readFilesToDataset(dataset: Dataset): Promise<void> {
-		// console.log("3.1")
-		const coursesPath: string = tempDir + "/" + dataset.getId() + "/courses/";
-		try {
-			let files = await fs.readdir(coursesPath);
-			// console.log("3.2a: before ensuring tempPath")
 
-			let filesToRead = [];
-			for (let file of files) {
-				let thisPromise = fs
-					.readJson(coursesPath + file)
-					.then((object) => {
-						try {
-							// console.log("3.3")
-							let result = object["result"];
-							dataset.addSections(result);
-						} catch {
-							// do nothing
-						}
-					})
-					.catch((e) => Promise.reject(new InsightError(e)));
-				// console.log("3.3-1")
-				filesToRead.push(thisPromise);
-				// console.log("3.3-2")
-			}
-
-			let promises = Promise.all(filesToRead);
-			await promises;
-
-			// console.log("3.4")
-			// console.log("3.5")
-			return Promise.resolve();
-		} catch (e) {
-			// console.log("3.2")
-			return Promise.reject(new InsightError("" + e));
-		}
-	}
 }
