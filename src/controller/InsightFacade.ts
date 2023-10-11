@@ -26,10 +26,10 @@ const tempDir = "./temp";
 export default class InsightFacade implements IInsightFacade {
 	// Datasets is a map of dataset ids to if they are used or not.
 	// Will return undefined if id was never used or false if it was removed already.
-	private datasets: Map<string, InsightDataset | false>;
+	private static datasets: Map<string, InsightDataset | false>;
 
 	constructor() {
-		this.datasets = new Map();
+		InsightFacade.datasets = new Map();
 		this.initialize();
 		console.log("InsightFacadeImpl::init()");
 	}
@@ -46,7 +46,7 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("Invalid id"));
 		}
 		// Reject if a dataset with the same id is already present
-		if (this.datasets.get(id) !== undefined && this.datasets.get(id)) {
+		if (InsightFacade.datasets.get(id) !== undefined && InsightFacade.datasets.get(id)) {
 			return Promise.reject(new InsightError("Key already present in dataset"));
 		}
 		// Try to extract content and put in ./temp/id
@@ -80,11 +80,11 @@ export default class InsightFacade implements IInsightFacade {
 				kind: data.kind,
 				numRows: data.numRows,
 			};
-			this.datasets.set(id, data2);
+			InsightFacade.datasets.set(id, data2);
 			fs.removeSync(tempDir);
 			let result: string[] = [];
-			for (let k of this.datasets.keys()) {
-				if (this.datasets.get(k)) {
+			for (let k of InsightFacade.datasets.keys()) {
+				if (InsightFacade.datasets.get(k)) {
 					result.push(k);
 				}
 			}
@@ -105,16 +105,16 @@ export default class InsightFacade implements IInsightFacade {
 	public async removeDataset(id: string): Promise<string> {
 		if (this.isNotValidID(id)) {
 			return Promise.reject(new InsightError("Invalid id"));
-			// } if (this.datasets.contains(id)) {
+			// } if (InsightFacade.datasets.contains(id)) {
 			// 	reject(new NotFoundError("ID not present in dataset"))
 		}
-		if (!this.datasets.get(id)) {
+		if (!InsightFacade.datasets.get(id)) {
 			return Promise.reject(new NotFoundError("ID not present in dataset"));
 		}
 
 		try {
 			await fs.remove(persistDir + "/" + id + ".json");
-			this.datasets.set(id, false);
+			InsightFacade.datasets.set(id, false);
 			return Promise.resolve(id);
 		} catch {
 			return Promise.reject(new InsightError("Error removing dataset"));
@@ -152,7 +152,7 @@ export default class InsightFacade implements IInsightFacade {
 	public listDatasets(): Promise<InsightDataset[]> {
 		return new Promise((resolve, reject) => {
 			let result: InsightDataset[] = [];
-			for (let dataset of this.datasets.values()) {
+			for (let dataset of InsightFacade.datasets.values()) {
 				if (dataset) {
 					result.push(dataset);
 				}
@@ -172,7 +172,7 @@ export default class InsightFacade implements IInsightFacade {
 					kind: object.kind,
 					numRows: object.numRows,
 				};
-				this.datasets.set(file, data);
+				InsightFacade.datasets.set(object.id, data);
 			}
 		} catch {
 			console.error("Unable to initialize directory");
@@ -205,8 +205,7 @@ export default class InsightFacade implements IInsightFacade {
 		await fs.ensureDir(tempPath);
 		const zip = new JSZip();
 		// console.log("2.2: before AsyncLoad")
-		await zip
-			.loadAsync(stringBuffer)
+		await zip.loadAsync(stringBuffer)
 			.then(() => {
 				return Promise.all(
 					Object.keys(zip.files).map((filename: string) => {
