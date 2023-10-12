@@ -132,7 +132,8 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when there is only 1 section that is missing a field", function () {
+
+		context("when each section is missing a different field", function () {
 			it("should reject with an InsightError for missing fields", function () {
 				let invalidDataset = getContentFromArchives("missingFields.zip");
 
@@ -158,6 +159,34 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("when adding a dataset with result key named wrong", function () {
+			it("should thrown an error for no valid courses", function () {
+				const invalidSection = getContentFromArchives("notNamedResult.zip");
+
+				const result = facade.addDataset("ubc", invalidSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a dataset with all keys as strings that can't be numbers", function () {
+			it("should thrown an error for no valid courses", function () {
+				const invalidSection = getContentFromArchives("allKeysAreStringsThatArentNumbers.zip");
+
+				const result = facade.addDataset("ubc", invalidSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+		context("when kind is invalid", function () {
+			it("should reject with an InsightError for kind is invalid", function () {
+				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Rooms);
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+
 		context("when adding a dataset with a section missing fields but includes other valid sections", function () {
 			it("should successfully add a dataset with the valid sections only", function () {
 				const validSection = getContentFromArchives("missingFieldsOtherValidSection.zip");
@@ -167,10 +196,21 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when kind is invalid", function () {
-			it("should reject with an InsightError for kind is invalid", function () {
-				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Rooms);
-				return expect(result).to.eventually.be.rejectedWith(InsightError);
+		context("when adding a dataset with all keys as numbers", function () {
+			it("should successfully add a dataset", function () {
+				const validSection = getContentFromArchives("allRequiredKeysAreNumbers.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.include.members(["ubc"]);
+			});
+		});
+
+		context("when adding a dataset with all keys as strings that can convert to numbers", function () {
+			it("should successfully add a dataset", function () {
+				const validSection = getContentFromArchives("allKeysAreStringsThatCanBeNumbers.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.include.members(["ubc"]);
 			});
 		});
 
@@ -188,15 +228,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when adding a dataset with result key named wrong", function () {
-			it("should thrown an error for no valid courses", function () {
-				const invalidSection = getContentFromArchives("notNamedResult.zip");
-
-				const result = facade.addDataset("ubc", invalidSection, InsightDatasetKind.Sections);
-
-				return expect(result).to.eventually.be.rejectedWith(InsightError);
-			});
-		});
+		
 
 		context("when adding many sections", function () {
 			it("should successfully add 64612 sections", async function () {
