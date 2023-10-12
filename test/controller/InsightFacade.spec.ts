@@ -58,10 +58,10 @@ describe("InsightFacade", async function () {
 					const firstCall = await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
 					expect(firstCall).to.have.members(["ubc"]);
 
-					await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
-					expect.fail("Should have thrown an error");
+					let result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+					return expect(result).to.eventually.rejectedWith(InsightError);
 				} catch (error) {
-					expect(error).to.be.instanceOf(InsightError);
+					return expect.fail("Incorrect error thrown");
 				}
 			});
 		});
@@ -155,7 +155,7 @@ describe("InsightFacade", async function () {
 			it("should successfully add a dataset", function () {
 				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
 
-				return expect(result).to.eventually.include.members(["ubc"]);
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
 			});
 		});
 
@@ -192,7 +192,7 @@ describe("InsightFacade", async function () {
 				const validSection = getContentFromArchives("missingFieldsOtherValidSection.zip");
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
-				return expect(result).to.eventually.include.members(["ubc"]);
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
 			});
 		});
 
@@ -201,7 +201,7 @@ describe("InsightFacade", async function () {
 				const validSection = getContentFromArchives("allRequiredKeysAreNumbers.zip");
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
-				return expect(result).to.eventually.include.members(["ubc"]);
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
 			});
 		});
 
@@ -210,7 +210,7 @@ describe("InsightFacade", async function () {
 				const validSection = getContentFromArchives("allKeysAreStringsThatCanBeNumbers.zip");
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
-				return expect(result).to.eventually.include.members(["ubc"]);
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
 			});
 		});
 
@@ -224,7 +224,7 @@ describe("InsightFacade", async function () {
 					.then(() => facade.addDataset("second", secondSection, InsightDatasetKind.Sections))
 					.then(() => facade.addDataset("third", thirdSection, InsightDatasetKind.Sections));
 
-				return expect(result).to.eventually.include.members(["first", "second", "third"]);
+				return expect(result).to.eventually.have.lengthOf(3).and.include.members(["second", "third", "first"]);
 			});
 		});
 
@@ -237,14 +237,16 @@ describe("InsightFacade", async function () {
 					const add = await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
 					const list = await facade.listDatasets();
 					const remove = await facade.removeDataset("ubc");
+					const list2 = await facade.listDatasets();
 
-					expect(add).to.include.members(["ubc"]);
-					expect(list).to.deep.include({
+					expect(add).to.have.lengthOf(1).and.include.members(["ubc"]);
+					expect(list).to.have.lengthOf(1).and.deep.include({
 						id: "ubc",
 						kind: InsightDatasetKind.Sections,
 						numRows: 64612,
 					});
 					expect(remove).to.equal("ubc");
+					expect(list2).to.be.empty
 				} catch (error) {
 					expect.fail("Error not expected");
 				}
@@ -480,7 +482,7 @@ describe("InsightFacade", async function () {
 				const result = facade
 					.addDataset("ubc", oneSection, InsightDatasetKind.Sections)
 					.then(() => facade.listDatasets());
-				return expect(result).to.eventually.include.deep.members([
+				return expect(result).to.eventually.have.lengthOf(1).include.deep.members([
 					{
 						id: "ubc",
 						kind: InsightDatasetKind.Sections,
@@ -499,7 +501,7 @@ describe("InsightFacade", async function () {
 					.then(() => facade.addDataset("second", secondSection, InsightDatasetKind.Sections))
 					.then(() => facade.listDatasets());
 
-				return expect(result).to.eventually.include.deep.members([
+				return expect(result).to.eventually.have.lengthOf(2).and.include.deep.members([
 					{
 						id: "first",
 						kind: InsightDatasetKind.Sections,
@@ -522,7 +524,7 @@ describe("InsightFacade", async function () {
 					.then(() => facade.addDataset("second", firstSection, InsightDatasetKind.Sections))
 					.then(() => facade.listDatasets());
 
-				return expect(result).to.eventually.include.deep.members([
+				return expect(result).to.eventually.have.lengthOf(2).and.include.deep.members([
 					{
 						id: "first",
 						kind: InsightDatasetKind.Sections,
@@ -560,7 +562,7 @@ describe("InsightFacade", async function () {
 						.addDataset("ubc", sections, InsightDatasetKind.Sections)
 						.then(() => facade.removeDataset("ubc"))
 						.then(() => facade.listDatasets());
-					return expect(result).to.eventually.deep.equal([]);
+					return expect(result).to.eventually.be.empty;
 				});
 			});
 		});
@@ -611,6 +613,26 @@ describe("InsightFacade", async function () {
 				return expect(result).to.eventually.be.rejectedWith(NotFoundError);
 			});
 		});
+
+		context("when you remove multiple datasets", function() {
+			it("should remove all added datasets", async function() {
+				await facade.addDataset("ubc", sections, InsightDatasetKind.Sections)
+				await facade.addDataset("U of BC", sections, InsightDatasetKind.Sections)
+				await facade.addDataset("University", sections, InsightDatasetKind.Sections)
+				
+				const result = facade.removeDataset("U of BC")
+
+				await expect(result).to.eventually.equal("U of BC")
+
+				const result2 = facade.removeDataset("ubc")
+
+				await expect(result2).to.eventually.equal("ubc")
+
+				const result3 = facade.removeDataset("University")
+
+				return expect(result3).to.eventually.equal("University")
+			})
+		})
 	});
 
 	describe("performQuery", function () {
