@@ -50,65 +50,6 @@ export default class InsightFacade implements IInsightFacade {
 		}
 
 		return this.addContent(id, content);
-		// Try to extract content and put in ./temp/id
-		// let dataset = new Dataset(id);
-
-		// // console.log("1. before ensure tempDir")
-		// return fs.ensureDir(tempDir)
-		// 		// console.log("2. before extractContent")
-		// 		.then(() => {
-		// 			return this.extractContent(id, content);
-		// 		})
-		// 		// console.log("3. before readFilesToDataset")
-		// 		.then(() => {
-
-		// 			return this.readFilesToDataset(dataset);
-		// 		})
-		// 		// console.log("4. after readFilesToDataset")
-		// 		// console.log(dataset.getSize());
-		// 		.then(() => {
-
-		// 			if (dataset.getSize() < 1) {
-		// 				// console.log("We here")
-		// 				throw new InsightError("No valid sections");
-		// 			}
-		// 			return fs.ensureDir(persistDir);
-		// 		})
-		// 		.then(() => {
-		// 			const data = {
-		// 				id: dataset.getId(),
-		// 				kind: InsightDatasetKind.Sections,
-		// 				numRows: dataset.getSize(),
-		// 				sections: dataset.getSections(),
-		// 			};
-		// 			return fs.writeJSON(persistDir + "/" + id + ".json", data);
-		// 		})
-		// 		.then(() => {
-		// 			const data2: InsightDataset = {
-		// 				id: dataset.getId(),
-		// 				kind: InsightDatasetKind.Sections,
-		// 				numRows: dataset.getSize(),
-		// 			};
-		// 			InsightFacade.datasets.set(id, data2);
-		// 			fs.ensureDirSync(tempDir)
-		// 			fs.removeSync(tempDir);
-		// 			let result: string[] = [];
-		// 			for (let k of InsightFacade.datasets.keys()) {
-		// 				if (InsightFacade.datasets.get(k)) {
-		// 					result.push(k);
-		// 				}
-		// 			}
-		// 			return Promise.resolve(result);
-		// 		})
-		// 		.catch((e) => {
-		// 			// console.log("3")
-		// 			fs.ensureDirSync(tempDir)
-		// 			fs.removeSync(tempDir);
-		// 			throw new InsightError("" + e);
-		// 		})
-		// console.log("before ensureDir(persistDir)")
-
-		// console.log("before writing to file")
 	}
 
 	// 1. Check valid id
@@ -117,8 +58,6 @@ export default class InsightFacade implements IInsightFacade {
 	public async removeDataset(id: string): Promise<string> {
 		if (this.isNotValidID(id)) {
 			return Promise.reject(new InsightError("Invalid id"));
-			// } if (InsightFacade.datasets.contains(id)) {
-			// 	reject(new NotFoundError("ID not present in dataset"))
 		}
 		if (!InsightFacade.datasets.get(id)) {
 			return Promise.reject(new NotFoundError("ID not present in dataset"));
@@ -204,11 +143,6 @@ export default class InsightFacade implements IInsightFacade {
 		return isNotValid;
 	}
 
-	// Returns true if query is not a valid query
-	public isNotValidQuery(query: unknown): boolean {
-		return true; // stub
-	}
-
 	private async addContent(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
@@ -231,7 +165,6 @@ export default class InsightFacade implements IInsightFacade {
 								let object = JSON.parse(fileContent);
 								let result = object["result"];
 								dataset.addSections(result);
-								// console.log(dataset.getSize())
 							});
 						}
 					}
