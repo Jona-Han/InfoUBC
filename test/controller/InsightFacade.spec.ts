@@ -169,7 +169,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding a dataset with all keys as strings that can't be numbers", function () {
-			it("should thrown an error for no valid courses", function () {
+			it("should thrown an error for no valid courses also", function () {
 				const invalidSection = getContentFromArchives("allKeysAreStringsThatArentNumbers.zip");
 
 				const result = facade.addDataset("ubc", invalidSection, InsightDatasetKind.Sections);
@@ -195,7 +195,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding a dataset with all keys as numbers", function () {
-			it("should successfully add a dataset", function () {
+			it("should successfully add a dataset but convert skeys to strings", function () {
 				const validSection = getContentFromArchives("allRequiredKeysAreNumbers.zip");
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
@@ -204,7 +204,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding a dataset with all keys as strings that can convert to numbers", function () {
-			it("should successfully add a dataset", function () {
+			it("should successfully add a dataset but convert all mkeys to numbers", function () {
 				const validSection = getContentFromArchives("allKeysAreStringsThatCanBeNumbers.zip");
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
