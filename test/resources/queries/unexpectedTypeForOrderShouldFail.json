@@ -1,0 +1,23 @@
+{
+	"title": "unexpected type for order should fail",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": "phrm"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg",
+				"sections_instructor"
+			],
+			"ORDER": [
+				"sections_instructor",
+				"sections_avg"
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

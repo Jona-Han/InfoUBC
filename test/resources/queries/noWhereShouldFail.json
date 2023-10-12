@@ -1,0 +1,8 @@
+{
+	"title": "No where should fail",
+	"input": {
+		"ORDER": "sections_avg"
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

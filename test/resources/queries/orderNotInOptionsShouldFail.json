@@ -1,0 +1,19 @@
+{
+	"title": "order not in options should fail",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": "phrm"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_instructor"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

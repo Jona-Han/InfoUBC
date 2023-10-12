@@ -1,0 +1,19 @@
+{
+	"title": "no sections_av - passing",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_av": 97
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

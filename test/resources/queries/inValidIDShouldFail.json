@@ -1,0 +1,22 @@
+{
+	"title": "In valid ID should fail fail",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sect_ons_dept": "phrm"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sect_ons_dept",
+				"sect_ons_avg",
+				"sect_ons_instructor"
+			],
+			"ORDER": [
+				"sect_ons_instructor"
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
