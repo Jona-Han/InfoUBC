@@ -161,20 +161,25 @@ export default class InsightFacade implements IInsightFacade {
 					if (fileName.length > 8 && fileName.substring(0, 8) === "courses/") {
 						let file = zip.files[fileName];
 						if (!file.dir) {
-							newPromise = file.async("text").then((fileContent) => {
-								let object = JSON.parse(fileContent);
-								let result = object["result"];
-								dataset.addSections(result);
-							});
+							newPromise = file
+								.async("text")
+								.then((fileContent) => {
+									let object = JSON.parse(fileContent);
+									let result = object["result"];
+									dataset.addSections(result);
+								})
+								.catch((e) => {
+									return Promise.resolve();
+								}); // Catch any error
+							promises.push(newPromise);
 						}
 					}
-					promises.push(newPromise);
 				} catch {
 					// It's ok to catch a single itteration
 				}
 			}
-
 			await Promise.all(promises);
+
 			if (dataset.getSize() < 1) {
 				throw new InsightError("No valid sections");
 			}

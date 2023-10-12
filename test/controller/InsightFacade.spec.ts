@@ -194,6 +194,33 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("when adding a course that is a PDF", function () {
+			it("should return for a PDF course insightError", function () {
+				const validSection = getContentFromArchives("courseIsAPDF.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a course that is a txt", function () {
+			it("should return add course correctly", function () {
+				const validSection = getContentFromArchives("courseIsATxt.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.have.lengthOf(1).and.have.deep.members(["ubc"]);
+			});
+		});
+
+		context("when adding a course that is a JSON", function () {
+			it("should successfully add course if it correct format", function () {
+				const validSection = getContentFromArchives("courseIsAJSON.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.have.lengthOf(1).and.have.members(["ubc"]);
+			});
+		});
+
 		context("when adding a dataset with all keys as numbers", function () {
 			it("should successfully add a dataset but convert skeys to strings", function () {
 				const validSection = getContentFromArchives("allRequiredKeysAreNumbers.zip");
