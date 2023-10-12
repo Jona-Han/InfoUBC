@@ -1,0 +1,66 @@
+{
+	"title": "order by title",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_avg": 90.5
+					}
+				},
+				{
+					"EQ": {
+						"sections_year": 2012
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 90.6
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_uuid",
+				"sections_title",
+				"sections_avg",
+				"sections_year"
+			],
+			"ORDER": "sections_title"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_uuid": "47395",
+			"sections_title": "adv hlth assess",
+			"sections_avg": 90.56,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "70464",
+			"sections_title": "career planning",
+			"sections_avg": 90.58,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "29249",
+			"sections_title": "classroom mgmt",
+			"sections_avg": 90.54,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "90861",
+			"sections_title": "concepts in onco",
+			"sections_avg": 90.58,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "82248",
+			"sections_title": "crystal structre",
+			"sections_avg": 90.56,
+			"sections_year": 2012
+		}
+	]
+}

@@ -1,0 +1,66 @@
+{
+	"title": "order by uuid",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_avg": 90.5
+					}
+				},
+				{
+					"EQ": {
+						"sections_year": 2012
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 90.6
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_uuid",
+				"sections_id",
+				"sections_avg",
+				"sections_year"
+			],
+			"ORDER": "sections_uuid"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_uuid": "29249",
+			"sections_id": "432",
+			"sections_avg": 90.54,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "47395",
+			"sections_id": "510",
+			"sections_avg": 90.56,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "70464",
+			"sections_id": "574",
+			"sections_avg": 90.58,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "82248",
+			"sections_id": "514",
+			"sections_avg": 90.56,
+			"sections_year": 2012
+		},
+		{
+			"sections_uuid": "90861",
+			"sections_id": "502",
+			"sections_avg": 90.58,
+			"sections_year": 2012
+		}
+	]
+}
