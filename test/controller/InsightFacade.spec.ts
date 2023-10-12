@@ -580,6 +580,19 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("add a dataset again after a successful remove", function () {
+			it("Should be successful", async function () {
+				await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+				await facade.removeDataset("ubc");
+				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+				await expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+				const result2 = facade.listDatasets();
+				await expect(result2)
+					.to.eventually.have.lengthOf(1)
+					.and.deep.include.members([{id: "ubc", kind: "sections", numRows: 907}]);
+			});
+		});
+
 		context("id is empty", function () {
 			it("removeData should reject with InsightError for empty id", function () {
 				const result = facade
