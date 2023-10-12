@@ -1,0 +1,18 @@
+{
+	"title": "IDWithAstricsOk",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"secti*ons_title": "computer*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"secti*ons_dept"
+			],
+			"ORDER": "secti*ons_dept"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

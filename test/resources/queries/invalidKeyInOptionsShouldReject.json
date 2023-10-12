@@ -1,0 +1,20 @@
+{
+	"title": "invalid key in options should reject",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"sections_dept": "*mat*"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"sections_avg"
+			],
+			"ORDER": "sections_avg",
+			"Something": "sections_dept"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

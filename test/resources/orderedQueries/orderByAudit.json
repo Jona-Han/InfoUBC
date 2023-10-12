@@ -1,0 +1,60 @@
+{
+	"title": "order by audit",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_avg": 74.6
+					}
+				},
+				{
+					"GT": {
+						"sections_year": 2011
+					}
+				},
+				{
+					"GT": {
+						"sections_audit": 9
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_audit",
+				"sections_fail",
+				"sections_instructor",
+				"sections_pass"
+			],
+			"ORDER": "sections_audit"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_audit": 10,
+			"sections_fail": 0,
+			"sections_instructor": "lemay, valerie",
+			"sections_pass": 14
+		},
+		{
+			"sections_audit": 11,
+			"sections_fail": 1,
+			"sections_instructor": "schmidt, mark",
+			"sections_pass": 146
+		},
+		{
+			"sections_audit": 18,
+			"sections_fail": 0,
+			"sections_instructor": "schmidt, mark",
+			"sections_pass": 59
+		},
+		{
+			"sections_audit": 19,
+			"sections_fail": 0,
+			"sections_instructor": "lemay, valerie;tait, david e n",
+			"sections_pass": 9
+		}
+	]
+}

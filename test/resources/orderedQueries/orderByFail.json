@@ -1,0 +1,71 @@
+{
+	"title": "order by fail",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_avg": 74.6
+					}
+				},
+				{
+					"EQ": {
+						"sections_year": 2013
+					}
+				},
+				{
+					"LT": {
+						"sections_avg": 75
+					}
+				},
+				{
+					"GT": {
+						"sections_fail": 10
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_uuid",
+				"sections_fail",
+				"sections_instructor",
+				"sections_pass"
+			],
+			"ORDER": "sections_fail"
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_uuid": "2368",
+			"sections_fail": 11,
+			"sections_instructor": "ver, leah may;wilson, heather",
+			"sections_pass": 213
+		},
+		{
+			"sections_uuid": "31186",
+			"sections_fail": 12,
+			"sections_instructor": "lekhi, priya;mehrkhodavandi, parisa",
+			"sections_pass": 197
+		},
+		{
+			"sections_uuid": "49877",
+			"sections_fail": 17,
+			"sections_instructor": "knorr, edwin max",
+			"sections_pass": 172
+		},
+		{
+			"sections_uuid": "36554",
+			"sections_fail": 20,
+			"sections_instructor": "agharebparast, farshid;khosravi, hassan",
+			"sections_pass": 154
+		},
+		{
+			"sections_uuid": "33947",
+			"sections_fail": 23,
+			"sections_instructor": "ghioca, dragos",
+			"sections_pass": 379
+		}
+	]
+}

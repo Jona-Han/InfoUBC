@@ -1,0 +1,19 @@
+{
+	"title": "Empty String ID should fail",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"_dept": "phrm"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"_dept",
+				"_avg"
+			],
+			"ORDER": "_avg"
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

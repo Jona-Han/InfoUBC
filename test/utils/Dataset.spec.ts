@@ -16,6 +16,13 @@ describe("Dataset", async function () {
 			expect(dataset.getSize()).to.equal(0);
 		});
 
+		it("Add an undefined object should do nothing", function () {
+			dataset.addSection(undefined);
+
+			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getSize()).to.equal(0);
+		});
+
 		it("Add a single section", function () {
 			let section = {
 				Title: "",
