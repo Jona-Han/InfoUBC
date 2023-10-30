@@ -6,7 +6,7 @@ import {
 	InsightResult,
 	NotFoundError,
 } from "./IInsightFacade";
-import Dataset from "../models/Dataset";
+import SectionsDataset from "../models/SectionsDataset";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
@@ -22,11 +22,9 @@ const persistDir = "./data";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
- *
  */
 export default class InsightFacade implements IInsightFacade {
 	// Datasets is a map of dataset ids to if they are used or not.
-	// Will return undefined if id was never used or false if it was removed already.
 	private static datasets: Map<string, InsightDataset | false>;
 
 	constructor() {
@@ -149,7 +147,7 @@ export default class InsightFacade implements IInsightFacade {
 	private async addSectionDataset(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
-			let dataset = new Dataset(id);
+			let dataset = new SectionsDataset(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -195,7 +193,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private async addRoomsDataset(id: string, content: string): Promise<string[]> {
 		try {
-			let dataset = new Dataset(id);
+			let dataset = new SectionsDataset(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -237,9 +235,7 @@ export default class InsightFacade implements IInsightFacade {
 					// Do nothing
 				}
 			}
-
 			await Promise.all(promises);
-
 			throw new InsightError("Not finished");
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
@@ -254,42 +250,29 @@ export default class InsightFacade implements IInsightFacade {
 	private getBuildingLinks(node: any): Map<string, boolean> {
 		let result: Map<string, boolean> = new Map();
 		let todo = [node];
-
-		// let x = 0
-		// let y = 0
-		// let z = 0
 		while (todo.length > 0) {
-			// console.log('x: ' + x++)
 			let curr = todo.pop();
-
 			if (curr.childNodes) {
-				// console.log('y: ' + y++)
 				for (let child of curr.childNodes) {
 					todo.push(child);
 				}
 			}
-			// console.log('x2 ' + x)
 			if (curr.nodeName === "a" && curr.attrs) {
-				// console.log('z: ' + z++)
 				for (const attr of curr.attrs) {
 					let link = attr.value;
 					if (attr.name === "href" && link) {
 						if (link.substring(0, 2) === "./") {
 							link = link.substring(2, link.length);
-							// console.log(link)
 						}
 						result.set(link, true);
 					}
-					// console.log(attr.value)
 				}
 			}
 		}
-
-		// console.log(result);
 		return result;
 	}
 
-	private writeSectionDatasetToFile(dataset: Dataset): Promise<void> {
+	private writeSectionDatasetToFile(dataset: SectionsDataset): Promise<void> {
 		let data = {
 			id: dataset.getId(),
 			kind: InsightDatasetKind.Sections,
@@ -299,7 +282,7 @@ export default class InsightFacade implements IInsightFacade {
 		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
 	}
 
-	private updateDatasets(dataset: Dataset): Promise<string[]> {
+	private updateDatasets(dataset: SectionsDataset): Promise<string[]> {
 		let results: string[] = [];
 		let data: InsightDataset = {
 			id: dataset.getId(),
@@ -312,8 +295,6 @@ export default class InsightFacade implements IInsightFacade {
 				results.push(potentialDataset);
 			}
 		}
-
 		return Promise.resolve(results);
 	}
-	// addDataset helper function
 }

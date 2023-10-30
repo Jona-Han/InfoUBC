@@ -1,12 +1,12 @@
 import {InsightError} from "../../src/controller/IInsightFacade";
-import Dataset from "../../src/models/Dataset";
+import SectionsDataset from "../../src/models/SectionsDataset";
 import {expect, use} from "chai";
 describe("Dataset", async function () {
-	let dataset: Dataset;
+	let dataset: SectionsDataset;
 
 	describe("addSection", async function () {
 		beforeEach(function () {
-			dataset = new Dataset("ubc");
+			dataset = new SectionsDataset("ubc");
 		});
 
 		it("Add an incorrectly formatted object should do nothing", function () {

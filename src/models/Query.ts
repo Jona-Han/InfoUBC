@@ -15,7 +15,7 @@ import {
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
-import Dataset, {Section} from "./Dataset";
+import SectionsDataset, {Section} from "./SectionsDataset";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -23,7 +23,7 @@ export class Query implements IQuery {
 	public datasetName: string;
 
 	private directory = "./data";
-	private data: Dataset;
+	private data: SectionsDataset;
 	private datasetToFileMappings = {
 		uuid: "id",
 		id: "Course",
@@ -42,7 +42,7 @@ export class Query implements IQuery {
 		this.datasetName = QV.validateQuery(queryJSON);
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
-		this.data = new Dataset(this.datasetName);
+		this.data = new SectionsDataset(this.datasetName);
 	}
 
 	public execute(): InsightResult[] {
