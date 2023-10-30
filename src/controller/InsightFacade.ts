@@ -13,8 +13,8 @@ import JSZip from "jszip";
 import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
-
-const parse5 = require("parse5");
+import {parse} from "parse5";
+import {Document} from "parse5/dist/tree-adapters/default";
 
 const persistDir = "./data";
 // const tempDir = "./temp";
@@ -206,21 +206,39 @@ export default class InsightFacade implements IInsightFacade {
 				throw new InsightError("No index.htm file");
 			}
 			let indexContent = await index.async("text");
-			let htmlContent = parse5.parse(indexContent);
+			let htmlContent = parse(indexContent);
 			let buildingLinks = this.getBuildingLinks(htmlContent);
+			// console.log(buildingLinks)
 
 			let promises = [];
 
-			for (const link of buildingLinks) {
+			for (let link of buildingLinks.keys()) {
 				try {
 					let building = zip.files[link];
+					// console.log(building)
 					if (building) {
-						console.log(building);
+						// console.log(building)
+						let newPromise = building
+							.async("text")
+							.then((fileContent) => {
+								try {
+									// console.log(fileContent)
+									let object = parse(fileContent);
+									this.addBuilding(object);
+									// console.log(object)
+								} catch {
+									// Do nothing
+								}
+							})
+							.catch(); // Do nothing
+						promises.push(newPromise);
 					}
 				} catch {
 					// Do nothing
 				}
 			}
+
+			await Promise.all(promises);
 
 			throw new InsightError("Not finished");
 		} catch (e) {
@@ -228,9 +246,13 @@ export default class InsightFacade implements IInsightFacade {
 		}
 	}
 
+	private addBuilding(object: Document) {
+		throw new Error("Method not implemented.");
+	}
+
 	// Searches nodes for links to building files
-	private getBuildingLinks(node: any): string[] {
-		let result: string[] = [];
+	private getBuildingLinks(node: any): Map<string, boolean> {
+		let result: Map<string, boolean> = new Map();
 		let todo = [node];
 
 		// let x = 0
@@ -250,15 +272,20 @@ export default class InsightFacade implements IInsightFacade {
 			if (curr.nodeName === "a" && curr.attrs) {
 				// console.log('z: ' + z++)
 				for (const attr of curr.attrs) {
-					if (attr.name === "href" && attr.value) {
-						result.push(attr.value);
+					let link = attr.value;
+					if (attr.name === "href" && link) {
+						if (link.substring(0, 2) === "./") {
+							link = link.substring(2, link.length);
+							// console.log(link)
+						}
+						result.set(link, true);
 					}
 					// console.log(attr.value)
 				}
 			}
 		}
 
-		console.log(result);
+		// console.log(result);
 		return result;
 	}
 
