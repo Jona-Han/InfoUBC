@@ -269,12 +269,10 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-
-
-		context.only("when adding many rooms", function() {
-			it("should successfully add 364 rooms", async function() {
+		context.only("when adding many rooms", function () {
+			it("should successfully add 364 rooms", async function () {
 				try {
-					const zip = getContentFromArchives("campus.zip")
+					const zip = getContentFromArchives("campus.zip");
 					const add = await facade.addDataset("rooms", zip, InsightDatasetKind.Rooms);
 					const list = await facade.listDatasets();
 					const remove = await facade.removeDataset("rooms");
@@ -289,10 +287,10 @@ describe("InsightFacade", async function () {
 					expect(remove).to.equal("rooms");
 					expect(list2).to.be.empty;
 				} catch {
-					expect.fail("Error not exepcted")
+					expect.fail("Error not exepcted");
 				}
-			})
-		})
+			});
+		});
 	});
 
 	describe("crashTesting", function () {
