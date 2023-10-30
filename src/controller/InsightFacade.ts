@@ -215,8 +215,11 @@ export default class InsightFacade implements IInsightFacade {
 				try {
 					let building = zip.files[link];
 					if (building) {
+						console.log(building);
 					}
-				} catch {}
+				} catch {
+					// Do nothing
+				}
 			}
 
 			throw new InsightError("Not finished");
@@ -247,7 +250,9 @@ export default class InsightFacade implements IInsightFacade {
 			if (curr.nodeName === "a" && curr.attrs) {
 				// console.log('z: ' + z++)
 				for (const attr of curr.attrs) {
-					if (attr.name === "href" && attr.value) result.push(attr.value);
+					if (attr.name === "href" && attr.value) {
+						result.push(attr.value);
+					}
 					// console.log(attr.value)
 				}
 			}
