@@ -257,19 +257,25 @@ export default class InsightFacade implements IInsightFacade {
 					todo.push(child);
 				}
 			}
-			if (curr.nodeName === "a" && curr.attrs) {
-				for (const attr of curr.attrs) {
-					let link = attr.value;
-					if (attr.name === "href" && link) {
-						if (link.substring(0, 2) === "./") {
-							link = link.substring(2, link.length);
-						}
-						result.set(link, true);
-					}
-				}
+			if (curr.nodeName === "tbody") {
+				this.getLinksFromTable(curr, result);
 			}
 		}
 		return result;
+	}
+
+	private getLinksFromTable(curr: any, result: Map<string, boolean>) {
+		if (curr.nodeName === "a" && curr.attrs) {
+			for (const attr of curr.attrs) {
+				let link = attr.value;
+				if (attr.name === "href" && link) {
+					if (link.substring(0, 2) === "./") {
+						link = link.substring(2, link.length);
+					}
+					result.set(link, true);
+				}
+			}
+		}
 	}
 
 	private writeSectionDatasetToFile(dataset: SectionsDataset): Promise<void> {
