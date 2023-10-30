@@ -14,6 +14,8 @@ import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
 
+const parse5 = require('parse5')
+
 const persistDir = "./data";
 // const tempDir = "./temp";
 
@@ -38,9 +40,8 @@ export default class InsightFacade implements IInsightFacade {
 	// 3. Check Valid content
 	// 4. Add dataset
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		if (kind !== InsightDatasetKind.Sections) {
-			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-		} else if (this.isNotValidID(id)) {
+		
+		if (this.isNotValidID(id)) {
 			// Reject if id is not valid
 			return Promise.reject(new InsightError("Invalid id"));
 		}
@@ -49,8 +50,12 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("id already present in dataset"));
 		}
 
-		return this.addContent(id, content);
+		if (kind === InsightDatasetKind.Sections) {
+			return this.addSectionDataset(id, content);
+		}
+		return this.addRoomsDataset(id, content);
 	}
+	
 
 	// 1. Check valid id
 	// 2. Check id is in dataset
@@ -143,7 +148,7 @@ export default class InsightFacade implements IInsightFacade {
 		return isNotValid;
 	}
 
-	private async addContent(id: string, content: string): Promise<string[]> {
+	private async addSectionDataset(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
 			let dataset = new Dataset(id);
@@ -183,14 +188,84 @@ export default class InsightFacade implements IInsightFacade {
 			if (dataset.getSize() < 1) {
 				throw new InsightError("No valid sections");
 			}
-			await this.writeDatasetToFile(dataset);
+			await this.writeSectionDatasetToFile(dataset);
 			return this.updateDatasets(dataset);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
 		}
 	}
 
-	private writeDatasetToFile(dataset: Dataset): Promise<void> {
+	async addRoomsDataset(id: string, content: string): Promise<string[]> {
+		try {
+			let dataset = new Dataset(id);
+			const stringBuffer = Buffer.from(content, "base64");
+			const zip = new JSZip();
+			// console.log("2.2: before AsyncLoad")
+			await zip.loadAsync(stringBuffer);
+
+			let index = zip.files["index.htm"]
+			if (!index) {
+				throw new InsightError("No index.htm file")
+			}
+			let indexContent = await index.async("text");
+			let htmlContent = parse5.parse(indexContent);
+			let buildingLinks = this.getBuildingLinks(htmlContent)
+
+			let promises = []
+
+			for (const link of buildingLinks) {
+				try {
+					let building = zip.files[link]
+				if (building) {
+					
+				}
+				} catch {
+
+				}
+				
+			}
+			
+			throw new InsightError("Not finished")
+		} catch (e) {
+			throw new InsightError("Error extracting data: " + e);
+		}
+	}
+
+	// Searches nodes for links to building files
+	private getBuildingLinks(node: any): string[] {
+		let result: string[] = []
+		let todo = [node]
+
+		// let x = 0
+		// let y = 0
+		// let z = 0
+		while (todo.length > 0) {
+			// console.log('x: ' + x++)
+			let curr = todo.pop()
+			
+			if (curr.childNodes) {
+				// console.log('y: ' + y++)
+				for (let child of curr.childNodes) {
+					todo.push(child)
+				}
+			}
+			// console.log('x2 ' + x)
+			if (curr.nodeName === 'a' && curr.attrs) {
+				// console.log('z: ' + z++)
+				for (const attr of curr.attrs) {
+					if (attr.name === 'href' && attr.value)
+						result.push(attr.value)
+						// console.log(attr.value)
+				}
+			}
+		}
+
+
+		console.log(result)
+		return result;
+	}
+
+	private writeSectionDatasetToFile(dataset: Dataset): Promise<void> {
 		let data = {
 			id: dataset.getId(),
 			kind: InsightDatasetKind.Sections,
