@@ -6,7 +6,8 @@ import {
 	InsightResult,
 	NotFoundError,
 } from "./IInsightFacade";
-import SectionsDataset from "../models/SectionsDataset";
+import Sections from "../models/Sections";
+import Rooms from "../models/Rooms";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
@@ -147,7 +148,7 @@ export default class InsightFacade implements IInsightFacade {
 	private async addSectionDataset(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
-			let dataset = new SectionsDataset(id);
+			let dataset = new Sections(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -193,7 +194,7 @@ export default class InsightFacade implements IInsightFacade {
 
 	private async addRoomsDataset(id: string, content: string): Promise<string[]> {
 		try {
-			let dataset = new SectionsDataset(id);
+			let dataset = new Sections(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -205,7 +206,8 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			let indexContent = await index.async("text");
 			let htmlContent = parse(indexContent);
-			let buildingLinks = this.getBuildingLinks(htmlContent);
+			let rooms = new Rooms(id);
+			let buildingLinks = rooms.addBuildings(htmlContent);
 			// console.log(buildingLinks)
 
 			let promises = [];
@@ -246,39 +248,7 @@ export default class InsightFacade implements IInsightFacade {
 		throw new Error("Method not implemented.");
 	}
 
-	// Searches nodes for links to building files
-	private getBuildingLinks(node: any): Map<string, boolean> {
-		let result: Map<string, boolean> = new Map();
-		let todo = [node];
-		while (todo.length > 0) {
-			let curr = todo.pop();
-			if (curr.childNodes) {
-				for (let child of curr.childNodes) {
-					todo.push(child);
-				}
-			}
-			if (curr.nodeName === "tbody") {
-				this.getLinksFromTable(curr, result);
-			}
-		}
-		return result;
-	}
-
-	private getLinksFromTable(curr: any, result: Map<string, boolean>) {
-		if (curr.nodeName === "a" && curr.attrs) {
-			for (const attr of curr.attrs) {
-				let link = attr.value;
-				if (attr.name === "href" && link) {
-					if (link.substring(0, 2) === "./") {
-						link = link.substring(2, link.length);
-					}
-					result.set(link, true);
-				}
-			}
-		}
-	}
-
-	private writeSectionDatasetToFile(dataset: SectionsDataset): Promise<void> {
+	private writeSectionDatasetToFile(dataset: Sections): Promise<void> {
 		let data = {
 			id: dataset.getId(),
 			kind: InsightDatasetKind.Sections,
@@ -288,7 +258,7 @@ export default class InsightFacade implements IInsightFacade {
 		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
 	}
 
-	private updateDatasets(dataset: SectionsDataset): Promise<string[]> {
+	private updateDatasets(dataset: Sections): Promise<string[]> {
 		let results: string[] = [];
 		let data: InsightDataset = {
 			id: dataset.getId(),
