@@ -178,13 +178,6 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when kind is invalid", function () {
-			it("should reject with an InsightError for kind is invalid", function () {
-				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Rooms);
-				return expect(result).to.eventually.be.rejectedWith(InsightError);
-			});
-		});
-
 		context("when adding a dataset with a section missing fields but includes other valid sections", function () {
 			it("should successfully add a dataset with the valid sections only", function () {
 				const validSection = getContentFromArchives("missingFieldsOtherValidSection.zip");
@@ -272,6 +265,29 @@ describe("InsightFacade", async function () {
 					expect(list2).to.be.empty;
 				} catch (error) {
 					expect.fail("Error not expected");
+				}
+			});
+		});
+
+		context("when adding many rooms", function () {
+			it("should successfully add 364 rooms", async function () {
+				try {
+					const zip = getContentFromArchives("campus.zip");
+					const add = await facade.addDataset("rooms", zip, InsightDatasetKind.Rooms);
+					const list = await facade.listDatasets();
+					const remove = await facade.removeDataset("rooms");
+					const list2 = await facade.listDatasets();
+
+					expect(add).to.have.lengthOf(1).and.include.members(["rooms"]);
+					expect(list).to.have.lengthOf(1).and.deep.include({
+						id: "rooms",
+						kind: InsightDatasetKind.Rooms,
+						numRows: 364,
+					});
+					expect(remove).to.equal("rooms");
+					expect(list2).to.be.empty;
+				} catch {
+					expect.fail("Error not exepcted");
 				}
 			});
 		});

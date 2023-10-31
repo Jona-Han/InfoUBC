@@ -13,7 +13,7 @@ export interface Section {
 	Audit: number;
 }
 
-export default class Dataset {
+export default class Sections {
 	private id: string;
 	private size: number;
 	private sections: Section[];
