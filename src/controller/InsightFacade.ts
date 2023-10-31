@@ -207,29 +207,30 @@ export default class InsightFacade implements IInsightFacade {
 			let htmlContent = parse(indexContent);
 			let rooms = new Rooms(id);
 			let buildings = rooms.addBuildings(htmlContent);
-			let promises = []
+			let promises = [];
 			for (let building of buildings) {
 				let newPromise;
-				let link = building.get('href')
-				if (link && typeof link === 'string') {
-					let buildingFile = zip.files[link]
+				let link = building.get("href");
+				if (link && typeof link === "string") {
+					let buildingFile = zip.files[link];
 					if (buildingFile) {
-						newPromise = buildingFile.async('text')
+						newPromise = buildingFile
+							.async("text")
 							.then((buildingContent) => {
 								try {
-									let parsed = parse(buildingContent)
-									rooms.addRooms(parsed, building)
+									let parsed = parse(buildingContent);
+									rooms.addRooms(parsed, building);
 								} catch {
 									// Do nothing
 								}
-							}).catch() // Do nothing
-						promises.push(newPromise) 
+							})
+							.catch(); // Do nothing
+						promises.push(newPromise);
 					}
 				}
 			}
 
-			await Promise.all(promises)
-			
+			await Promise.all(promises);
 
 			throw new InsightError("Not finished");
 		} catch (e) {
