@@ -6,13 +6,16 @@ import {
 	InsightResult,
 	NotFoundError,
 } from "./IInsightFacade";
-import Dataset from "../models/Dataset";
+import Sections from "../models/Sections";
+import Rooms from "../models/Rooms";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
 import QueryValidator from "../utils/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
+import {parse} from "parse5";
+import {Document} from "parse5/dist/tree-adapters/default";
 
 const persistDir = "./data";
 // const tempDir = "./temp";
@@ -20,11 +23,9 @@ const persistDir = "./data";
 /**
  * This is the main programmatic entry point for the project.
  * Method documentation is in IInsightFacade
- *
  */
 export default class InsightFacade implements IInsightFacade {
 	// Datasets is a map of dataset ids to if they are used or not.
-	// Will return undefined if id was never used or false if it was removed already.
 	private static datasets: Map<string, InsightDataset | false>;
 
 	constructor() {
@@ -38,9 +39,7 @@ export default class InsightFacade implements IInsightFacade {
 	// 3. Check Valid content
 	// 4. Add dataset
 	public async addDataset(id: string, content: string, kind: InsightDatasetKind): Promise<string[]> {
-		if (kind !== InsightDatasetKind.Sections) {
-			return Promise.reject(new InsightError("kind must be InsightDatasetKind.Sections"));
-		} else if (this.isNotValidID(id)) {
+		if (this.isNotValidID(id)) {
 			// Reject if id is not valid
 			return Promise.reject(new InsightError("Invalid id"));
 		}
@@ -49,7 +48,10 @@ export default class InsightFacade implements IInsightFacade {
 			return Promise.reject(new InsightError("id already present in dataset"));
 		}
 
-		return this.addContent(id, content);
+		if (kind === InsightDatasetKind.Sections) {
+			return this.addSectionDataset(id, content);
+		}
+		return this.addRoomsDataset(id, content);
 	}
 
 	// 1. Check valid id
@@ -143,10 +145,10 @@ export default class InsightFacade implements IInsightFacade {
 		return isNotValid;
 	}
 
-	private async addContent(id: string, content: string): Promise<string[]> {
+	private async addSectionDataset(id: string, content: string): Promise<string[]> {
 		// console.log("Trying to add dataset to data");
 		try {
-			let dataset = new Dataset(id);
+			let dataset = new Sections(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -183,28 +185,79 @@ export default class InsightFacade implements IInsightFacade {
 			if (dataset.getSize() < 1) {
 				throw new InsightError("No valid sections");
 			}
-			await this.writeDatasetToFile(dataset);
-			return this.updateDatasets(dataset);
+			await this.writeDatasetToFile(dataset, InsightDatasetKind.Sections);
+			return this.updateDatasets(dataset, InsightDatasetKind.Sections);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
 		}
 	}
 
-	private writeDatasetToFile(dataset: Dataset): Promise<void> {
+	private async addRoomsDataset(id: string, content: string): Promise<string[]> {
+		try {
+			const stringBuffer = Buffer.from(content, "base64");
+			const zip = new JSZip();
+			// console.log("2.2: before AsyncLoad")
+			await zip.loadAsync(stringBuffer);
+
+			let index = zip.files["index.htm"];
+			if (!index) {
+				throw new InsightError("No index.htm file");
+			}
+			let indexContent = await index.async("text");
+			let htmlContent = parse(indexContent);
+			let rooms = new Rooms(id);
+			let buildings = rooms.addBuildings(htmlContent);
+			// rooms.getGeolocations(buildings)
+			let promises = [];
+			for (let building of buildings) {
+				let newPromise;
+				let link = building.get("href");
+				if (link && typeof link === "string") {
+					let buildingFile = zip.files[link];
+					if (buildingFile) {
+						newPromise = buildingFile
+							.async("text")
+							.then((buildingContent) => {
+								try {
+									let parsed = parse(buildingContent);
+									rooms.addRooms(parsed, building);
+								} catch {
+									// Do nothing
+								}
+							})
+							.catch(); // Do nothing
+						promises.push(newPromise);
+					}
+				}
+			}
+
+			await Promise.all(promises);
+
+			rooms.update(buildings);
+			// console.log(rooms)
+			await this.writeDatasetToFile(rooms, InsightDatasetKind.Rooms);
+
+			return this.updateDatasets(rooms, InsightDatasetKind.Rooms);
+		} catch (e) {
+			throw new InsightError("Error extracting data: " + e);
+		}
+	}
+
+	private writeDatasetToFile(dataset: Sections | Rooms, kind: InsightDatasetKind): Promise<void> {
 		let data = {
 			id: dataset.getId(),
-			kind: InsightDatasetKind.Sections,
+			kind: kind,
 			numRows: dataset.getSize(),
 			sections: dataset.getSections(),
 		};
 		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
 	}
 
-	private updateDatasets(dataset: Dataset): Promise<string[]> {
+	private updateDatasets(dataset: Sections | Rooms, kind: InsightDatasetKind): Promise<string[]> {
 		let results: string[] = [];
 		let data: InsightDataset = {
 			id: dataset.getId(),
-			kind: InsightDatasetKind.Sections,
+			kind: kind,
 			numRows: dataset.getSize(),
 		};
 		InsightFacade.datasets.set(dataset.getId(), data);
@@ -213,8 +266,6 @@ export default class InsightFacade implements IInsightFacade {
 				results.push(potentialDataset);
 			}
 		}
-
 		return Promise.resolve(results);
 	}
-	// addDataset helper function
 }
