@@ -194,7 +194,6 @@ export default class InsightFacade implements IInsightFacade {
 
 	private async addRoomsDataset(id: string, content: string): Promise<string[]> {
 		try {
-			let dataset = new Sections(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			// console.log("2.2: before AsyncLoad")
@@ -207,37 +206,31 @@ export default class InsightFacade implements IInsightFacade {
 			let indexContent = await index.async("text");
 			let htmlContent = parse(indexContent);
 			let rooms = new Rooms(id);
-			let buildingLinks = rooms.addBuildings(htmlContent);
-			// console.log(buildingLinks)
-
-			let promises = [];
-
-			for (let link of buildingLinks.keys()) {
-				try {
-					let building = zip.files[link];
-					// console.log(building)
-					if (building) {
-						// console.log(building)
-						let newPromise = building
-							.async("text")
-							.then((fileContent) => {
+			let buildings = rooms.addBuildings(htmlContent);
+			let promises = []
+			for (let building of buildings) {
+				let newPromise;
+				let link = building.get('href')
+				if (link && typeof link === 'string') {
+					let buildingFile = zip.files[link]
+					if (buildingFile) {
+						newPromise = buildingFile.async('text')
+							.then((buildingContent) => {
 								try {
-									// console.log(fileContent)
-									let object = parse(fileContent);
-									this.addBuilding(object);
-									// console.log(object)
+									let parsed = parse(buildingContent)
+									rooms.addRooms(parsed, building)
 								} catch {
 									// Do nothing
 								}
-							})
-							.catch(); // Do nothing
-						promises.push(newPromise);
+							}).catch() // Do nothing
+						promises.push(newPromise) 
 					}
-				} catch {
-					// Do nothing
 				}
 			}
-			await Promise.all(promises);
+
+			await Promise.all(promises)
+			
+
 			throw new InsightError("Not finished");
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);

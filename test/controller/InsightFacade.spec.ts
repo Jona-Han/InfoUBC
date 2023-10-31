@@ -269,7 +269,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when adding many rooms", function () {
+		context.only("when adding many rooms", function () {
 			it("should successfully add 364 rooms", async function () {
 				try {
 					const zip = getContentFromArchives("campus.zip");
