@@ -8,13 +8,17 @@ import {
 	SComparator,
 	Negation,
 	JSONQuery,
+	SField,
+	Sort,
 } from "../models/IQuery";
 
 export default class QueryValidator {
-	private dataset;
+	private dataset: string;
+	private keys: Set<string>;
 
 	constructor() {
 		this.dataset = "";
+		this.keys = new Set();
 	}
 
 	public validateQuery(query: object): string {
@@ -23,6 +27,10 @@ export default class QueryValidator {
 		if (Object.keys(vQuery.WHERE as object).length !== 0) {
 			this.validateWhere(vQuery.WHERE as object);
 		}
+		if ("TRANSFORMATIONS" in vQuery) {
+			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
+		}
+
 		this.validateOptions(vQuery.OPTIONS);
 		return this.dataset;
 	}
@@ -73,9 +81,16 @@ export default class QueryValidator {
 			}
 		}
 
-		// Check type of Order
-		if ("ORDER" in options && typeof options.ORDER !== "string") {
-			throw new InsightError("Invalid Order type. Must be string.");
+		// Check type of Order if present
+		if ("ORDER" in options) {
+			if (options.ORDER && typeof options.ORDER === "object") {
+				if (!("dir" in options.ORDER) || !("keys" in options.ORDER)) {
+					throw new InsightError("Invalid Order structure");
+				}
+				// Additional validation can be added for 'dir' and 'keys'
+			} else if (typeof options.ORDER !== "string") {
+				throw new InsightError("Invalid Order type. Must be string or object.");
+			}
 		}
 
 		// Validate keys in columns
@@ -92,6 +107,51 @@ export default class QueryValidator {
 				throw new InsightError("Order key not in column keys");
 			}
 		}
+	}
+	public validateTransformations(transformations: object): void {
+		if (!("GROUP" in transformations) || !Array.isArray(transformations.GROUP)) {
+			throw new InsightError("Invalid GROUP in Transformations");
+		}
+		for (let key of transformations.GROUP) {
+			// if (!this.validateKey(key)) {
+			//     throw new InsightError("Invalid key in GROUP: " + key);
+			// }
+		}
+
+		if (!("APPLY" in transformations) || !Array.isArray(transformations.APPLY)) {
+			throw new InsightError("Invalid APPLY in Transformations");
+		}
+		for (let rule of transformations.APPLY) {
+			// if (!this.validateApplyRule(rule)) {
+			//     throw new InsightError("Invalid apply rule in APPLY");
+			// }
+		}
+	}
+
+	// private validateApplyRule(rule: object): boolean {
+	//     // if (Object.keys(rule).length !== 1) {
+	//     //     return false; // each rule should have only one key-value pair
+	//     // }
+
+	//     // const applyKey = Object.keys(rule)[0];
+	//     // if (!this.validateApplyKey(applyKey)) {
+	//     //     return false;
+	//     // }
+
+	//     // const applyValue = rule[applyKey];
+	//     // const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
+	//     // const token = Object.keys(applyValue)[0];
+
+	//     // if (!validTokens.includes(token)) {
+	//     //     return false;
+	//     // }
+
+	//     // return this.validateKey(applyValue[token]);
+	// }
+
+	private validateApplyKey(applyKey: string): boolean {
+		const pattern = /^[^_]+$/;
+		return pattern.test(applyKey);
 	}
 
 	public validateWhere(where: object): void {
@@ -156,7 +216,9 @@ export default class QueryValidator {
 			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
-		this.validateMKey(fieldKeys[0]);
+		if (!this.validateMKey(fieldKeys[0])) {
+            throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+        }
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "number") {
@@ -179,7 +241,9 @@ export default class QueryValidator {
 			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
-		this.validateSKey(fieldKeys[0]);
+		if (!this.validateSKey(fieldKeys[0])) {
+            throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+        }
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "string") {
@@ -206,63 +270,41 @@ export default class QueryValidator {
 		}
 	}
 
-	public validateMKey(input: string): void {
-		const parts = input.split("_");
-
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key for MComparison");
+	public validateMKey(input: string): boolean {
+		const mKeyPattern = /^[^_]+_(avg|pass|fail|audit|year|lat|lon|seats)$/;
+		if (!mKeyPattern.test(input)) {
+			return false;
 		}
 
-		const [contentName, mField] = parts;
-		if (this.dataset === "") {
-			this.dataset = contentName;
-		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
-		}
-
-		// Check if mField is a valid MField
-		if (!["avg", "pass", "fail", "audit", "year"].includes(mField)) {
-			throw new InsightError(`Invalid type for MComparison. ${mField} is not a valid type`);
-		}
+		this.checkForMultipleDataset(input);
+        return true;
 	}
 
-	public validateSKey(input: string): void {
-		const parts = input.split("_");
-
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key for SComparison");
+	public validateSKey(input: string): boolean {
+		const sKeyPattern =
+			/^[^_]+_(dept|id|instructor|title|uuid|fullname|shortname|number|name|address|type|furniture|href)$/;
+		if (!sKeyPattern.test(input)) {
+			return false
 		}
-		const [contentName, sField] = parts;
+		this.checkForMultipleDataset(input);
+        return true;
+	}
+
+	private checkForMultipleDataset(input: string) {
+		const [contentName, key] = input.split("_");
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
 			throw new InsightError("Cannot query from multiple datasets");
 		}
-
-		// Check if sField is a valid SField
-		if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
-			throw new InsightError(`Invalid type for SComparison. ${sField} is not a valid type`);
-		}
+		this.keys.add(key);
 	}
 
 	public validateKey(input: string): void {
-		const parts = input.split("_");
+        if (!this.validateMKey(input) && !this.validateSKey(input)) {
+            throw new InsightError(`Invalid key: ${input}`);
+        }
 
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key");
-		}
-		const [contentName, field] = parts;
-		if (this.dataset === "") {
-			this.dataset = contentName;
-		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
-		}
-
-		if (!["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"].includes(field)) {
-			throw new InsightError(`Invalid key type. ${field} is not a valid type`);
-		}
+		this.checkForMultipleDataset(input);
 	}
 }

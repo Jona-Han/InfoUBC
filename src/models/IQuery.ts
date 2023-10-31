@@ -56,7 +56,7 @@ export interface ApplyRule {
 export interface JSONQuery {
 	WHERE: Filter;
 	OPTIONS: Options;
-	TRANSFORMATIONS?: Transformations; // Optional according to the EBNF.
+	TRANSFORMATIONS?: Transformations;
 }
 
 export interface IQuery extends JSONQuery {

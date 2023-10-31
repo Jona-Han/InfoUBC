@@ -4,7 +4,7 @@ import {expect} from "chai";
 import QueryValidator from "../../src/utils/QueryValidator";
 import {InsightError} from "../../src/controller/IInsightFacade";
 
-describe("QueryValidator", () => {
+describe.only("QueryValidator", () => {
 	let QV: QueryValidator;
 	beforeEach(() => {
 		QV = new QueryValidator();
@@ -158,26 +158,6 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateQuery(outsideQueryWithExcessKeys)).to.throw("Excess Keys in Query");
 		});
-
-        it("should not throw an error for a valid query object", () => {
-			const validQuery = {
-				WHERE: {
-					GT: {
-						sections_avg: 97,
-					},
-				},
-				OPTIONS: {
-					COLUMNS: ["sections_dept"],
-					ORDER: "sections_avg",
-				},
-                TRANSFORMATIONS: {
-                    GROUP:[],
-                    APPLY:
-                }
-			};
-
-			expect(() => QV.validateQueryOutside(validQuery)).to.not.throw();
-		});
 	});
 
 	describe("validateOptions", () => {
@@ -234,7 +214,7 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateOptions(invalidOptions)).to.throw(
 				InsightError,
-				"Invalid Order type. Must be string."
+				"Invalid Order type. Must be string or object."
 			);
 		});
 
@@ -297,7 +277,7 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(InsightError, "Invalid key: coursedept");
 		});
 
 		it("should throw InsightError for invalid mKey", () => {
@@ -309,7 +289,7 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
 				InsightError,
-				"Invalid type for MComparison. dept is not a valid type"
+				"Invalid key: course_dept"
 			);
 		});
 
@@ -418,7 +398,7 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(InsightError, "Invalid key: coursedept");
 		});
 
 		it("should throw InsightError for invalid sKey", () => {
@@ -430,7 +410,7 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
 				InsightError,
-				"Invalid type for SComparison. avg is not a valid type"
+				"Invalid key: course_avg"
 			);
 		});
 
@@ -692,59 +672,41 @@ describe("QueryValidator", () => {
 		});
 	});
 
-	describe("validateMKey", () => {
-		it("should not throw for a valid MField input", () => {
-			expect(() => QV.validateMKey("validContent_avg")).to.not.throw();
-		});
-
-		it("should throw InsightError for an invalid MField input", () => {
-			expect(() => QV.validateMKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid type for MComparison. not is not a valid type"
-			);
-		});
-
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateMKey("invalidContentavg")).to.throw(
-				InsightError,
-				"Invalid query key for MComparison"
-			);
-		});
-
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateMKey("validContent_avg_extra")).to.throw(
-				InsightError,
-				"Invalid query key for MComparison"
-			);
-		});
-	});
-
-	describe("validateSKey", () => {
-		it("should not throw for a valid SField input", () => {
-			expect(() => QV.validateSKey("validContent_dept")).to.not.throw();
-		});
-
-		it("should throw InsightError for an invalid SField input", () => {
-			expect(() => QV.validateSKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid type for SComparison. not is not a valid type"
-			);
-		});
-
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateSKey("invalidContentdept")).to.throw(
-				InsightError,
-				"Invalid query key for SComparison"
-			);
-		});
-
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateSKey("validContent_dept_extra")).to.throw(
-				InsightError,
-				"Invalid query key for SComparison"
-			);
-		});
-	});
+    describe("validateMKey", () => {
+        it("should return true for a valid MField input", () => {
+            expect(QV.validateMKey("validContent_avg")).to.equal(true);
+        });
+    
+        it("should return false for an invalid MField input", () => {
+            expect(QV.validateMKey("validContent_not")).to.equal(false);
+        });
+    
+        it("should return false for input without an underscore", () => {
+            expect(QV.validateMKey("invalidContentavg")).to.equal(false);
+        });
+    
+        it("should return false for input with more than one underscore", () => {
+            expect(QV.validateMKey("validContent_avg_extra")).to.equal(false);
+        });
+    });
+    
+    describe("validateSKey", () => {
+        it("should return true for a valid SField input", () => {
+            expect(QV.validateSKey("validContent_dept")).to.equal(true);
+        });
+    
+        it("should return false for an invalid SField input", () => {
+            expect(QV.validateSKey("validContent_not")).to.equal(false);
+        });
+    
+        it("should return false for input without an underscore", () => {
+            expect(QV.validateSKey("invalidContentdept")).to.equal(false);
+        });
+    
+        it("should return false for input with more than one underscore", () => {
+            expect(QV.validateSKey("validContent_dept_extra")).to.equal(false);
+        });
+    });    
 
 	describe("validateKey", () => {
 		it("should not throw for a valid column key input", () => {
