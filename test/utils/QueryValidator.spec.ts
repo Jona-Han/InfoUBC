@@ -158,6 +158,26 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateQuery(outsideQueryWithExcessKeys)).to.throw("Excess Keys in Query");
 		});
+
+        it("should not throw an error for a valid query object", () => {
+			const validQuery = {
+				WHERE: {
+					GT: {
+						sections_avg: 97,
+					},
+				},
+				OPTIONS: {
+					COLUMNS: ["sections_dept"],
+					ORDER: "sections_avg",
+				},
+                TRANSFORMATIONS: {
+                    GROUP:[],
+                    APPLY:
+                }
+			};
+
+			expect(() => QV.validateQueryOutside(validQuery)).to.not.throw();
+		});
 	});
 
 	describe("validateOptions", () => {
