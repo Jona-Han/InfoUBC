@@ -185,8 +185,8 @@ export default class InsightFacade implements IInsightFacade {
 			if (dataset.getSize() < 1) {
 				throw new InsightError("No valid sections");
 			}
-			await this.writeSectionDatasetToFile(dataset);
-			return this.updateDatasets(dataset);
+			await this.writeDatasetToFile(dataset, InsightDatasetKind.Sections);
+			return this.updateDatasets(dataset, InsightDatasetKind.Sections);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
 		}
@@ -207,6 +207,7 @@ export default class InsightFacade implements IInsightFacade {
 			let htmlContent = parse(indexContent);
 			let rooms = new Rooms(id);
 			let buildings = rooms.addBuildings(htmlContent);
+			// rooms.getGeolocations(buildings)
 			let promises = [];
 			for (let building of buildings) {
 				let newPromise;
@@ -232,31 +233,31 @@ export default class InsightFacade implements IInsightFacade {
 
 			await Promise.all(promises);
 
-			throw new InsightError("Not finished");
+			rooms.update(buildings);
+			// console.log(rooms)
+			await this.writeDatasetToFile(rooms, InsightDatasetKind.Rooms);
+
+			return this.updateDatasets(rooms, InsightDatasetKind.Rooms);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
 		}
 	}
 
-	private addBuilding(object: Document) {
-		throw new Error("Method not implemented.");
-	}
-
-	private writeSectionDatasetToFile(dataset: Sections): Promise<void> {
+	private writeDatasetToFile(dataset: Sections | Rooms, kind: InsightDatasetKind): Promise<void> {
 		let data = {
 			id: dataset.getId(),
-			kind: InsightDatasetKind.Sections,
+			kind: kind,
 			numRows: dataset.getSize(),
 			sections: dataset.getSections(),
 		};
 		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
 	}
 
-	private updateDatasets(dataset: Sections): Promise<string[]> {
+	private updateDatasets(dataset: Sections | Rooms, kind: InsightDatasetKind): Promise<string[]> {
 		let results: string[] = [];
 		let data: InsightDataset = {
 			id: dataset.getId(),
-			kind: InsightDatasetKind.Sections,
+			kind: kind,
 			numRows: dataset.getSize(),
 		};
 		InsightFacade.datasets.set(dataset.getId(), data);
