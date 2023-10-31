@@ -248,6 +248,19 @@ describe.only("QueryValidator", () => {
 			expect(() => QV.validateMComparison(validMComparison)).to.not.throw();
 		});
 
+        it("should throw InsightError for invalid mComparator", () => {
+			const invalidMComparison = {
+				WRONG: {
+					course_dept: 28,
+				},
+			};
+
+			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
+				InsightError,
+				"Invalid key: course_dept"
+			);
+		});
+
 		it("should throw InsightError for invalid MComparison type", () => {
 			const invalidMComparison = {
 				LT: "invalidType",
@@ -734,6 +747,133 @@ describe.only("QueryValidator", () => {
             expect(result).to.equal(false);
         });
     });
+
+    describe('validateTransformations', () => {
+        it('should not throw for valid transformations', () => {
+            const transformations = {
+                GROUP: ["rooms_lat", "rooms_lon"],
+                APPLY: [{
+                    maxSeats: {
+                        MAX: "rooms_seats"
+                    }
+                }]
+            };
+    
+            expect(() => QV.validateTransformations(transformations)).to.not.throw();
+        });
+        it('should throw if GROUP is not in transformations', () => {
+            const transformations = {
+                APPLY: []
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'TRANSFORMATIONS missing GROUP');
+        });
+    
+        it('should throw if APPLY is not in transformations', () => {
+            const transformations = {
+                GROUP: []
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'TRANSFORMATIONS missing APPLY');
+        });
+    
+        it('should throw if GROUP is not an array', () => {
+            const transformations = {
+                GROUP: {},
+                APPLY: []
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'GROUP must be a non-empty array');
+        });
+    
+        it('should throw if APPLY is not an array', () => {
+            const transformations = {
+                GROUP: [],
+                APPLY: {}
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'APPLY must be a non-empty array');
+        });
+    
+        it('should throw if not all elements in GROUP are strings', () => {
+            const transformations = {
+                GROUP: ["validKey1", {}, "validKey3"],
+                APPLY: []
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'All elements in GROUP must be strings');
+        });
+    
+        it('should throw if an invalid key is present in GROUP', () => {
+            // Assuming validateKey returns false for 'invalidKey'
+            const transformations = {
+                GROUP: ["rooms_lat", "invalidKey"],
+                APPLY: []
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError, 'Invalid key in GROUP: invalidKey');
+        });
+    
+        it('should throw if an apply rule in APPLY is invalid', () => {
+            // Assuming validateApplyRule would throw an error for the given rule
+            const transformations = {
+                GROUP: ["validKey"],
+                APPLY: [{invalidRule: {}}]
+            };
+            expect(() => QV.validateTransformations(transformations))
+                .to.throw(InsightError);
+        });
+    });
+
+    describe('validateApplyRule', () => {
+        it('should not throw for valid ApplyRule', () => {
+            expect(() => QV.validateApplyRule({maxSeats: { MAX: "rooms_seats"}})).to.not.throw(InsightError);
+        })
+    
+        it('should throw if rule has more than one key', () => {
+            expect(() => QV.validateApplyRule({ key1: {}, key2: {} }))
+                .to.throw(InsightError, 'Apply rule should only have 1 key, has 2');
+        });
+    
+        it('should throw if applyKey has underscore', () => {
+            expect(() => QV.validateApplyRule({ 'key_with_underscore': {} }))
+                .to.throw(InsightError, 'Cannot have underscore in applyKey');
+        });
+    
+        it('should throw for duplicate applyKey', () => {
+            // Assuming the `keys` set has a value 'duplicateKey' already
+            QV.keys.add('duplicateKey');
+            expect(() => QV.validateApplyRule({ 'duplicateKey': {}}))
+                .to.throw(InsightError, 'Duplicate APPLY key duplicateKey');
+        });
+    
+        it('should throw if applyValue is not an object', () => {
+            expect(() => QV.validateApplyRule({ validKey: 'invalidValue' }))
+                .to.throw(InsightError, 'Apply body must be object');
+        });
+    
+        it('should throw if applyValue has more than one key', () => {
+            expect(() => QV.validateApplyRule({ validKey: { key1: 'val1', key2: 'val2' }}))
+                .to.throw(InsightError, 'Apply body should only have 1 key, has 2');
+        });
+    
+        it('should throw for invalid transformation operator', () => {
+            expect(() => QV.validateApplyRule({ validKey: { INVALID: 'targetKey' }}))
+                .to.throw(InsightError, 'Invalid transformation operator');
+        });
+    
+        it('should throw if applyValue[token] is not a string', () => {
+            expect(() => QV.validateApplyRule({ validKey: { MAX: { invalid: 'value' } }}))
+                .to.throw(InsightError, 'Invalid apply rule target key');
+        });
+    
+        it('should throw for invalid key in applyValue[token]', () => {
+            // Assuming `validateKey` returns false for 'invalidKey'
+            expect(() => QV.validateApplyRule({ validKey: { MAX: 'invalidKey' }}))
+                .to.throw(InsightError, 'Invalid key: invalidKey');
+        });
+    });
+    
 
 	describe("Query Validation Integration Tests", () => {
 		it("should validate a valid query", () => {

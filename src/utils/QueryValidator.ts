@@ -11,10 +11,11 @@ import {
     ApplyRule,
     ApplyToken,
 } from "../models/IQuery";
+type RuleType = { [key: string]: any };
 
 export default class QueryValidator {
 	private dataset: string;
-	private keys: Set<string>;
+	public keys: Set<string>;
 
 	constructor() {
 		this.dataset = "";
@@ -144,7 +145,9 @@ export default class QueryValidator {
 		}
 	}
 
-	public validateApplyRule(rule: ApplyRule): void {
+ 
+
+	public validateApplyRule(rule: RuleType): void {
 		if (Object.keys(rule).length > 1) {
 			throw new InsightError(`Apply rule should only have 1 key, has ${Object.keys(rule).length}`);
 		}
@@ -170,7 +173,7 @@ export default class QueryValidator {
 		}
 
 		//Check for valid transformation operators
-		const token: ApplyToken = Object.keys(applyValue)[0] as ApplyToken;
+		const token = Object.keys(applyValue)[0];
 		const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
 		if (!validTokens.includes(token)) {
 			throw new InsightError("Invalid transformation operator");
