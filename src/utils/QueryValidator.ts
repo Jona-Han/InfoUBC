@@ -8,8 +8,8 @@ import {
 	SComparator,
 	Negation,
 	JSONQuery,
-	SField,
-	Sort,
+    ApplyRule,
+    ApplyToken,
 } from "../models/IQuery";
 
 export default class QueryValidator {
@@ -96,58 +96,94 @@ export default class QueryValidator {
 		// Validate keys in columns
 		const allColumnKeys: string[] = [];
 		options.COLUMNS.forEach((columnKey: string) => {
-			this.validateKey(columnKey);
+			if (!this.validateKey(columnKey)) {
+				throw new InsightError(`Invalid key: ${columnKey}`);
+			}
 			allColumnKeys.push(columnKey);
 		});
 
 		// Validate key for order
 		if ("ORDER" in options) {
-			this.validateKey(options.ORDER as string);
+			if (!this.validateKey(options.ORDER as string)) {
+				throw new InsightError(`Invalid key: ${options.ORDER}`);
+			}
 			if (!allColumnKeys.includes(options.ORDER as string)) {
 				throw new InsightError("Order key not in column keys");
 			}
 		}
 	}
+
 	public validateTransformations(transformations: object): void {
-		if (!("GROUP" in transformations) || !Array.isArray(transformations.GROUP)) {
-			throw new InsightError("Invalid GROUP in Transformations");
+		if (!("GROUP" in transformations)) {
+			throw new InsightError("TRANSFORMATIONS missing GROUP");
 		}
-		for (let key of transformations.GROUP) {
-			// if (!this.validateKey(key)) {
-			//     throw new InsightError("Invalid key in GROUP: " + key);
-			// }
+        if (!("APPLY" in transformations)) {
+			throw new InsightError("TRANSFORMATIONS missing APPLY");
 		}
 
-		if (!("APPLY" in transformations) || !Array.isArray(transformations.APPLY)) {
-			throw new InsightError("Invalid APPLY in Transformations");
+		if (!Array.isArray(transformations.GROUP)) {
+			throw new InsightError("GROUP must be a non-empty array");
 		}
+
+        if (!Array.isArray(transformations.APPLY)) {
+			throw new InsightError("APPLY must be a non-empty array");
+		}
+
+		if (!transformations.GROUP.every((key) => typeof key === "string")) {
+			throw new InsightError("All elements in GROUP must be strings");
+		}
+
+		for (let key of transformations.GROUP) {
+			if (!this.validateKey(key)) {
+				throw new InsightError("Invalid key in GROUP: " + key);
+			}
+		}
+
 		for (let rule of transformations.APPLY) {
-			// if (!this.validateApplyRule(rule)) {
-			//     throw new InsightError("Invalid apply rule in APPLY");
-			// }
+			this.validateApplyRule(rule);
 		}
 	}
 
-	// private validateApplyRule(rule: object): boolean {
-	//     // if (Object.keys(rule).length !== 1) {
-	//     //     return false; // each rule should have only one key-value pair
-	//     // }
+	public validateApplyRule(rule: ApplyRule): void {
+		if (Object.keys(rule).length > 1) {
+			throw new InsightError(`Apply rule should only have 1 key, has ${Object.keys(rule).length}`);
+		}
 
-	//     // const applyKey = Object.keys(rule)[0];
-	//     // if (!this.validateApplyKey(applyKey)) {
-	//     //     return false;
-	//     // }
+		const applyKey = Object.keys(rule)[0];
+		if (!this.validateApplyKey(applyKey)) {
+			throw new InsightError("Cannot have underscore in applyKey");
+		}
 
-	//     // const applyValue = rule[applyKey];
-	//     // const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
-	//     // const token = Object.keys(applyValue)[0];
+        if (this.keys.has(applyKey)) {
+            throw new InsightError(`Duplicate APPLY key ${applyKey}`)
+        }
+        this.keys.add(applyKey);
 
-	//     // if (!validTokens.includes(token)) {
-	//     //     return false;
-	//     // }
+		const applyValue = rule[applyKey];
 
-	//     // return this.validateKey(applyValue[token]);
-	// }
+		if (typeof applyValue !== "object") {
+			throw new InsightError("Apply body must be object");
+		}
+
+		if (Object.keys(applyValue).length !== 1) {
+			throw new InsightError(`Apply body should only have 1 key, has ${Object.keys(applyValue).length}`);
+		}
+
+		//Check for valid transformation operators
+		const token: ApplyToken = Object.keys(applyValue)[0] as ApplyToken;
+		const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
+		if (!validTokens.includes(token)) {
+			throw new InsightError("Invalid transformation operator");
+		}
+
+		if (typeof applyValue[token] !== "string") {
+			throw new InsightError("Invalid apply rule target key");
+		}
+
+		if (!this.validateKey(applyValue[token])) {
+			throw new InsightError(`Invalid key: ${applyValue[token]}`);
+		}
+	}
 
 	private validateApplyKey(applyKey: string): boolean {
 		const pattern = /^[^_]+$/;
@@ -217,8 +253,8 @@ export default class QueryValidator {
 		}
 
 		if (!this.validateMKey(fieldKeys[0])) {
-            throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
-        }
+			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "number") {
@@ -242,8 +278,8 @@ export default class QueryValidator {
 		}
 
 		if (!this.validateSKey(fieldKeys[0])) {
-            throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
-        }
+			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "string") {
@@ -277,17 +313,17 @@ export default class QueryValidator {
 		}
 
 		this.checkForMultipleDataset(input);
-        return true;
+		return true;
 	}
 
 	public validateSKey(input: string): boolean {
 		const sKeyPattern =
 			/^[^_]+_(dept|id|instructor|title|uuid|fullname|shortname|number|name|address|type|furniture|href)$/;
 		if (!sKeyPattern.test(input)) {
-			return false
+			return false;
 		}
 		this.checkForMultipleDataset(input);
-        return true;
+		return true;
 	}
 
 	private checkForMultipleDataset(input: string) {
@@ -300,12 +336,15 @@ export default class QueryValidator {
 		this.keys.add(key);
 	}
 
-	public validateKey(input: string): boolean {
-        if (!this.validateMKey(input) && !this.validateSKey(input) && !this.keys.has(input.split("_")[1])) {
+	public validateKey(input: string | undefined): boolean {
+        if (typeof input === 'undefined') {
             return false;
         }
+		if (!this.validateMKey(input) && !this.validateSKey(input) && !this.keys.has(input.split("_")[1])) {
+			return false;
+		}
 
 		this.checkForMultipleDataset(input);
-        return true;
+		return true;
 	}
 }

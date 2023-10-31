@@ -218,13 +218,13 @@ describe.only("QueryValidator", () => {
 			);
 		});
 
-		it("should throw InsightError for invalid ORDER type", () => {
+		it("should throw InsightError for invalid ORDER key", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				ORDER: "sections",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid key: sections");
 		});
 
 		it("should throw InsightError for columns contains invalid key", () => {
@@ -233,7 +233,7 @@ describe.only("QueryValidator", () => {
 				ORDER: "sections_dept",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid key: sections");
 		});
 	});
 
