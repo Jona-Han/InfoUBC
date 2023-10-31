@@ -8,18 +8,18 @@ import {
 	SComparator,
 	Negation,
 	JSONQuery,
-    ApplyRule,
-    ApplyToken,
 } from "../models/IQuery";
-type RuleType = { [key: string]: any };
+interface RuleType { [key: string]: any }
 
 export default class QueryValidator {
 	private dataset: string;
 	public keys: Set<string>;
+	public transformationKeys: Set<string>;
 
 	constructor() {
 		this.dataset = "";
 		this.keys = new Set();
+		this.transformationKeys = new Set();
 	}
 
 	public validateQuery(query: object): string {
@@ -70,28 +70,20 @@ export default class QueryValidator {
 			throw new InsightError("Options missing COLUMNS");
 		}
 
-		// Check columns is nonempty array
-		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
-			throw new InsightError("COLUMNS must be non-empty array");
-		}
-
-		// Check for invalid keys
+        // Check for invalid keys
 		for (const key of keys) {
 			if (key !== "COLUMNS" && key !== "ORDER") {
 				throw new InsightError("Options contains invalid keys");
 			}
 		}
 
-		// Check type of Order if present
-		if ("ORDER" in options) {
-			if (options.ORDER && typeof options.ORDER === "object") {
-				if (!("dir" in options.ORDER) || !("keys" in options.ORDER)) {
-					throw new InsightError("Invalid Order structure");
-				}
-				// Additional validation can be added for 'dir' and 'keys'
-			} else if (typeof options.ORDER !== "string") {
-				throw new InsightError("Invalid Order type. Must be string or object.");
-			}
+		// Check columns is nonempty array
+		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
+			throw new InsightError("COLUMNS must be non-empty array");
+		}
+
+		if (!options.COLUMNS.every((key) => typeof key === "string")) {
+			throw new InsightError("All elements in COLUMNS must be strings");
 		}
 
 		// Validate keys in columns
@@ -100,17 +92,52 @@ export default class QueryValidator {
 			if (!this.validateKey(columnKey)) {
 				throw new InsightError(`Invalid key: ${columnKey}`);
 			}
+			if (this.transformationKeys.size !== 0 && !this.transformationKeys.has(columnKey)) {
+				throw new InsightError("Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present");
+			}
 			allColumnKeys.push(columnKey);
 		});
 
-		// Validate key for order
 		if ("ORDER" in options) {
-			if (!this.validateKey(options.ORDER as string)) {
-				throw new InsightError(`Invalid key: ${options.ORDER}`);
-			}
-			if (!allColumnKeys.includes(options.ORDER as string)) {
+			this.validateOrder(options.ORDER, allColumnKeys);
+		}
+	}
+
+	public validateOrder(order: unknown, columnKeys: string[]) {
+		if (typeof order === "string") {
+			console.log(order);
+			if (!columnKeys.includes(order)) {
 				throw new InsightError("Order key not in column keys");
 			}
+		} else if (typeof order === "object") {
+			if (!order || !("dir" in order) || !("keys" in order)) {
+				throw new InsightError("Invalid Order structure");
+			}
+			if (typeof order.dir !== "string" || !["DOWN", "UP"].includes(order.dir)) {
+				throw new InsightError("Invalid ORDER direction.");
+			}
+
+            // Check if order.keys is an array
+			if (!Array.isArray(order.keys)) {
+				throw new InsightError("ORDER keys must be a non-empty array");
+			}
+
+            // Check if each element of order.keys is a string and is present in columnKeys
+			for (const key of order.keys) {
+				if (typeof key !== "string") {
+					throw new InsightError("Each element of ORDER keys must be a string");
+				}
+
+				if (!columnKeys.includes(key)) {
+					throw new InsightError("All ORDER keys must be in COLUMNS");
+				}
+
+				if (!this.validateKey(key as string)) {
+					throw new InsightError(`Invalid key: ${key}`);
+				}
+			}
+		} else {
+			throw new InsightError("Invalid Order type. Must be string or object.");
 		}
 	}
 
@@ -118,7 +145,7 @@ export default class QueryValidator {
 		if (!("GROUP" in transformations)) {
 			throw new InsightError("TRANSFORMATIONS missing GROUP");
 		}
-        if (!("APPLY" in transformations)) {
+		if (!("APPLY" in transformations)) {
 			throw new InsightError("TRANSFORMATIONS missing APPLY");
 		}
 
@@ -126,11 +153,11 @@ export default class QueryValidator {
 			throw new InsightError("GROUP must be a non-empty array");
 		}
 
-        if (!Array.isArray(transformations.APPLY)) {
+		if (!Array.isArray(transformations.APPLY)) {
 			throw new InsightError("APPLY must be a non-empty array");
 		}
 
-		if (!transformations.GROUP.every((key) => typeof key === "string")) {
+		if (!transformations.GROUP.every((key: any) => typeof key === "string")) {
 			throw new InsightError("All elements in GROUP must be strings");
 		}
 
@@ -138,14 +165,13 @@ export default class QueryValidator {
 			if (!this.validateKey(key)) {
 				throw new InsightError("Invalid key in GROUP: " + key);
 			}
+			this.transformationKeys.add(key);
 		}
 
 		for (let rule of transformations.APPLY) {
 			this.validateApplyRule(rule);
 		}
 	}
-
- 
 
 	public validateApplyRule(rule: RuleType): void {
 		if (Object.keys(rule).length > 1) {
@@ -157,10 +183,10 @@ export default class QueryValidator {
 			throw new InsightError("Cannot have underscore in applyKey");
 		}
 
-        if (this.keys.has(applyKey)) {
-            throw new InsightError(`Duplicate APPLY key ${applyKey}`)
-        }
-        this.keys.add(applyKey);
+		if (this.keys.has(applyKey)) {
+			throw new InsightError(`Duplicate APPLY key ${applyKey}`);
+		}
+		this.transformationKeys.add(applyKey);
 
 		const applyValue = rule[applyKey];
 
@@ -172,7 +198,7 @@ export default class QueryValidator {
 			throw new InsightError(`Apply body should only have 1 key, has ${Object.keys(applyValue).length}`);
 		}
 
-		//Check for valid transformation operators
+		// Check for valid transformation operators
 		const token = Object.keys(applyValue)[0];
 		const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
 		if (!validTokens.includes(token)) {
@@ -222,7 +248,7 @@ export default class QueryValidator {
 		const logicComparatorKeys = Object.keys(logicComparison);
 		const comparator = logicComparatorKeys[0] as Logic;
 
-		const fieldObject = logicComparison[comparator];
+		const fieldObject = logicComparison[comparator] as object;
 		if (!Array.isArray(fieldObject) || fieldObject.length === 0) {
 			throw new InsightError(`${comparator} should be non-empty array`);
 		}
@@ -234,10 +260,10 @@ export default class QueryValidator {
 
 	public validateNot(object: object): void {
 		const notObject = object as Negation;
-		if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
+		if (typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
 			throw new InsightError("NOT value must be object");
 		}
-		this.validateWhere(notObject.NOT);
+		this.validateWhere(notObject.NOT as object);
 	}
 
 	public validateMComparison(object: object): void {
@@ -340,9 +366,9 @@ export default class QueryValidator {
 	}
 
 	public validateKey(input: string | undefined): boolean {
-        if (typeof input === 'undefined') {
-            return false;
-        }
+		if (typeof input === "undefined") {
+			return false;
+		}
 		if (!this.validateMKey(input) && !this.validateSKey(input) && !this.keys.has(input.split("_")[1])) {
 			return false;
 		}

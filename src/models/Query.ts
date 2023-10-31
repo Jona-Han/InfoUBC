@@ -13,7 +13,7 @@ import {
 	RoomMField,
 	SComparison,
 	SField,
-    Sort,
+	Sort,
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
@@ -38,8 +38,10 @@ export class Query implements IQuery {
 		fail: "Fail",
 		audit: "Audit",
 	};
-    private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-    private RoomFields = ["lat", "lon", "seats", "fullname", "shortname", "number", "name", "address", "type", "furniture", "href"];
+
+	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
+	private RoomFields = ["lat", "lon", "seats", "fullname", "shortname", 
+    "number", "name", "address", "type", "furniture", "href"];
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();
@@ -184,68 +186,68 @@ export class Query implements IQuery {
 		return result;
 	}
 
-    private handleOptions(input: Set<string>): InsightResult[] {
-        if (input.size > 5000) {
-            throw new ResultTooLargeError("Greater than 5000 results");
-        }
-    
+	private handleOptions(input: Set<string>): InsightResult[] {
+		if (input.size > 5000) {
+			throw new ResultTooLargeError("Greater than 5000 results");
+		}
+
         // Get all sections and only add input sections to array
-        const allSections = this.data.getSectionsAsMap();
-        const selectedSections: Section[] = [];
-        input.forEach((uuid) => {
-            const section = allSections.get(uuid);
-            if (section) {
-                selectedSections.push(section);
-            }
-        });
-    
+		const allSections = this.data.getSectionsAsMap();
+		const selectedSections: Section[] = [];
+		input.forEach((uuid) => {
+			const section = allSections.get(uuid);
+			if (section) {
+				selectedSections.push(section);
+			}
+		});
+
         // Handle order
-        if (this.OPTIONS.ORDER) {
-            if (typeof this.OPTIONS.ORDER === 'string') {
-                this.orderSectionsByString(selectedSections);
-            } else {
-                this.orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
-            }
-        }
-    
+		if (this.OPTIONS.ORDER) {
+			if (typeof this.OPTIONS.ORDER === "string") {
+				this.orderSectionsByString(selectedSections);
+			} else {
+				this.orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
+			}
+		}
+
         // Return insightResults
-        const result: InsightResult[] = selectedSections.map((section) => {
+		const result: InsightResult[] = selectedSections.map((section) => {
             // Only keep the fields listed in this.OPTIONS.COLUMNS
-            const insight: Partial<InsightResult> = {};
-            this.OPTIONS.COLUMNS.forEach((column) => {
-                const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
-                insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
-            });
-            return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
-        });
-        return result;
-    }
-    
-    private orderSectionsByString(selectedSections: Section[]): void {
-        const orderString = this.OPTIONS.ORDER as string;
-        const datasetKey = orderString.split("_")[1];
-    
-        let orderKey: keyof Section;
-    
-        if (this.SectionFields.includes(datasetKey)) {
-            orderKey = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
-        } else if (this.RoomFields.includes(datasetKey)) {
-            orderKey = datasetKey as keyof Section;
-        }
-    
-        selectedSections.sort((a, b) => {
-            if (a[orderKey] < b[orderKey]) {
-                return -1;
-            } else if (a[orderKey] > b[orderKey]) {
-                return 1;
-            }
-            return 0;
-        });
-    }
-    
-    private orderSectionsBySortObject(selectedSections: Section[], sortObj: Sort): void {
+			const insight: Partial<InsightResult> = {};
+			this.OPTIONS.COLUMNS.forEach((column) => {
+				const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
+				insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+			});
+			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
+		});
+		return result;
+	}
+
+	private orderSectionsByString(selectedSections: Section[]): void {
+		const orderString = this.OPTIONS.ORDER as string;
+		const datasetKey = orderString.split("_")[1];
+
+		let orderKey: keyof Section;
+
+		if (this.SectionFields.includes(datasetKey)) {
+			orderKey = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
+		} else if (this.RoomFields.includes(datasetKey)) {
+			orderKey = datasetKey as keyof Section;
+		}
+
+		selectedSections.sort((a, b) => {
+			if (a[orderKey] < b[orderKey]) {
+				return -1;
+			} else if (a[orderKey] > b[orderKey]) {
+				return 1;
+			}
+			return 0;
+		});
+	}
+
+	private orderSectionsBySortObject(selectedSections: Section[], sortObj: Sort): void {
         // Your implementation of ordering based on the Sort object goes here.
         // You might want to check sortObj.dir and sortObj.keys to decide the order.
-    }
-    
+	}
+
 }

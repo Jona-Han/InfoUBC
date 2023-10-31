@@ -33,7 +33,7 @@ export interface Negation {
 export type Columns = AnyKey[];
 
 export interface Sort {
-	dir: Direction, 
+	dir: Direction,
     keys: AnyKey[];
 }
 
