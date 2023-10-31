@@ -300,11 +300,12 @@ export default class QueryValidator {
 		this.keys.add(key);
 	}
 
-	public validateKey(input: string): void {
-        if (!this.validateMKey(input) && !this.validateSKey(input)) {
-            throw new InsightError(`Invalid key: ${input}`);
+	public validateKey(input: string): boolean {
+        if (!this.validateMKey(input) && !this.validateSKey(input) && !this.keys.has(input.split("_")[1])) {
+            return false;
         }
 
 		this.checkForMultipleDataset(input);
+        return true;
 	}
 }

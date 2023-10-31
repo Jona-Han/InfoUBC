@@ -708,34 +708,32 @@ describe.only("QueryValidator", () => {
         });
     });    
 
-	describe("validateKey", () => {
-		it("should not throw for a valid column key input", () => {
-			expect(() => QV.validateKey("validContent_dept")).to.not.throw();
-		});
-
-		it("should throw InsightError for an invalid column key input", () => {
-			expect(() => QV.validateKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid key type. not is not a valid type"
-			);
-		});
-
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateKey("invalidContentdept")).to.throw(InsightError, "Invalid query key");
-		});
-
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateKey("validContent_dept_extra")).to.throw(InsightError, "Invalid query key");
-		});
-
-		it("should not throw for a valid column key input with MField", () => {
-			expect(() => QV.validateKey("validContent_avg")).to.not.throw();
-		});
-
-		it("should not throw for a valid column key input with SField", () => {
-			expect(() => QV.validateKey("validContent_dept")).to.not.throw();
-		});
-	});
+    describe("validateKey", () => {
+        it("should return true for a valid column key input with MField", () => {
+            const result = QV.validateKey("validContent_avg");
+            expect(result).to.equal(true);
+        });
+    
+        it("should return true for a valid column key input with SField", () => {
+            const result = QV.validateKey("validContent_dept");
+            expect(result).to.equal(true);
+        });
+    
+        it("should return false for an invalid column key input", () => {
+            const result = QV.validateKey("validContent_not");
+            expect(result).to.equal(false);
+        });
+    
+        it("should return false for input without an underscore", () => {
+            const result = QV.validateKey("invalidContentdept");
+            expect(result).to.equal(false);
+        });
+    
+        it("should return false for input with more than one underscore", () => {
+            const result = QV.validateKey("validContent_dept_extra");
+            expect(result).to.equal(false);
+        });
+    });
 
 	describe("Query Validation Integration Tests", () => {
 		it("should validate a valid query", () => {
