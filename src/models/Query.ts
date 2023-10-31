@@ -40,8 +40,8 @@ export class Query implements IQuery {
 	};
 
 	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-	private RoomFields = ["lat", "lon", "seats", "fullname", "shortname", 
-    "number", "name", "address", "type", "furniture", "href"];
+	private RoomFields = ["lat", "lon", "seats", "fullname", "shortname",
+		"number", "name", "address", "type", "furniture", "href"];
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();

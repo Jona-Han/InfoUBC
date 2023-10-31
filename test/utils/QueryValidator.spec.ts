@@ -203,7 +203,8 @@ describe.only("QueryValidator", () => {
 				ORDER: "col1",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "All elements in COLUMNS must be strings");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError,
+				"All elements in COLUMNS must be strings");
 		});
 
 		it("should throw InsightError for invalid keys", () => {
