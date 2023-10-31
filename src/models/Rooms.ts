@@ -1,4 +1,5 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {Document} from "parse5/dist/tree-adapters/default";
 
 export interface Room {
 	number: string;
@@ -52,9 +53,9 @@ export default class Rooms {
 	}
 
 	// Searches nodes for links to building files
-	public addBuildings(index: any): Array<Map<string, string>> {
+	public addBuildings(index: any): Array<Map<string, string | undefined>> {
 		let buildings = [];
-		let tables = this.findTags(index, "table");
+		let tables = this.findTags(index, 'table');
 		for (const table of tables) {
 			let rows = this.findTags(table, "tr");
 			for (let row of rows) {
@@ -67,7 +68,7 @@ export default class Rooms {
 		return buildings;
 	}
 
-	private buildingIsValid(building: Map<string, string>): boolean {
+	private buildingIsValid(building: Map<string, string | undefined>): boolean {
 		return (
 			building.get("fullname") !== undefined &&
 			building.get("shortname") !== undefined &&
@@ -75,43 +76,17 @@ export default class Rooms {
 		);
 	}
 
-	private addBuilding(buildingRow: any): Map<string, string> {
-		let cells = this.findTags(buildingRow, "td");
-		let building: Map<string, string> = new Map();
-		for (let cell of cells) {
-			this.extractBuildingDetails(cell, building);
-		}
+	private addBuilding(row: any): Map<string, string | undefined> {
+		let building: Map<string, string | undefined> = new Map();
+		building.set('address', this.findClassValue(row, "views-field views-field-field-building-address"))
+		building.set('shortname', this.findClassValue(row, "views-field views-field-field-building-code"))
+		building.set('fullname', this.findClassValue(row, "views-field views-field-title"))
+		building.set('href', this.findHref(row)?.replace('./', ''))
+		// console.log(building)
 		return building;
 	}
 
-	private extractBuildingDetails(cell: any, building: Map<string, string | number>): void {
-		let attributes = cell.attrs;
-		if (attributes) {
-			for (let attribute of attributes) {
-				if (attribute.name && attribute.name === "class" && attribute.value) {
-					if (attribute.value === "views-field views-field-field-building-code") {
-						building.set("shortname", cell.childNodes[0].value.replace("\n", "").trim());
-					} else if (attribute.value === "views-field views-field-title") {
-						let links: any[] = this.findTags(cell, "a");
-						if (links.length > 0) {
-							building.set("fullname", links[0].childNodes[0].value.replace("\n", "").trim());
-							let linkAttributes = links[0].attrs;
-							for (let linkAttribute of linkAttributes) {
-								if (linkAttribute.name && linkAttribute.name === "href") {
-									building.set("href", linkAttribute.value.replace("./", ""));
-								}
-							}
-						}
-						// building.set('fullname', cell.childNodes[0].childNodes[0].value)
-					} else if (attribute.value === "views-field views-field-field-building-address") {
-						building.set("address", cell.childNodes[0].value.replace("\n", "").trim());
-					}
-				}
-			}
-		}
-	}
-
-	public addRooms(buildingContent: any, building: Map<string, string | any[]>) {
+	public addRooms(buildingContent: any, building: Map<string, string | any[] | undefined>) {
 		let rooms = [];
 		let tables = this.findTags(buildingContent, "table");
 		for (const table of tables) {
@@ -159,7 +134,7 @@ export default class Rooms {
 		}
 	}
 
-	private isValidRoom(room: Map<string, string | number>): boolean {
+	private isValidRoom(room: Map<string, string | number | undefined>): boolean {
 		let result = room.get("number") !== undefined && typeof room.get("number") === "string";
 		result &&= room.get("seats") !== undefined && typeof room.get("seats") === "number";
 		result &&= room.get("name") !== undefined && typeof room.get("name") === "string";
@@ -170,43 +145,16 @@ export default class Rooms {
 		return result && room.get("href") !== undefined && typeof room.get("href") === "string";
 	}
 
-	private addRoom(row: any): Map<string, string | number> {
-		let room: Map<string, string | number> = new Map();
-		let cells = this.findTags(row, "td");
-		for (const cell of cells) {
-			this.extractRoomDetails(cell, room);
-		}
-		return room;
-	}
+	private addRoom(row: any): Map<string, string | number | undefined> {
+		let room: Map<string, string | number | undefined> = new Map();
 
-	private extractRoomDetails(cell: any, room: Map<string, string | number>): void {
-		let attributes = cell.attrs;
-		if (attributes) {
-			for (let attribute of attributes) {
-				if (attribute.name && attribute.name === "class" && attribute.value) {
-					// console.log(attribute)
-					if (attribute.value === "views-field views-field-field-room-capacity") {
-						// console.log(cell.childNodes[0].childNodes[0].value)
-						room.set("seats", Number(cell.childNodes[0].value.replace("\n", "").trim()));
-					} else if (attribute.value === "views-field views-field-field-room-number") {
-						let links: any[] = this.findTags(cell, "a");
-						if (links.length > 0) {
-							room.set("number", links[0].childNodes[0].value.replace("\n", "").trim());
-							let linkAttributes = links[0].attrs;
-							for (let linkAttribute of linkAttributes) {
-								if (linkAttribute.name && linkAttribute.name === "href") {
-									room.set("href", linkAttribute.value);
-								}
-							}
-						}
-					} else if (attribute.value === "views-field views-field-field-room-furniture") {
-						room.set("furniture", cell.childNodes[0].value.replace("\n", "").trim());
-					} else if (attribute.value === "views-field views-field-field-room-type") {
-						room.set("type", cell.childNodes[0].value.replace("\n", "").trim());
-					}
-				}
-			}
-		}
+		room.set('seats', Number(this.findClassValue(row, "views-field views-field-field-room-capacity")))
+		room.set('furniture', this.findClassValue(row, "views-field views-field-field-room-furniture"))
+		room.set('number', this.findClassValue(row, "views-field views-field-field-room-number"))
+		room.set('type', this.findClassValue(row, "views-field views-field-field-room-type"))
+		room.set('href', this.findHref(row))
+		// console.log(room)
+		return room;
 	}
 
 	private findTags(node: any, tag: string): any[] {
@@ -226,6 +174,56 @@ export default class Rooms {
 		return result;
 	}
 
+	private findFirstLeaf(node: any): any {
+		let curr = node;
+		while (curr.childNodes && curr.childNodes.length > 0) {
+			// console.log(curr)
+			// console.log(curr)
+			if (curr.childNodes.length === 1) {
+				curr = curr.childNodes[0]
+			} else {
+				curr = curr.childNodes[1]
+			}
+		}
+		// console.log(curr)
+		return curr
+	}
+
+	private findClassValue(node: any, className: string): string | undefined{
+		let cells = this.findTags(node, 'td')
+		// console.log(cells)
+		for (let cell of cells) {
+			// console.log(cell)
+			let attributes = cell.attrs
+			if (attributes) {
+				for (let attribute of attributes) {
+					// console.log(attribute)
+					if (attribute.name && attribute.name === 'class' && attribute.value && attribute.value === className) {
+						// console.log(this.findFirstLeaf(cell).value)
+						return this.findFirstLeaf(cell).value.replace("\n", "").trim();
+					}
+				}
+			}
+		}
+		return undefined
+	}
+
+	private findHref(node: any): string | undefined {
+		let potentialLinks = this.findTags(node, 'a')
+		for (let link of potentialLinks) {
+			let attributes = link.attrs
+			if (attributes) {
+				for (let attribute of attributes) {
+					if (attribute.name && attribute.name === 'href') {
+						return attribute.value
+					}
+
+				}
+			}
+		}
+		return undefined
+	}
+
 	public async getGeolocations(buildings: Array<Map<string, string>>): Promise<void> {
 		let promises = [];
 		for (let building of buildings) {
@@ -237,7 +235,7 @@ export default class Rooms {
 				try {
 					let promise = fetch(url)
 						.then((geoResponse) => {
-							// console.log(geoResponse)
+							console.log(geoResponse)
 						})
 						.then((stuff) => {
 							// console.log(stuff)

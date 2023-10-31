@@ -201,6 +201,7 @@ export class Query implements IQuery {
 
 			const orderKey: keyof Section = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
 
+			
 			selectedSections.sort((a, b) => {
 				if (a[orderKey] < b[orderKey]) {
 					return -1;
