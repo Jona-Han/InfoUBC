@@ -195,7 +195,6 @@ export default class InsightFacade implements IInsightFacade {
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
 			await zip.loadAsync(stringBuffer);
-
 			let index = zip.files["index.htm"];
 			if (!index) {
 				throw new InsightError("No index.htm file");
@@ -204,7 +203,7 @@ export default class InsightFacade implements IInsightFacade {
 			let htmlContent = parse(indexContent);
 			let rooms = new Rooms(id);
 			let buildings = rooms.addBuildings(htmlContent);
-			let firstPromise = rooms.getGeolocations(buildings)
+			let firstPromise = rooms.getGeolocations(buildings);
 			let promises = [firstPromise];
 			for (let building of buildings) {
 				let newPromise;
@@ -227,16 +226,12 @@ export default class InsightFacade implements IInsightFacade {
 					}
 				}
 			}
-			
 			await Promise.all(promises);
-
 			rooms.update(buildings);
 			if (rooms.getSize() < 1) {
-				throw new InsightError('No valid rooms')
+				throw new InsightError("No valid rooms");
 			}
-			
 			await this.writeDatasetToFile(rooms, InsightDatasetKind.Rooms);
-
 			return this.updateDatasets(rooms, InsightDatasetKind.Rooms);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
