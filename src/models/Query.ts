@@ -346,10 +346,10 @@ export class Query implements IQuery {
 	}
 
 	private orderSectionsByString(selectedSections: any[]): void {
-		const orderString = this.OPTIONS.ORDER as string;
-		const datasetKey = orderString.split("_")[1];
-
-		let orderKey = datasetKey;
+		let orderKey = this.OPTIONS.ORDER as string;
+        if (orderKey.includes("_")) {
+            orderKey = orderKey.split("_")[1]
+        }
 
 		selectedSections.sort((a, b) => {
 			if (a[orderKey] < b[orderKey]) {
