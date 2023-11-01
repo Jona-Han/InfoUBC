@@ -1,0 +1,94 @@
+{
+	"title": "multiple_apply_rules_ordered_object",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"test",
+				"tests"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"test"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				},
+				{
+					"tests": {
+						"AVG": "sections_pass"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 1900,
+			"test": 99.78,
+			"tests": 77.1
+		},
+		{
+			"sections_year": 2009,
+			"test": 99.78,
+			"tests": 47.33
+		},
+		{
+			"sections_year": 2012,
+			"test": 99.19,
+			"tests": 47.01
+		},
+		{
+			"sections_year": 2015,
+			"test": 98.98,
+			"tests": 48.83
+		},
+		{
+			"sections_year": 2014,
+			"test": 98.8,
+			"tests": 48.94
+		},
+		{
+			"sections_year": 2011,
+			"test": 98.71,
+			"tests": 46.2
+		},
+		{
+			"sections_year": 2010,
+			"test": 98.58,
+			"tests": 45.3
+		},
+		{
+			"sections_year": 2013,
+			"test": 98.5,
+			"tests": 48.46
+		},
+		{
+			"sections_year": 2007,
+			"test": 97.67,
+			"tests": 47.91
+		},
+		{
+			"sections_year": 2016,
+			"test": 97.25,
+			"tests": 49.67
+		},
+		{
+			"sections_year": 2008,
+			"test": 96.94,
+			"tests": 44.72
+		}
+	]
+}

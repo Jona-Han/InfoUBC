@@ -835,7 +835,7 @@ describe("Dynamic folder test for ordered queries", function () {
 });
 
 
-describe.only("Dynamic folder test for transformation queries", function () {
+describe("Dynamic folder test for transformation queries", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;

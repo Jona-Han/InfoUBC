@@ -102,7 +102,7 @@ export class Query implements IQuery {
 		}
 	}
 
-	private handleTransformations(input: Section[]): any[] {
+	private handleTransformations(input: any[]): any[] {
 		if (this.TRANSFORMATIONS) {
 			const groupings = this.handleGrouping(input);
 
@@ -111,14 +111,14 @@ export class Query implements IQuery {
         return input;
 	}
 
-    private handleGrouping(selectedSections: Section[]): Map<string, Section[]> {
-		const groupings = new Map<string, Section[]>();
+    private handleGrouping(selectedSections: any[]): Map<string, any[]> {
+		const groupings = new Map<string, any[]>();
 
 		selectedSections.forEach((section) => {
 			const tuple = this.TRANSFORMATIONS!.GROUP.map(
 				(key) =>
 					`${key}__${
-						section[key.split("_")[1] as keyof Section]
+						section[key.split("_")[1]]
 					}`
 			).join("||");
 
@@ -132,7 +132,7 @@ export class Query implements IQuery {
 		return groupings;
 	}
 
-	private handleApply(input: Map<string, Section[]>): any[] {
+	private handleApply(input: Map<string, any[]>): any[] {
 		const results: any[] = [];
 
 		for (const [tuple, sections] of input.entries()) {
@@ -142,8 +142,9 @@ export class Query implements IQuery {
 			// Add order keys back to object
 			const orderTuples = tuple.split("||");
 			orderTuples.map((tuple) => {
-				const [key, value] = tuple.split("__");
-				result[key.split("_")[1]] = value;
+				let [key,] = tuple.split("__");
+                key = key.split("_")[1]
+				result[key] = sections[0][key];
 			});
 			results.push(result);
 		}
