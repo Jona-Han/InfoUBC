@@ -13,7 +13,7 @@ import InsightFacade from "../../src/controller/InsightFacade";
 import {clearDisk, getContentFromArchives} from "../resources/archives/testUtil";
 import {folderTest} from "@ubccpsc310/folder-test";
 
-describe("InsightFacade", async function () {
+describe.only("InsightFacade", async function () {
 	let sections: string;
 	let facade: InsightFacade;
 
@@ -835,7 +835,7 @@ describe("Dynamic folder test for ordered queries", function () {
 });
 
 
-describe.only("Dynamic folder test for transformation queries", function () {
+describe("Dynamic folder test for transformation queries", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;
