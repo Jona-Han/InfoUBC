@@ -1,5 +1,6 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 import {Document} from "parse5/dist/tree-adapters/default";
+import Http from 'node:http';
 
 export interface Room {
 	number: string;
@@ -28,7 +29,7 @@ export default class Rooms {
 	private id: string;
 	private rooms: Room[];
 	private size: number;
-	private urlPrefix = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team123/";
+	private urlPrefix: string = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team123/"
 
 	constructor(id: string) {
 		this.id = id;
@@ -69,20 +70,21 @@ export default class Rooms {
 	}
 
 	private buildingIsValid(building: Map<string, string | undefined>): boolean {
-		return (
-			building.get("fullname") !== undefined &&
-			building.get("shortname") !== undefined &&
-			building.get("address") !== undefined
-		);
+		const requiredKeys = ['shortname', 'fullname', 'address']
+		for (let key of requiredKeys) {
+			if (building.get(key) === undefined) {
+				return false;
+			}
+		}
+		return true
 	}
 
 	private addBuilding(row: any): Map<string, string | undefined> {
 		let building: Map<string, string | undefined> = new Map();
-		building.set('address', this.findClassValue(row, "views-field views-field-field-building-address"))
-		building.set('shortname', this.findClassValue(row, "views-field views-field-field-building-code"))
-		building.set('fullname', this.findClassValue(row, "views-field views-field-title"))
-		building.set('href', this.findHref(row)?.replace('./', ''))
-		// console.log(building)
+		building.set('address', String(this.findClassValue(row, "views-field views-field-field-building-address")))
+		building.set('shortname', String(this.findClassValue(row, "views-field views-field-field-building-code")))
+		building.set('fullname', String(this.findClassValue(row, "views-field views-field-title")))
+		building.set('href', String(this.findHref(row)?.replace('./', '')))
 		return building;
 	}
 
@@ -110,7 +112,9 @@ export default class Rooms {
 	public update(buildings: any[]): void {
 		for (let building of buildings) {
 			let rooms = building.get("rooms");
-			// console.log(building)
+			if (building.get('lat') === undefined) {
+				continue
+			}
 			if (rooms !== undefined && rooms.length > 0) {
 				for (let room of rooms) {
 					let roomData: Room = {
@@ -124,36 +128,36 @@ export default class Rooms {
 						shortname: building.get("shortname"),
 						address: building.get("address"),
 						lat: building.get("lat"),
-						lon: building.get("lat"),
+						lon: building.get("lon"),
 					};
 					this.rooms.push(roomData);
 					this.size++;
-					// console.log(roomData)
 				}
 			}
 		}
 	}
 
 	private isValidRoom(room: Map<string, string | number | undefined>): boolean {
-		let result = room.get("number") !== undefined && typeof room.get("number") === "string";
-		result &&= room.get("seats") !== undefined && typeof room.get("seats") === "number";
-		result &&= room.get("name") !== undefined && typeof room.get("name") === "string";
-		result &&= room.get("type") !== undefined && typeof room.get("type") === "string";
-
-		result &&= room.get("furniture") !== undefined && typeof room.get("furniture") === "string";
-
-		return result && room.get("href") !== undefined && typeof room.get("href") === "string";
+		let requiredKeys = ['number', 'name', 'seats', 'type', 'furniture', 'href']
+		for (let key of requiredKeys) {
+			if (room.get(key) === undefined) {
+				return false
+			}
+		} 
+		if (isNaN(Number(room.get('seats')))) {
+			return false
+		}
+		return true
 	}
 
 	private addRoom(row: any): Map<string, string | number | undefined> {
 		let room: Map<string, string | number | undefined> = new Map();
 
 		room.set('seats', Number(this.findClassValue(row, "views-field views-field-field-room-capacity")))
-		room.set('furniture', this.findClassValue(row, "views-field views-field-field-room-furniture"))
-		room.set('number', this.findClassValue(row, "views-field views-field-field-room-number"))
-		room.set('type', this.findClassValue(row, "views-field views-field-field-room-type"))
-		room.set('href', this.findHref(row))
-		// console.log(room)
+		room.set('furniture', String(this.findClassValue(row, "views-field views-field-field-room-furniture")))
+		room.set('number', String(this.findClassValue(row, "views-field views-field-field-room-number")))
+		room.set('type', String(this.findClassValue(row, "views-field views-field-field-room-type")))
+		room.set('href', String(this.findHref(row)))
 		return room;
 	}
 
@@ -177,29 +181,22 @@ export default class Rooms {
 	private findFirstLeaf(node: any): any {
 		let curr = node;
 		while (curr.childNodes && curr.childNodes.length > 0) {
-			// console.log(curr)
-			// console.log(curr)
 			if (curr.childNodes.length === 1) {
 				curr = curr.childNodes[0]
 			} else {
 				curr = curr.childNodes[1]
 			}
 		}
-		// console.log(curr)
 		return curr
 	}
 
 	private findClassValue(node: any, className: string): string | undefined{
 		let cells = this.findTags(node, 'td')
-		// console.log(cells)
 		for (let cell of cells) {
-			// console.log(cell)
 			let attributes = cell.attrs
 			if (attributes) {
 				for (let attribute of attributes) {
-					// console.log(attribute)
 					if (attribute.name && attribute.name === 'class' && attribute.value && attribute.value === className) {
-						// console.log(this.findFirstLeaf(cell).value)
 						return this.findFirstLeaf(cell).value.replace("\n", "").trim();
 					}
 				}
@@ -224,31 +221,37 @@ export default class Rooms {
 		return undefined
 	}
 
-	public async getGeolocations(buildings: Array<Map<string, string>>): Promise<void> {
-		let promises = [];
+	public async getGeolocations(buildings: Array<Map<string, string | undefined>>): Promise<void> {
+		let promises = []
 		for (let building of buildings) {
 			let address = building.get("address");
 			if (address !== undefined) {
-				address = address.replaceAll(" ", "%20");
-				let url = this.urlPrefix + address;
-				// console.log(url)
 				try {
-					let promise = fetch(url)
-						.then((geoResponse) => {
-							console.log(geoResponse)
+					address = address.replace(" ", "%20")
+					let promise = new Promise((resolve, reject) => {
+						Http.get(this.urlPrefix + address, (response: any) => {
+							var body = ''
+							response.on('data', (chunk: any) => {
+								body += chunk
+							})
+							response.on('end', () => {
+								let result = JSON.parse(body)
+								building.set('lat', result['lat'])
+								building.set('lon', result['lon'])
+								resolve(body)
+							})
+
+						}).on('error', function(e) {
+							resolve(undefined)
 						})
-						.then((stuff) => {
-							// console.log(stuff)
-						})
-						.catch();
-					promises.push(promise);
-				} catch {
+					})
+					
+					promises.push(promise)
+				} catch(e) {
 					// Do nothing
 				}
 			}
 		}
-		let results = Promise.all(promises);
-		await results;
-		// console.log(results)
+		return Promise.all(promises).then()
 	}
 }
