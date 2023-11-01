@@ -11,7 +11,7 @@ import Rooms from "../models/Rooms";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
-import QueryValidator from "../utils/QueryValidator";
+import QueryValidator from "../models/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
 import {parse} from "parse5";

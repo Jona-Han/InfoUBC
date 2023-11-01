@@ -18,15 +18,16 @@ import {
 	Transformations,
 } from "./IQuery";
 import * as fs from "fs-extra";
-import QueryValidator from "../utils/QueryValidator";
+import QueryValidator from "./QueryValidator";
 import Sections, {Section} from "./Sections";
 import {Room} from "./Rooms";
 import Decimal from "decimal.js";
+import {applyRules, orderSectionsBySortObject, orderSectionsByString} from "../utils/QueryUtils";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
 	public OPTIONS: Options;
-	public TRANSFORMATIONS: Transformations | undefined;
+	public TRANSFORMATIONS?: Transformations;
 	public datasetName: string;
 
 	private directory = "./data";
@@ -108,25 +109,25 @@ export class Query implements IQuery {
 
 			return this.handleApply(groupings);
 		}
-        return input;
+		return input;
 	}
 
-    private handleGrouping(selectedSections: any[]): Map<string, any[]> {
+	private handleGrouping(selectedSections: any[]): Map<string, any[]> {
 		const groupings = new Map<string, any[]>();
 
 		selectedSections.forEach((section) => {
-			const tuple = this.TRANSFORMATIONS!.GROUP.map(
+			const tuple = this.TRANSFORMATIONS?.GROUP.map(
 				(key) =>
 					`${key}__${
 						section[key.split("_")[1]]
 					}`
 			).join("||");
 
-			if (!groupings.has(tuple)) {
-				groupings.set(tuple, []);
+			if (!groupings.has(tuple as string)) {
+				groupings.set(tuple as string, []);
 			}
 
-			groupings.get(tuple)!.push(section);
+			groupings.get(tuple as string)?.push(section);
 		});
 
 		return groupings;
@@ -135,84 +136,21 @@ export class Query implements IQuery {
 	private handleApply(input: Map<string, any[]>): any[] {
 		const results: any[] = [];
 
-		for (const [tuple, sections] of input.entries()) {
+		for (const [encodedTuple, sections] of input.entries()) {
 			const result: any = {};
-			this.applyRules(sections, result);
+			applyRules(sections, result, this.TRANSFORMATIONS?.APPLY);
 
 			// Add order keys back to object
-			const orderTuples = tuple.split("||");
-			orderTuples.map((tuple) => {
+			const decodedTuples = encodedTuple.split("||");
+			decodedTuples.map((tuple) => {
 				let [key,] = tuple.split("__");
-                key = key.split("_")[1]
+				key = key.split("_")[1];
 				result[key] = sections[0][key];
 			});
 			results.push(result);
 		}
 
 		return results;
-	}
-
-	private applyRules(sections: Section[], result: any) {
-		this.TRANSFORMATIONS!.APPLY.forEach((applyRule) => {
-			const applyKey = Object.keys(applyRule)[0];
-			const applyToken = Object.keys(applyRule[applyKey])[0] as ApplyToken;
-			const field = applyRule[applyKey][applyToken]?.split("_")[1];
-
-			switch (applyToken) {
-				case "MAX":
-					result[applyKey] = Math.max(
-						...sections.map(
-							(section) =>
-								section[field as keyof Section] as number
-						)
-					);
-					break;
-
-				case "MIN":
-					result[applyKey] = Math.min(
-						...sections.map(
-							(section) =>
-								section[field as keyof Section] as number
-						)
-					);
-					break;
-
-				case "AVG":
-					let total = new Decimal(0);
-					sections.forEach((section) => {
-						total = total.add(
-							new Decimal(
-								section[field as keyof Section] as number
-							)
-						);
-					});
-					let avg = total.toNumber() / sections.length;
-					result[applyKey] = Number(avg.toFixed(2));
-					break;
-
-				case "SUM":
-					let sum = sections.reduce((acc, section) => {
-						const sumDecimal = new Decimal(acc).add(
-							new Decimal(
-								section[field as keyof Section] as number
-							)
-						);
-						return sumDecimal.toNumber();
-					}, 0);
-					result[applyKey] = Number(sum.toFixed(2));
-					break;
-
-				case "COUNT":
-					const uniqueValues = new Set(
-						sections.map(
-							(section) =>
-								section[field as keyof Section] as number
-						)
-					);
-					result[applyKey] = uniqueValues.size;
-					break;
-			}
-		});
 	}
 
 	private handleNegation(input: Negation): Set<string> {
@@ -266,9 +204,7 @@ export class Query implements IQuery {
 		const sectionMappings = new Set<string>();
 		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
 		const compareObject = input[compareKey] as object;
-		const datasetKey: string = Object.keys(compareObject)[0].split("_")[1]; // MField
-
-		const mField = datasetKey as MField; // MField but as a File key
+		const mField: string = Object.keys(compareObject)[0].split("_")[1]; // MField
 		const mValue = Object.values(compareObject)[0];
 
 		this.data.getSections().forEach((section: any) => {
@@ -324,9 +260,9 @@ export class Query implements IQuery {
 		// Handle order
 		if (this.OPTIONS.ORDER) {
 			if (typeof this.OPTIONS.ORDER === "string") {
-				this.orderSectionsByString(selectedSections);
+				orderSectionsByString(selectedSections, this.OPTIONS.ORDER);
 			} else {
-				this.orderSectionsBySortObject(selectedSections);
+				orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
 			}
 		}
 
@@ -335,54 +271,14 @@ export class Query implements IQuery {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
-                let key: string = column;
-                if (column.includes('_')) {
-                    key = column.split("_")[1]; // if the column is like 'sections_avg'
-                }
-                insight[column] = section[key];
+				let key: string = column;
+				if (column.includes("_")) {
+					key = column.split("_")[1]; // if the column is like 'sections_avg'
+				}
+				insight[column] = section[key];
 			});
 			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
 		});
 		return result;
-	}
-
-	private orderSectionsByString(selectedSections: any[]): void {
-		let orderKey = this.OPTIONS.ORDER as string;
-        if (orderKey.includes("_")) {
-            orderKey = orderKey.split("_")[1]
-        }
-
-		selectedSections.sort((a, b) => {
-			if (a[orderKey] < b[orderKey]) {
-				return -1;
-			} else if (a[orderKey] > b[orderKey]) {
-				return 1;
-			}
-			return 0;
-		});
-	}
-
-	private orderSectionsBySortObject(selectedSections: any[]): void {
-		const orderObject = this.OPTIONS.ORDER as Sort;
-
-		selectedSections.sort((a, b) => {
-
-			for (let key of orderObject.keys) {
-                let orderKey = key;
-
-                // If key in keys is a section or room key, keep only the part after "_"
-                if (key.includes("_")) {
-                    orderKey = key.split("_")[1]
-                }
-
-                if (a[orderKey] < b[orderKey]) {
-                    return orderObject.dir === "UP" ? -1 : 1;
-                } else if (a[orderKey] > b[orderKey]) {
-                    return orderObject.dir === "UP" ? 1 : -1;
-                }
-				// If equal, the loop will check the next key (tiebreaker)
-			}
-			return 0;
-		});
 	}
 }

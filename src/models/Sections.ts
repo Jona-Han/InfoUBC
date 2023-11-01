@@ -62,8 +62,8 @@ export default class Sections {
 		}
 	}
 
-    private addAlreadyValidSection(section: any): void {
-        if (section !== undefined) {
+	private addAlreadyValidSection(section: any): void {
+		if (section !== undefined) {
 			try {
 				this.sections.push(section as Section);
 				// console.log(this.sections)
@@ -71,8 +71,8 @@ export default class Sections {
 			} catch {
 				// do nothing
 			}
-		} 
-    }
+		}
+	}
 
 	// Adds sections to a dataset
 	// Throws InsightError if input list is empty
@@ -82,11 +82,11 @@ export default class Sections {
 			throw new InsightError("No valid sections");
 		}
 		for (let section of sections) {
-            if (neverBeforeAdded) {
-                this.addSection(section);
-            } else {
-                this.addAlreadyValidSection(section);
-            }
+			if (neverBeforeAdded) {
+				this.addSection(section);
+			} else {
+				this.addAlreadyValidSection(section);
+			}
 		}
 		// console.log(this.getSize())
 	}

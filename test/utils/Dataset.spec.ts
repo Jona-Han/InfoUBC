@@ -37,7 +37,7 @@ describe("Dataset", async function () {
 				Subject: "test",
 			};
 
-            let expected = {
+			let expected = {
 				title: "",
 				uuid: "25945",
 				instructor: "",
@@ -282,7 +282,7 @@ describe("Dataset", async function () {
 				},
 			];
 
-            let expected = [
+			let expected = [
 				{
 					title: "",
 					uuid: "25945",

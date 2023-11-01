@@ -1,7 +1,7 @@
 import {Negation} from "../../src/models/IQuery";
 
 import {expect} from "chai";
-import QueryValidator from "../../src/utils/QueryValidator";
+import QueryValidator from "../../src/models/QueryValidator";
 import {InsightError} from "../../src/controller/IInsightFacade";
 
 describe("QueryValidator", () => {
@@ -234,7 +234,8 @@ describe("QueryValidator", () => {
 				ORDER: "sections",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Order key not in column keys");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError,
+				"All ORDER keys must be in COLUMNS");
 		});
 
 		it("should throw InsightError for columns contains invalid key", () => {
@@ -695,69 +696,6 @@ describe("QueryValidator", () => {
 		});
 	});
 
-	describe("validateMKey", () => {
-		it("should return true for a valid MField input", () => {
-			expect(QV.validateMKey("validContent_avg")).to.equal(true);
-		});
-
-		it("should return false for an invalid MField input", () => {
-			expect(QV.validateMKey("validContent_not")).to.equal(false);
-		});
-
-		it("should return false for input without an underscore", () => {
-			expect(QV.validateMKey("invalidContentavg")).to.equal(false);
-		});
-
-		it("should return false for input with more than one underscore", () => {
-			expect(QV.validateMKey("validContent_avg_extra")).to.equal(false);
-		});
-	});
-
-	describe("validateSKey", () => {
-		it("should return true for a valid SField input", () => {
-			expect(QV.validateSKey("validContent_dept")).to.equal(true);
-		});
-
-		it("should return false for an invalid SField input", () => {
-			expect(QV.validateSKey("validContent_not")).to.equal(false);
-		});
-
-		it("should return false for input without an underscore", () => {
-			expect(QV.validateSKey("invalidContentdept")).to.equal(false);
-		});
-
-		it("should return false for input with more than one underscore", () => {
-			expect(QV.validateSKey("validContent_dept_extra")).to.equal(false);
-		});
-	});
-
-	describe("validateKey", () => {
-		it("should return true for a valid column key input with MField", () => {
-			const result = QV.validateKey("validContent_avg");
-			expect(result).to.equal(true);
-		});
-
-		it("should return true for a valid column key input with SField", () => {
-			const result = QV.validateKey("validContent_dept");
-			expect(result).to.equal(true);
-		});
-
-		it("should return false for an invalid column key input", () => {
-			const result = QV.validateKey("validContent_not");
-			expect(result).to.equal(false);
-		});
-
-		it("should return false for input without an underscore", () => {
-			const result = QV.validateKey("invalidContentdept");
-			expect(result).to.equal(false);
-		});
-
-		it("should return false for input with more than one underscore", () => {
-			const result = QV.validateKey("validContent_dept_extra");
-			expect(result).to.equal(false);
-		});
-	});
-
 	describe("validateTransformations", () => {
 		it("should not throw for valid transformations", () => {
 			const transformations = {
@@ -850,12 +788,6 @@ describe("QueryValidator", () => {
 				.to.throw(InsightError, "Cannot have underscore in applyKey");
 		});
 
-		it("should throw for duplicate applyKey", () => {
-            // Assuming the `keys` set has a value 'duplicateKey' already
-			QV.keys.add("duplicateKey");
-			expect(() => QV.validateApplyRule({duplicateKey: {}}))
-				.to.throw(InsightError, "Duplicate APPLY key duplicateKey");
-		});
 
 		it("should throw if applyValue is not an object", () => {
 			expect(() => QV.validateApplyRule({validKey: "invalidValue"}))
@@ -1010,12 +942,7 @@ describe("QueryValidator", () => {
 		});
 
 		it("should throw an error for an invalid string order", () => {
-			expect(() => QV.validateOrder("invalidKey", validKeys)).to.throw("Order key not in column keys");
-		});
-
-		it("should throw an error for an order key not in column keys", () => {
-			QV.keys.add("anotherInvalidKey");
-			expect(() => QV.validateOrder("anotherInvalidKey", validKeys)).to.throw("Order key not in column keys");
+			expect(() => QV.validateOrder("invalidKey", validKeys)).to.throw("All ORDER keys must be in COLUMNS");
 		});
 
 		it("should not throw an error for a valid object order", () => {
@@ -1041,12 +968,6 @@ describe("QueryValidator", () => {
 		it("should throw an error for invalid keys type in order object", () => {
 			const invalidOrder = {dir: "UP", keys: "validKey1"};
 			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("ORDER keys must be a non-empty array");
-		});
-
-		it("should throw an error for an invalid key in keys array of order object", () => {
-			QV.keys.add("invalidKey");
-			const invalidOrder = {dir: "UP", keys: ["invalidKey"]};
-			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("All ORDER keys must be in COLUMNS");
 		});
 
 		it("should throw an error for a key in keys array that's not in columnKeys", () => {
