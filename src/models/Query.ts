@@ -31,18 +31,6 @@ export class Query implements IQuery {
 
 	private directory = "./data";
 	private data: Sections;
-	private datasetToFileMappings = {
-		uuid: "id",
-		id: "Course",
-		title: "Title",
-		instructor: "Professor",
-		dept: "Subject",
-		year: "Year",
-		avg: "Avg",
-		pass: "Pass",
-		fail: "Fail",
-		audit: "Audit",
-	};
 
 	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
 	private RoomFields = [
@@ -91,7 +79,7 @@ export class Query implements IQuery {
 
 	private loadData() {
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
-		this.data.addSections(object.sections);
+		this.data.addSections(object.sections, false);
 	}
 
 	private handleWhere(input: Filter): Set<string> {
@@ -130,7 +118,7 @@ export class Query implements IQuery {
 			const tuple = this.TRANSFORMATIONS!.GROUP.map(
 				(key) =>
 					`${key}__${
-						section[this.datasetToFileMappings[key.split("_")[1] as MField | SField] as keyof Section]
+						section[key.split("_")[1] as keyof Section]
 					}`
 			).join("||");
 
@@ -174,7 +162,7 @@ export class Query implements IQuery {
 					result[applyKey] = Math.max(
 						...sections.map(
 							(section) =>
-								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+								section[field as keyof Section] as number
 						)
 					);
 					break;
@@ -183,7 +171,7 @@ export class Query implements IQuery {
 					result[applyKey] = Math.min(
 						...sections.map(
 							(section) =>
-								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+								section[field as keyof Section] as number
 						)
 					);
 					break;
@@ -193,7 +181,7 @@ export class Query implements IQuery {
 					sections.forEach((section) => {
 						total = total.add(
 							new Decimal(
-								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+								section[field as keyof Section] as number
 							)
 						);
 					});
@@ -205,7 +193,7 @@ export class Query implements IQuery {
 					let sum = sections.reduce((acc, section) => {
 						const sumDecimal = new Decimal(acc).add(
 							new Decimal(
-								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+								section[field as keyof Section] as number
 							)
 						);
 						return sumDecimal.toNumber();
@@ -217,7 +205,7 @@ export class Query implements IQuery {
 					const uniqueValues = new Set(
 						sections.map(
 							(section) =>
-								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+								section[field as keyof Section] as number
 						)
 					);
 					result[applyKey] = uniqueValues.size;
@@ -244,7 +232,7 @@ export class Query implements IQuery {
 	public handleSComparison(input: SComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const key = Object.keys(input.IS)[0]; // Dataset name + SField
-		const sField = this.datasetToFileMappings[key.split("_")[1] as SField]; // SField
+		const sField = key.split("_")[1] as SField; // SField
 		const sValue = input.IS[key];
 
 		this.data.getSections().forEach((section: any) => {
@@ -279,7 +267,7 @@ export class Query implements IQuery {
 		const compareObject = input[compareKey] as object;
 		const datasetKey: string = Object.keys(compareObject)[0].split("_")[1]; // MField
 
-		const mField = this.datasetToFileMappings[datasetKey as MField]; // MField but as a File key
+		const mField = datasetKey as MField; // MField but as a File key
 		const mValue = Object.values(compareObject)[0];
 
 		this.data.getSections().forEach((section: any) => {
@@ -363,13 +351,7 @@ export class Query implements IQuery {
 		const orderString = this.OPTIONS.ORDER as string;
 		const datasetKey = orderString.split("_")[1];
 
-		let orderKey: keyof Section;
-
-		if (this.SectionFields.includes(datasetKey)) {
-			orderKey = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
-		} else if (this.RoomFields.includes(datasetKey)) {
-			orderKey = datasetKey as keyof Section;
-		}
+		let orderKey = datasetKey;
 
 		selectedSections.sort((a, b) => {
 			if (a[orderKey] < b[orderKey]) {
@@ -391,12 +373,7 @@ export class Query implements IQuery {
 
                 // If key in keys is a section or room key, keep only the part after "_"
                 if (key.includes("_")) {
-                    let newKey = key.split("_")[1];
-                    if (this.SectionFields.includes(newKey)) {
-                        orderKey = this.datasetToFileMappings[newKey as MField | SField] as keyof Section;
-                    } else if (this.RoomFields.includes(newKey)) {
-                        orderKey = newKey;
-                    }
+                    orderKey = key.split("_")[1]
                 }
 
                 if (a[orderKey] < b[orderKey]) {

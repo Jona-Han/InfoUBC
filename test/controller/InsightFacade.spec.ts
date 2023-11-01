@@ -13,7 +13,7 @@ import InsightFacade from "../../src/controller/InsightFacade";
 import {clearDisk, getContentFromArchives} from "../resources/archives/testUtil";
 import {folderTest} from "@ubccpsc310/folder-test";
 
-describe.only("InsightFacade", async function () {
+describe("InsightFacade", async function () {
 	let sections: string;
 	let facade: InsightFacade;
 

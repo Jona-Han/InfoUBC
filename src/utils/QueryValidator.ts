@@ -106,7 +106,6 @@ export default class QueryValidator {
 
 	public validateOrder(order: unknown, columnKeys: string[]) {
 		if (typeof order === "string") {
-			console.log(order);
 			if (!columnKeys.includes(order)) {
 				throw new InsightError("Order key not in column keys");
 			}
