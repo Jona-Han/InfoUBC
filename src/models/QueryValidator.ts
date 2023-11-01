@@ -53,6 +53,29 @@ export default class QueryValidator {
 		}
 	}
 
+	public validateWhere(where: object): void {
+		const keys = Object.keys(where);
+		if (keys.length !== 1) {
+			throw new InsightError("Nested Filter must contain 1 key");
+		}
+
+		// Check that key is one of the valid keys
+		const key = keys[0];
+		const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
+		if (!validKeys.includes(key)) {
+			throw new InsightError("Invalid key in WHERE");
+		}
+		if (key === "AND" || key === "OR") {
+			this.validateLogicComparison(where);
+		} else if (key === "IS") {
+			this.validateSComparison(where);
+		} else if (["LT", "GT", "EQ"].includes(key)) {
+			this.validateMComparison(where);
+		} else if (key === "NOT") {
+			this.validateNot(where);
+		}
+	}
+
 	public validateOptions(options: object): void {
 		const keys = Object.keys(options);
 		if (keys.length > 2) {
@@ -93,9 +116,7 @@ export default class QueryValidator {
 
 	public validateOrder(order: unknown, columnKeys: string[]) {
 		if (typeof order === "string") {
-			if (!columnKeys.includes(order)) {
-				throw new InsightError("All ORDER keys must be in COLUMNS");
-			}
+            this.KV.validateOrderKey(order, columnKeys);
 		} else if (typeof order === "object") {
 			if (!order || !("dir" in order) || !("keys" in order)) {
 				throw new InsightError("Invalid Order structure");
@@ -109,15 +130,7 @@ export default class QueryValidator {
 			}
             // Check if each element of order.keys is a string and is present in columnKeys
 			for (const key of order.keys) {
-				if (typeof key !== "string") {
-					throw new InsightError("Each element of ORDER keys must be a string");
-				}
-				if (!columnKeys.includes(key)) {
-					throw new InsightError("All ORDER keys must be in COLUMNS");
-				}
-				if (!this.KV.validateOrderKey(key as string)) {
-					throw new InsightError(`Invalid key: ${key}`);
-				}
+                this.KV.validateOrderKey(key, columnKeys);
 			}
 		} else {
 			throw new InsightError("Invalid Order type. Must be string or object.");
@@ -141,7 +154,7 @@ export default class QueryValidator {
 			throw new InsightError("All elements in GROUP must be strings");
 		}
 		for (let key of transformations.GROUP) {
-			if (!this.KV.validateKey(key)) {
+			if (!this.KV.validateGroupKey(key)) {
 				throw new InsightError("Invalid key in GROUP: " + key);
 			}
 		}
@@ -181,36 +194,12 @@ export default class QueryValidator {
 		}
 	}
 
-
-	public validateWhere(where: object): void {
-		const keys = Object.keys(where);
-		if (keys.length !== 1) {
-			throw new InsightError("Nested Filter must contain 1 key");
-		}
-
-		// Check that key is one of the valid keys
-		const key = keys[0];
-		const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
-		if (!validKeys.includes(key)) {
-			throw new InsightError("Invalid key in WHERE");
-		}
-		if (key === "AND" || key === "OR") {
-			this.validateLogicComparison(where);
-		} else if (key === "IS") {
-			this.validateSComparison(where);
-		} else if (["LT", "GT", "EQ"].includes(key)) {
-			this.validateMComparison(where);
-		} else if (key === "NOT") {
-			this.validateNot(where);
-		}
-	}
-
 	public validateLogicComparison(object: object): void {
 		const logicComparison = object as LogicComparison;
 		const logicComparatorKeys = Object.keys(logicComparison);
 		const comparator = logicComparatorKeys[0] as Logic;
 
-		const fieldObject = logicComparison[comparator] as object;
+		const fieldObject = logicComparison[comparator];
 		if (!Array.isArray(fieldObject) || fieldObject.length === 0) {
 			throw new InsightError(`${comparator} should be non-empty array`);
 		}

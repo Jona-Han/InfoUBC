@@ -235,7 +235,7 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError,
-				"All ORDER keys must be in COLUMNS");
+                "All ORDER keys must be in COLUMNS");
 		});
 
 		it("should throw InsightError for columns contains invalid key", () => {
