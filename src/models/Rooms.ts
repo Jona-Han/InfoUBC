@@ -58,7 +58,8 @@ export default class Rooms {
 		let buildings = [];
 		let tables = this.findTags(index, "table");
 		for (const table of tables) {
-			let rows = this.findTags(table, "tr");
+			let body = this.findTags(table, "tbody");
+			let rows = this.findTags(body[0], "tr");
 			for (let row of rows) {
 				let building = this.addBuilding(row);
 				if (this.buildingIsValid(building)) {
@@ -92,7 +93,8 @@ export default class Rooms {
 		let rooms = [];
 		let tables = this.findTags(buildingContent, "table");
 		for (const table of tables) {
-			let rows = this.findTags(table, "tr");
+			let body = this.findTags(table, "tbody");
+			let rows = this.findTags(body[0], "tr");
 			for (let row of rows) {
 				let room = this.addRoom(row);
 				let shortname = building.get("shortname");
@@ -102,6 +104,7 @@ export default class Rooms {
 					room.set("name", name);
 				}
 				if (this.isValidRoom(room)) {
+					// console.log(room)
 					rooms.push(room);
 				}
 			}
@@ -140,7 +143,10 @@ export default class Rooms {
 	private isValidRoom(room: Map<string, string | number | undefined>): boolean {
 		let requiredKeys = ["number", "name", "seats", "type", "furniture", "href"];
 		for (let key of requiredKeys) {
-			if (room.get(key) === undefined) {
+			// console.log(key)
+			// console.log(key)
+			if (room.get(key) === "undefined") {
+				// console.log(key)
 				return false;
 			}
 		}
@@ -202,6 +208,10 @@ export default class Rooms {
 						attribute.value &&
 						attribute.value === className
 					) {
+						let value = this.findFirstLeaf(cell).value;
+						if (value === undefined) {
+							return "";
+						}
 						return this.findFirstLeaf(cell).value.replace("\n", "").trim();
 					}
 				}
