@@ -146,12 +146,10 @@ export default class InsightFacade implements IInsightFacade {
 	}
 
 	private async addSectionDataset(id: string, content: string): Promise<string[]> {
-		// console.log("Trying to add dataset to data");
 		try {
 			let dataset = new Sections(id);
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
-			// console.log("2.2: before AsyncLoad")
 			await zip.loadAsync(stringBuffer);
 			const files = zip.files;
 
@@ -196,9 +194,7 @@ export default class InsightFacade implements IInsightFacade {
 		try {
 			const stringBuffer = Buffer.from(content, "base64");
 			const zip = new JSZip();
-			// console.log("2.2: before AsyncLoad")
 			await zip.loadAsync(stringBuffer);
-
 			let index = zip.files["index.htm"];
 			if (!index) {
 				throw new InsightError("No index.htm file");
@@ -207,8 +203,8 @@ export default class InsightFacade implements IInsightFacade {
 			let htmlContent = parse(indexContent);
 			let rooms = new Rooms(id);
 			let buildings = rooms.addBuildings(htmlContent);
-			// rooms.getGeolocations(buildings)
-			let promises = [];
+			let firstPromise = rooms.getGeolocations(buildings);
+			let promises = [firstPromise];
 			for (let building of buildings) {
 				let newPromise;
 				let link = building.get("href");
@@ -230,13 +226,12 @@ export default class InsightFacade implements IInsightFacade {
 					}
 				}
 			}
-
 			await Promise.all(promises);
-
 			rooms.update(buildings);
-			// console.log(rooms)
+			if (rooms.getSize() < 1) {
+				throw new InsightError("No valid rooms");
+			}
 			await this.writeDatasetToFile(rooms, InsightDatasetKind.Rooms);
-
 			return this.updateDatasets(rooms, InsightDatasetKind.Rooms);
 		} catch (e) {
 			throw new InsightError("Error extracting data: " + e);
