@@ -94,8 +94,11 @@ export default class Rooms {
 		let tables = this.findTags(buildingContent, "table");
 		for (const table of tables) {
 			let body = this.findTags(table, "tbody");
+			// console.log(body)
 			let rows = this.findTags(body[0], "tr");
+			// console.log(rows)
 			for (let row of rows) {
+				// console.log(row)
 				let room = this.addRoom(row);
 				let shortname = building.get("shortname");
 				let number = room.get("number");
@@ -145,7 +148,8 @@ export default class Rooms {
 		for (let key of requiredKeys) {
 			// console.log(key)
 			// console.log(key)
-			if (room.get(key) === "undefined") {
+			// console.log(room.get(key))
+			if (room.get(key) === undefined) {
 				// console.log(key)
 				return false;
 			}
@@ -160,10 +164,11 @@ export default class Rooms {
 		let room: Map<string, string | number | undefined> = new Map();
 
 		room.set("seats", Number(this.findClassValue(row, "views-field views-field-field-room-capacity")));
-		room.set("furniture", String(this.findClassValue(row, "views-field views-field-field-room-furniture")));
-		room.set("number", String(this.findClassValue(row, "views-field views-field-field-room-number")));
-		room.set("type", String(this.findClassValue(row, "views-field views-field-field-room-type")));
-		room.set("href", String(this.findHref(row)));
+		room.set("furniture", this.findClassValue(row, "views-field views-field-field-room-furniture"));
+		room.set("number", this.findClassValue(row, "views-field views-field-field-room-number"));
+		room.set("type", this.findClassValue(row, "views-field views-field-field-room-type"));
+		room.set("href", this.findHref(row));
+		// console.log(room)
 		return room;
 	}
 
@@ -209,6 +214,7 @@ export default class Rooms {
 						attribute.value === className
 					) {
 						let value = this.findFirstLeaf(cell).value;
+						// console.log(value)
 						if (value === undefined) {
 							return "";
 						}
