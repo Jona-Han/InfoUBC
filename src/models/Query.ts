@@ -74,8 +74,19 @@ export class Query implements IQuery {
 		}
 		this.loadData();
 		const afterWhere = this.handleWhere(this.WHERE);
-		const afterTransform = this.handleTransformations(afterWhere);
-		return this.handleOptions(afterWhere);
+
+		// Parse WHERE data into a map
+		const allSections = this.data.getSectionsAsMap();
+		const selectedSections: Section[] = [];
+		afterWhere.forEach((uuid) => {
+			const section = allSections.get(uuid);
+			if (section) {
+				selectedSections.push(section);
+			}
+		});
+
+		const afterTransform = this.handleTransformations(selectedSections);
+		return this.handleOptions(afterTransform);
 	}
 
 	private loadData() {
@@ -103,112 +114,16 @@ export class Query implements IQuery {
 		}
 	}
 
-	private handleTransformations(input: Set<string>) {
+	private handleTransformations(input: Section[]): any[] {
 		if (this.TRANSFORMATIONS) {
 			const groupings = this.handleGrouping(input);
 
 			return this.handleApply(groupings);
 		}
+        return input;
 	}
 
-	private handleApply(input: Map<string, Section[]>): Map<string, any> {
-		const results = new Map<string, any>();
-
-		for (const [tuple, sections] of input.entries()) {
-			const result: any = {};
-
-			this.TRANSFORMATIONS!.APPLY.forEach((applyRule) => {
-				const applyKey = Object.keys(applyRule)[0];
-				const applyToken = Object.keys(applyRule[applyKey])[0] as ApplyToken;
-				const field = applyRule[applyKey][applyToken]?.split("_")[1];
-
-				switch (applyToken) {
-					case "MAX":
-						result[applyKey] = Math.max(
-							...sections.map(
-								(section) =>
-									section[
-										this.datasetToFileMappings[field as MField | SField] as keyof Section
-									] as number
-							)
-						);
-						break;
-
-					case "MIN":
-						result[applyKey] = Math.min(
-							...sections.map(
-								(section) =>
-									section[
-										this.datasetToFileMappings[field as MField | SField] as keyof Section
-									] as number
-							)
-						);
-						break;
-
-					case "AVG":
-						let total = new Decimal(0);
-						sections.forEach((section) => {
-							total = total.add(
-								new Decimal(
-									section[
-										this.datasetToFileMappings[field as MField | SField] as keyof Section
-									] as number
-								)
-							);
-						});
-						let avg = total.toNumber() / sections.length;
-						result[applyKey] = Number(avg.toFixed(2));
-						break;
-
-					case "SUM":
-						let sum = sections.reduce((acc, section) => {
-							const sumDecimal = new Decimal(acc).add(
-								new Decimal(
-									section[
-										this.datasetToFileMappings[field as MField | SField] as keyof Section
-									] as number
-								)
-							);
-							return sumDecimal.toNumber();
-						}, 0);
-						result[applyKey] = Number(sum.toFixed(2));
-						break;
-
-					case "COUNT":
-						const uniqueValues = new Set(
-							sections.map(
-								(section) =>
-									section[
-										this.datasetToFileMappings[field as MField | SField] as keyof Section
-									] as number
-							)
-						);
-						result[applyKey] = uniqueValues.size;
-						break;
-				}
-			});
-			const orderTuples = tuple.split("||");
-            orderTuples.map((tuple) => {
-                const [key, value] = tuple.split("__")
-                result[key] = value;
-            })
-
-			results.set(tuple, result);
-		};
-
-		return results;
-	}
-
-	private handleGrouping(input: Set<string>) {
-		const allSections = this.data.getSectionsAsMap();
-		const selectedSections: Section[] = [];
-		input.forEach((uuid) => {
-			const section = allSections.get(uuid);
-			if (section) {
-				selectedSections.push(section);
-			}
-		});
-
+    private handleGrouping(selectedSections: Section[]): Map<string, Section[]> {
 		const groupings = new Map<string, Section[]>();
 
 		selectedSections.forEach((section) => {
@@ -227,6 +142,89 @@ export class Query implements IQuery {
 		});
 
 		return groupings;
+	}
+
+	private handleApply(input: Map<string, Section[]>): any[] {
+		const results: any[] = [];
+
+		for (const [tuple, sections] of input.entries()) {
+			const result: any = {};
+			this.applyRules(sections, result);
+
+			// Add order keys back to object
+			const orderTuples = tuple.split("||");
+			orderTuples.map((tuple) => {
+				const [key, value] = tuple.split("__");
+				result[key] = value;
+			});
+
+			results.push(result);
+		}
+
+		return results;
+	}
+
+	private applyRules(sections: Section[], result: any) {
+		this.TRANSFORMATIONS!.APPLY.forEach((applyRule) => {
+			const applyKey = Object.keys(applyRule)[0];
+			const applyToken = Object.keys(applyRule[applyKey])[0] as ApplyToken;
+			const field = applyRule[applyKey][applyToken]?.split("_")[1];
+
+			switch (applyToken) {
+				case "MAX":
+					result[applyKey] = Math.max(
+						...sections.map(
+							(section) =>
+								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+						)
+					);
+					break;
+
+				case "MIN":
+					result[applyKey] = Math.min(
+						...sections.map(
+							(section) =>
+								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+						)
+					);
+					break;
+
+				case "AVG":
+					let total = new Decimal(0);
+					sections.forEach((section) => {
+						total = total.add(
+							new Decimal(
+								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+							)
+						);
+					});
+					let avg = total.toNumber() / sections.length;
+					result[applyKey] = Number(avg.toFixed(2));
+					break;
+
+				case "SUM":
+					let sum = sections.reduce((acc, section) => {
+						const sumDecimal = new Decimal(acc).add(
+							new Decimal(
+								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+							)
+						);
+						return sumDecimal.toNumber();
+					}, 0);
+					result[applyKey] = Number(sum.toFixed(2));
+					break;
+
+				case "COUNT":
+					const uniqueValues = new Set(
+						sections.map(
+							(section) =>
+								section[this.datasetToFileMappings[field as MField | SField] as keyof Section] as number
+						)
+					);
+					result[applyKey] = uniqueValues.size;
+					break;
+			}
+		});
 	}
 
 	private handleNegation(input: Negation): Set<string> {
@@ -330,20 +328,10 @@ export class Query implements IQuery {
 		return result;
 	}
 
-	private handleOptions(input: Set<string>): InsightResult[] {
-		if (input.size > 5000) {
+	private handleOptions(selectedSections: any[]): InsightResult[] {
+		if (selectedSections.length > 5000) {
 			throw new ResultTooLargeError("Greater than 5000 results");
 		}
-
-		// Get all sections and only add input sections to array
-		const allSections = this.data.getSectionsAsMap();
-		const selectedSections: Section[] = [];
-		input.forEach((uuid) => {
-			const section = allSections.get(uuid);
-			if (section) {
-				selectedSections.push(section);
-			}
-		});
 
 		// Handle order
 		if (this.OPTIONS.ORDER) {
@@ -367,7 +355,7 @@ export class Query implements IQuery {
 		return result;
 	}
 
-	private orderSectionsByString(selectedSections: Section[]): void {
+	private orderSectionsByString(selectedSections: any[]): void {
 		const orderString = this.OPTIONS.ORDER as string;
 		const datasetKey = orderString.split("_")[1];
 
@@ -389,7 +377,7 @@ export class Query implements IQuery {
 		});
 	}
 
-	private orderSectionsBySortObject(selectedSections: Section[] | Room[]): void {
+	private orderSectionsBySortObject(selectedSections: any[]): void {
 		const orderObject = this.OPTIONS.ORDER as Sort;
 
 		selectedSections.sort((a, b) => {

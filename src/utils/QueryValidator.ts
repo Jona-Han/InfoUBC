@@ -25,7 +25,7 @@ export default class QueryValidator {
 	public validateQuery(query: object): string {
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
-        if ("TRANSFORMATIONS" in vQuery) {
+		if ("TRANSFORMATIONS" in vQuery) {
 			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
 		}
 
@@ -188,7 +188,7 @@ export default class QueryValidator {
 			throw new InsightError(`Duplicate APPLY key ${applyKey}`);
 		}
 		this.transformationKeys.add(applyKey);
-        this.keys.add(applyKey);
+		this.keys.add(applyKey);
 
 		const applyValue = rule[applyKey];
 
