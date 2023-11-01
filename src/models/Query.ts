@@ -386,32 +386,25 @@ export class Query implements IQuery {
 		const orderObject = this.OPTIONS.ORDER as Sort;
 
 		selectedSections.sort((a, b) => {
+
 			for (let key of orderObject.keys) {
-				if (this.SectionFields.includes(key)) {
-					const orderKey = this.datasetToFileMappings[key as MField | SField] as keyof Section;
+                let orderKey = key;
 
-					// Using type assertion
-					const aSection = a as Section;
-					const bSection = b as Section;
+                // If key in keys is a section or room key, keep only the part after "_"
+                if (key.includes("_")) {
+                    let newKey = key.split("_")[1];
+                    if (this.SectionFields.includes(newKey)) {
+                        orderKey = this.datasetToFileMappings[newKey as MField | SField] as keyof Section;
+                    } else if (this.RoomFields.includes(newKey)) {
+                        orderKey = newKey;
+                    }
+                }
 
-					if (aSection[orderKey] < bSection[orderKey]) {
-						return orderObject.dir === "UP" ? -1 : 1;
-					} else if (aSection[orderKey] > bSection[orderKey]) {
-						return orderObject.dir === "UP" ? 1 : -1;
-					}
-				} else if (this.RoomFields.includes(key)) {
-					const orderKey = key as keyof Room;
-
-					// Using type assertion
-					const aRoom = a as Room;
-					const bRoom = b as Room;
-
-					if (aRoom[orderKey] < bRoom[orderKey]) {
-						return orderObject.dir === "UP" ? -1 : 1;
-					} else if (aRoom[orderKey] > bRoom[orderKey]) {
-						return orderObject.dir === "UP" ? 1 : -1;
-					}
-				}
+                if (a[orderKey] < b[orderKey]) {
+                    return orderObject.dir === "UP" ? -1 : 1;
+                } else if (a[orderKey] > b[orderKey]) {
+                    return orderObject.dir === "UP" ? 1 : -1;
+                }
 				// If equal, the loop will check the next key (tiebreaker)
 			}
 			return 0;

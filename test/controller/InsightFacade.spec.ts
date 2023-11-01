@@ -726,7 +726,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe.only("Dynamic folder test for unordered queries", function () {
+describe("Dynamic folder test for unordered queries", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;
@@ -826,6 +826,61 @@ describe("Dynamic folder test for ordered queries", function () {
 		"performQuery tests", // suiteName
 		target, // target
 		"./test/resources/orderedQueries", // path
+		{
+			errorValidator,
+			assertOnResult: assertResult,
+			assertOnError: assertError, // options
+		}
+	);
+});
+
+
+describe.only("Dynamic folder test for transformation queries", function () {
+	type Output = InsightResult[];
+	type PQErrorKind = "InsightError" | "ResultTooLargeError";
+	let sections: string;
+	let facade: InsightFacade;
+
+	before(async function () {
+		clearDisk();
+		sections = getContentFromArchives("pair.zip");
+		facade = new InsightFacade();
+		await facade.addDataset("sections", sections, InsightDatasetKind.Sections);
+	});
+
+	after(function () {
+		console.info(`After: ${this.test?.parent?.title}`);
+		clearDisk();
+	});
+
+	function errorValidator(error: unknown): error is PQErrorKind {
+		return error === "InsightError" || error === "ResultTooLargeError";
+	}
+
+	// Assert value equals expected
+	function assertResult(actual: unknown, expected: Output): void {
+		expect(actual).to.deep.equal(expected);
+	}
+
+	// Assert actual error is of expected type
+	function assertError(actual: unknown, expected: PQErrorKind): void {
+		if (expected === "InsightError") {
+			expect(actual).to.be.an.instanceOf(InsightError);
+		} else if (expected === "ResultTooLargeError") {
+			expect(actual).to.be.an.instanceOf(ResultTooLargeError);
+		} else {
+			expect.fail("Should not be reached in assertError");
+		}
+	}
+
+	function target(input: unknown): Promise<Output> {
+		return facade.performQuery(input);
+	}
+
+	folderTest<unknown, Output, PQErrorKind>(
+		"performQuery tests", // suiteName
+		target, // target
+		"./test/resources/transformations", // path
 		{
 			errorValidator,
 			assertOnResult: assertResult,
