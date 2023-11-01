@@ -157,7 +157,6 @@ export class Query implements IQuery {
 				const [key, value] = tuple.split("__");
 				result[key.split("_")[1]] = value;
 			});
-
 			results.push(result);
 		}
 
@@ -350,7 +349,7 @@ export class Query implements IQuery {
                 let key: string;
                 if (column.includes('_')) {
                     key = column.split("_")[1]; // if the column is like 'sections_avg'
-                    insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+                    insight[column] = section[key];
                 } else {
                     insight[column] = section[column]; // if the column has no underscore
                 }
