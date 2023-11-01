@@ -1,0 +1,31 @@
+{
+	"title": "orderKey_empty",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"sections_pass"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": []
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year",
+				"sections_audit"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

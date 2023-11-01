@@ -1,5 +1,6 @@
 import {InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
 import {
+	ApplyToken,
 	Filter,
 	IQuery,
 	JSONQuery,
@@ -10,38 +11,49 @@ import {
 	MField,
 	Negation,
 	Options,
+	RoomMField,
 	SComparison,
 	SField,
+	Sort,
+	Transformations,
 } from "./IQuery";
 import * as fs from "fs-extra";
-import QueryValidator from "../utils/QueryValidator";
+import QueryValidator from "./QueryValidator";
 import Sections, {Section} from "./Sections";
+import {Room} from "./Rooms";
+import Decimal from "decimal.js";
+import {applyRules, orderSectionsBySortObject, orderSectionsByString} from "../utils/QueryUtils";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
 	public OPTIONS: Options;
+	public TRANSFORMATIONS?: Transformations;
 	public datasetName: string;
 
 	private directory = "./data";
 	private data: Sections;
-	private datasetToFileMappings = {
-		uuid: "id",
-		id: "Course",
-		title: "Title",
-		instructor: "Professor",
-		dept: "Subject",
-		year: "Year",
-		avg: "Avg",
-		pass: "Pass",
-		fail: "Fail",
-		audit: "Audit",
-	};
+
+	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
+	private RoomFields = [
+		"lat",
+		"lon",
+		"seats",
+		"fullname",
+		"shortname",
+		"number",
+		"name",
+		"address",
+		"type",
+		"furniture",
+		"href",
+	];
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();
 		this.datasetName = QV.validateQuery(queryJSON);
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
+		this.TRANSFORMATIONS = queryJSON.TRANSFORMATIONS;
 		this.data = new Sections(this.datasetName);
 	}
 
@@ -51,12 +63,24 @@ export class Query implements IQuery {
 		}
 		this.loadData();
 		const afterWhere = this.handleWhere(this.WHERE);
-		return this.handleOptions(afterWhere);
+
+		// Parse WHERE data into a map
+		const allSections = this.data.getSectionsAsMap();
+		const selectedSections: Section[] = [];
+		afterWhere.forEach((uuid) => {
+			const section = allSections.get(uuid);
+			if (section) {
+				selectedSections.push(section);
+			}
+		});
+
+		const afterTransform = this.handleTransformations(selectedSections);
+		return this.handleOptions(afterTransform);
 	}
 
 	private loadData() {
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
-		this.data.addSections(object.sections);
+		this.data.addSections(object.sections, false);
 	}
 
 	private handleWhere(input: Filter): Set<string> {
@@ -73,10 +97,60 @@ export class Query implements IQuery {
 		} else {
 			const all = new Set<string>();
 			this.data.getSections().forEach((section) => {
-				all.add(section.id);
+				all.add(section.uuid);
 			});
 			return all;
 		}
+	}
+
+	private handleTransformations(input: any[]): any[] {
+		if (this.TRANSFORMATIONS) {
+			const groupings = this.handleGrouping(input);
+
+			return this.handleApply(groupings);
+		}
+		return input;
+	}
+
+	private handleGrouping(selectedSections: any[]): Map<string, any[]> {
+		const groupings = new Map<string, any[]>();
+
+		selectedSections.forEach((section) => {
+			const tuple = this.TRANSFORMATIONS?.GROUP.map(
+				(key) =>
+					`${key}__${
+						section[key.split("_")[1]]
+					}`
+			).join("||");
+
+			if (!groupings.has(tuple as string)) {
+				groupings.set(tuple as string, []);
+			}
+
+			groupings.get(tuple as string)?.push(section);
+		});
+
+		return groupings;
+	}
+
+	private handleApply(input: Map<string, any[]>): any[] {
+		const results: any[] = [];
+
+		for (const [encodedTuple, sections] of input.entries()) {
+			const result: any = {};
+			applyRules(sections, result, this.TRANSFORMATIONS?.APPLY);
+
+			// Add order keys back to object
+			const decodedTuples = encodedTuple.split("||");
+			decodedTuples.map((tuple) => {
+				let [key,] = tuple.split("__");
+				key = key.split("_")[1];
+				result[key] = sections[0][key];
+			});
+			results.push(result);
+		}
+
+		return results;
 	}
 
 	private handleNegation(input: Negation): Set<string> {
@@ -86,8 +160,8 @@ export class Query implements IQuery {
 		// Subtract innerResult from allUUIDs to get the result of the NOT filter.
 		const negationResult = new Set<string>();
 		this.data.getSections().forEach((section) => {
-			if (!innerResult.has(section.id)) {
-				negationResult.add(section.id);
+			if (!innerResult.has(section.uuid)) {
+				negationResult.add(section.uuid);
 			}
 		});
 
@@ -97,29 +171,29 @@ export class Query implements IQuery {
 	public handleSComparison(input: SComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const key = Object.keys(input.IS)[0]; // Dataset name + SField
-		const sField = this.datasetToFileMappings[key.split("_")[1] as SField]; // SField
+		const sField = key.split("_")[1] as SField; // SField
 		const sValue = input.IS[key];
 
 		this.data.getSections().forEach((section: any) => {
 			if (sValue.startsWith("*") && sValue.endsWith("*")) {
 				// Contains inputstring
 				if (section[sField].includes(sValue.substring(1, sValue.length - 1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else if (sValue.startsWith("*")) {
 				// Ends with inputstring
 				if (section[sField].endsWith(sValue.substring(1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else if (sValue.endsWith("*")) {
 				// Starts with inputstring
 				if (section[sField].startsWith(sValue.substring(0, sValue.length - 1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else {
 				// Matches inputstring exactly
 				if (section[sField] === sValue) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			}
 		});
@@ -130,18 +204,16 @@ export class Query implements IQuery {
 		const sectionMappings = new Set<string>();
 		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
 		const compareObject = input[compareKey] as object;
-		const datasetKey: string = Object.keys(compareObject)[0].split("_")[1]; // MField
-
-		const mField = this.datasetToFileMappings[datasetKey as MField]; // MField but as a File key
+		const mField: string = Object.keys(compareObject)[0].split("_")[1]; // MField
 		const mValue = Object.values(compareObject)[0];
 
 		this.data.getSections().forEach((section: any) => {
 			if (compareKey === "GT" && section[mField] > mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			} else if (compareKey === "LT" && section[mField] < mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			} else if (compareKey === "EQ" && section[mField] === mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			}
 		});
 		return sectionMappings;
@@ -180,35 +252,18 @@ export class Query implements IQuery {
 		return result;
 	}
 
-	private handleOptions(input: Set<string>): InsightResult[] {
-		if (input.size > 5000) {
+	private handleOptions(selectedSections: any[]): InsightResult[] {
+		if (selectedSections.length > 5000) {
 			throw new ResultTooLargeError("Greater than 5000 results");
 		}
 
-		// Get all sections and only add input sections to array
-		const allSections = this.data.getSectionsAsMap();
-		const selectedSections: Section[] = [];
-		input.forEach((uuid) => {
-			const section = allSections.get(uuid);
-			if (section) {
-				selectedSections.push(section);
-			}
-		});
-
 		// Handle order
 		if (this.OPTIONS.ORDER) {
-			const datasetKey = this.OPTIONS.ORDER.split("_")[1];
-
-			const orderKey: keyof Section = this.datasetToFileMappings[datasetKey as MField | SField] as keyof Section;
-
-			selectedSections.sort((a, b) => {
-				if (a[orderKey] < b[orderKey]) {
-					return -1;
-				} else if (a[orderKey] > b[orderKey]) {
-					return 1;
-				}
-				return 0;
-			});
+			if (typeof this.OPTIONS.ORDER === "string") {
+				orderSectionsByString(selectedSections, this.OPTIONS.ORDER);
+			} else {
+				orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
+			}
 		}
 
 		// Return insightResults
@@ -216,8 +271,11 @@ export class Query implements IQuery {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
-				const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
-				insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+				let key: string = column;
+				if (column.includes("_")) {
+					key = column.split("_")[1]; // if the column is like 'sections_avg'
+				}
+				insight[column] = section[key];
 			});
 			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
 		});

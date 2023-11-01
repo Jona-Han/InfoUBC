@@ -1,0 +1,71 @@
+{
+	"title": "count_valid",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"overallCount"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"overallCount": {
+						"COUNT": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 1900,
+			"overallCount": 3159
+		},
+		{
+			"sections_year": 2007,
+			"overallCount": 1580
+		},
+		{
+			"sections_year": 2008,
+			"overallCount": 1738
+		},
+		{
+			"sections_year": 2009,
+			"overallCount": 1962
+		},
+		{
+			"sections_year": 2010,
+			"overallCount": 2039
+		},
+		{
+			"sections_year": 2011,
+			"overallCount": 2058
+		},
+		{
+			"sections_year": 2012,
+			"overallCount": 2158
+		},
+		{
+			"sections_year": 2013,
+			"overallCount": 2164
+		},
+		{
+			"sections_year": 2014,
+			"overallCount": 2237
+		},
+		{
+			"sections_year": 2015,
+			"overallCount": 2233
+		},
+		{
+			"sections_year": 2016,
+			"overallCount": 780
+		}
+	]
+}

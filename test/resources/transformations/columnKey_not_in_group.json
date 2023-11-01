@@ -1,0 +1,42 @@
+{
+	"title": "columnKey_not_in_group",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"sections_audit",
+				"test",
+				"tests",
+				"notInGroup"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"test",
+					"sections_year"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year",
+				"sections_audit"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				},
+				{
+					"tests": {
+						"AVG": "sections_pass"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

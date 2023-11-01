@@ -11,7 +11,7 @@ import Rooms from "../models/Rooms";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
-import QueryValidator from "../utils/QueryValidator";
+import QueryValidator from "../models/QueryValidator";
 import {Query} from "../models/Query";
 import {JSONQuery} from "../models/IQuery";
 import {parse} from "parse5";
@@ -31,7 +31,7 @@ export default class InsightFacade implements IInsightFacade {
 	constructor() {
 		InsightFacade.datasets = new Map();
 		this.initialize();
-		console.log("InsightFacadeImpl::init()");
+		// console.log("InsightFacadeImpl::init()");
 	}
 
 	// 1. Check valid InsightDatasetKind
@@ -166,7 +166,7 @@ export default class InsightFacade implements IInsightFacade {
 								.then((fileContent) => {
 									let object = JSON.parse(fileContent);
 									let result = object["result"];
-									dataset.addSections(result);
+									dataset.addSections(result, true);
 								})
 								.catch((e) => {
 									return Promise.resolve();

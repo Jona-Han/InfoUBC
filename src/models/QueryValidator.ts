@@ -1,4 +1,5 @@
 import {InsightError} from "../controller/IInsightFacade";
+import KeyValidator from "../utils/KeyValidator";
 import {
 	Logic,
 	LogicComparison,
@@ -8,28 +9,30 @@ import {
 	SComparator,
 	Negation,
 	JSONQuery,
-} from "../models/IQuery";
+} from "./IQuery";
+interface RuleType { [key: string]: any }
 
 export default class QueryValidator {
-	private dataset;
-
-	constructor() {
-		this.dataset = "";
-	}
+	private KV = new KeyValidator();
 
 	public validateQuery(query: object): string {
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
+		if ("TRANSFORMATIONS" in vQuery) {
+			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
+		}
+
 		if (Object.keys(vQuery.WHERE as object).length !== 0) {
 			this.validateWhere(vQuery.WHERE as object);
 		}
+
 		this.validateOptions(vQuery.OPTIONS);
-		return this.dataset;
+		return this.KV.getDatasetName();
 	}
 
 	public validateQueryOutside(query: object) {
 		const keys = Object.keys(query);
-		if (keys.length > 2) {
+		if (keys.length > 2 && !("TRANSFORMATIONS" in query)) {
 			throw new InsightError("Excess Keys in Query");
 		}
 
@@ -61,38 +64,123 @@ export default class QueryValidator {
 			throw new InsightError("Options missing COLUMNS");
 		}
 
-		// Check columns is nonempty array
-		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
-			throw new InsightError("COLUMNS must be non-empty array");
-		}
-
-		// Check for invalid keys
+        // Check for invalid keys
 		for (const key of keys) {
 			if (key !== "COLUMNS" && key !== "ORDER") {
 				throw new InsightError("Options contains invalid keys");
 			}
 		}
 
-		// Check type of Order
-		if ("ORDER" in options && typeof options.ORDER !== "string") {
-			throw new InsightError("Invalid Order type. Must be string.");
+		// Check columns is nonempty array
+		if (!Array.isArray(options.COLUMNS) || options.COLUMNS.length === 0) {
+			throw new InsightError("COLUMNS must be non-empty array");
+		}
+		if (!options.COLUMNS.every((key) => typeof key === "string")) {
+			throw new InsightError("All elements in COLUMNS must be strings");
 		}
 
 		// Validate keys in columns
 		const allColumnKeys: string[] = [];
 		options.COLUMNS.forEach((columnKey: string) => {
-			this.validateKey(columnKey);
+			this.KV.validateColumnKey(columnKey);
 			allColumnKeys.push(columnKey);
 		});
 
-		// Validate key for order
 		if ("ORDER" in options) {
-			this.validateKey(options.ORDER as string);
-			if (!allColumnKeys.includes(options.ORDER as string)) {
-				throw new InsightError("Order key not in column keys");
-			}
+			this.validateOrder(options.ORDER, allColumnKeys);
 		}
 	}
+
+	public validateOrder(order: unknown, columnKeys: string[]) {
+		if (typeof order === "string") {
+			if (!columnKeys.includes(order)) {
+				throw new InsightError("All ORDER keys must be in COLUMNS");
+			}
+		} else if (typeof order === "object") {
+			if (!order || !("dir" in order) || !("keys" in order)) {
+				throw new InsightError("Invalid Order structure");
+			}
+			if (typeof order.dir !== "string" || !["DOWN", "UP"].includes(order.dir)) {
+				throw new InsightError("Invalid ORDER direction.");
+			}
+            // Check if order.keys is an array
+			if (!Array.isArray(order.keys) || order.keys.length === 0) {
+				throw new InsightError("ORDER keys must be a non-empty array");
+			}
+            // Check if each element of order.keys is a string and is present in columnKeys
+			for (const key of order.keys) {
+				if (typeof key !== "string") {
+					throw new InsightError("Each element of ORDER keys must be a string");
+				}
+				if (!columnKeys.includes(key)) {
+					throw new InsightError("All ORDER keys must be in COLUMNS");
+				}
+				if (!this.KV.validateOrderKey(key as string)) {
+					throw new InsightError(`Invalid key: ${key}`);
+				}
+			}
+		} else {
+			throw new InsightError("Invalid Order type. Must be string or object.");
+		}
+	}
+
+	public validateTransformations(transformations: object): void {
+		if (!("GROUP" in transformations)) {
+			throw new InsightError("TRANSFORMATIONS missing GROUP");
+		}
+		if (!("APPLY" in transformations)) {
+			throw new InsightError("TRANSFORMATIONS missing APPLY");
+		}
+		if (!Array.isArray(transformations.GROUP)) {
+			throw new InsightError("GROUP must be a non-empty array");
+		}
+		if (!Array.isArray(transformations.APPLY)) {
+			throw new InsightError("APPLY must be a non-empty array");
+		}
+		if (!transformations.GROUP.every((key: any) => typeof key === "string")) {
+			throw new InsightError("All elements in GROUP must be strings");
+		}
+		for (let key of transformations.GROUP) {
+			if (!this.KV.validateKey(key)) {
+				throw new InsightError("Invalid key in GROUP: " + key);
+			}
+		}
+
+		for (let rule of transformations.APPLY) {
+			this.validateApplyRule(rule);
+		}
+	}
+
+	public validateApplyRule(rule: RuleType): void {
+		if (Object.keys(rule).length > 1) {
+			throw new InsightError(`Apply rule should only have 1 key, has ${Object.keys(rule).length}`);
+		}
+
+		const applyKey = Object.keys(rule)[0];
+		this.KV.validateApplyKey(applyKey);
+		const applyValue = rule[applyKey];
+
+		if (typeof applyValue !== "object") {
+			throw new InsightError("Apply body must be object");
+		}
+		if (Object.keys(applyValue).length !== 1) {
+			throw new InsightError(`Apply body should only have 1 key, has ${Object.keys(applyValue).length}`);
+		}
+
+		// Check for valid transformation operators
+		const token = Object.keys(applyValue)[0];
+		const validTokens = ["MAX", "MIN", "AVG", "COUNT", "SUM"];
+		if (!validTokens.includes(token)) {
+			throw new InsightError("Invalid transformation operator");
+		}
+		if (typeof applyValue[token] !== "string") {
+			throw new InsightError("Invalid apply rule target key");
+		}
+		if (!this.KV.validateApplyRuleTargetKey(applyValue[token])) {
+			throw new InsightError(`Invalid key: ${applyValue[token]}`);
+		}
+	}
+
 
 	public validateWhere(where: object): void {
 		const keys = Object.keys(where);
@@ -106,7 +194,6 @@ export default class QueryValidator {
 		if (!validKeys.includes(key)) {
 			throw new InsightError("Invalid key in WHERE");
 		}
-
 		if (key === "AND" || key === "OR") {
 			this.validateLogicComparison(where);
 		} else if (key === "IS") {
@@ -123,7 +210,7 @@ export default class QueryValidator {
 		const logicComparatorKeys = Object.keys(logicComparison);
 		const comparator = logicComparatorKeys[0] as Logic;
 
-		const fieldObject = logicComparison[comparator];
+		const fieldObject = logicComparison[comparator] as object;
 		if (!Array.isArray(fieldObject) || fieldObject.length === 0) {
 			throw new InsightError(`${comparator} should be non-empty array`);
 		}
@@ -135,10 +222,10 @@ export default class QueryValidator {
 
 	public validateNot(object: object): void {
 		const notObject = object as Negation;
-		if (!notObject.NOT || typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
+		if (typeof notObject.NOT !== "object" || Array.isArray(notObject.NOT)) {
 			throw new InsightError("NOT value must be object");
 		}
-		this.validateWhere(notObject.NOT);
+		this.validateWhere(notObject.NOT as object);
 	}
 
 	public validateMComparison(object: object): void {
@@ -156,7 +243,9 @@ export default class QueryValidator {
 			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
-		this.validateMKey(fieldKeys[0]);
+		if (!this.KV.validateMKey(fieldKeys[0])) {
+			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "number") {
@@ -179,7 +268,9 @@ export default class QueryValidator {
 			throw new InsightError(`${comparator} must have exactly one key`);
 		}
 
-		this.validateSKey(fieldKeys[0]);
+		if (!this.KV.validateSKey(fieldKeys[0])) {
+			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "string") {
@@ -195,74 +286,13 @@ export default class QueryValidator {
 		const asteriskCount = (value.match(/\*/g) || []).length;
 
 		if (
-			asteriskCount > 2 ||
-			(asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) ||
+			asteriskCount > 2 || (asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) ||
 			(asteriskCount === 2 && (!startsWithAsterisk || !endsWithAsterisk))
 		) {
 			throw new InsightError(
 				"Invalid usage of wildcards in string. A valid string" +
 					" can only start with or end with an asterisk, or both."
 			);
-		}
-	}
-
-	public validateMKey(input: string): void {
-		const parts = input.split("_");
-
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key for MComparison");
-		}
-
-		const [contentName, mField] = parts;
-		if (this.dataset === "") {
-			this.dataset = contentName;
-		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
-		}
-
-		// Check if mField is a valid MField
-		if (!["avg", "pass", "fail", "audit", "year"].includes(mField)) {
-			throw new InsightError(`Invalid type for MComparison. ${mField} is not a valid type`);
-		}
-	}
-
-	public validateSKey(input: string): void {
-		const parts = input.split("_");
-
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key for SComparison");
-		}
-		const [contentName, sField] = parts;
-		if (this.dataset === "") {
-			this.dataset = contentName;
-		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
-		}
-
-		// Check if sField is a valid SField
-		if (!["dept", "id", "instructor", "title", "uuid"].includes(sField)) {
-			throw new InsightError(`Invalid type for SComparison. ${sField} is not a valid type`);
-		}
-	}
-
-	public validateKey(input: string): void {
-		const parts = input.split("_");
-
-		// Check if there are exactly two parts separated by an underscore
-		if (parts.length !== 2) {
-			throw new InsightError("Invalid query key");
-		}
-		const [contentName, field] = parts;
-		if (this.dataset === "") {
-			this.dataset = contentName;
-		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
-		}
-
-		if (!["dept", "id", "instructor", "title", "uuid", "avg", "pass", "fail", "audit", "year"].includes(field)) {
-			throw new InsightError(`Invalid key type. ${field} is not a valid type`);
 		}
 	}
 }

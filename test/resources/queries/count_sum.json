@@ -1,0 +1,71 @@
+{
+	"title": "count_sum",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"test"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 1900,
+			"test": 1951361.15
+		},
+		{
+			"sections_year": 2007,
+			"test": 204555.47
+		},
+		{
+			"sections_year": 2008,
+			"test": 231930.24
+		},
+		{
+			"sections_year": 2009,
+			"test": 304141.37
+		},
+		{
+			"sections_year": 2010,
+			"test": 333567.33
+		},
+		{
+			"sections_year": 2011,
+			"test": 348276.7
+		},
+		{
+			"sections_year": 2012,
+			"test": 374118.26
+		},
+		{
+			"sections_year": 2013,
+			"test": 389294.13
+		},
+		{
+			"sections_year": 2014,
+			"test": 415205.24
+		},
+		{
+			"sections_year": 2015,
+			"test": 428245.01
+		},
+		{
+			"sections_year": 2016,
+			"test": 75438.12
+		}
+	]
+}
