@@ -25,11 +25,12 @@ export default class QueryValidator {
 	public validateQuery(query: object): string {
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
+        if ("TRANSFORMATIONS" in vQuery) {
+			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
+		}
+
 		if (Object.keys(vQuery.WHERE as object).length !== 0) {
 			this.validateWhere(vQuery.WHERE as object);
-		}
-		if ("TRANSFORMATIONS" in vQuery) {
-			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
 		}
 
 		this.validateOptions(vQuery.OPTIONS);
@@ -38,7 +39,7 @@ export default class QueryValidator {
 
 	public validateQueryOutside(query: object) {
 		const keys = Object.keys(query);
-		if (keys.length > 2) {
+		if (keys.length > 2 && !("TRANSFORMATIONS" in query)) {
 			throw new InsightError("Excess Keys in Query");
 		}
 
@@ -187,6 +188,7 @@ export default class QueryValidator {
 			throw new InsightError(`Duplicate APPLY key ${applyKey}`);
 		}
 		this.transformationKeys.add(applyKey);
+        this.keys.add(applyKey);
 
 		const applyValue = rule[applyKey];
 
@@ -369,11 +371,9 @@ export default class QueryValidator {
 		if (typeof input === "undefined") {
 			return false;
 		}
-		if (!this.validateMKey(input) && !this.validateSKey(input) && !this.keys.has(input.split("_")[1])) {
+		if (!this.validateMKey(input) && !this.validateSKey(input) && !this.transformationKeys.has(input)) {
 			return false;
 		}
-
-		this.checkForMultipleDataset(input);
 		return true;
 	}
 }

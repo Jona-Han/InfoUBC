@@ -1,5 +1,6 @@
 import {InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
 import {
+	ApplyToken,
 	Filter,
 	IQuery,
 	JSONQuery,
@@ -14,14 +15,18 @@ import {
 	SComparison,
 	SField,
 	Sort,
+	Transformations,
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "../utils/QueryValidator";
 import Sections, {Section} from "./Sections";
+import {Room} from "./Rooms";
+import Decimal from "decimal.js";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
 	public OPTIONS: Options;
+	public TRANSFORMATIONS: Transformations | undefined;
 	public datasetName: string;
 
 	private directory = "./data";
@@ -40,14 +45,26 @@ export class Query implements IQuery {
 	};
 
 	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-	private RoomFields = ["lat", "lon", "seats", "fullname", "shortname",
-		"number", "name", "address", "type", "furniture", "href"];
+	private RoomFields = [
+		"lat",
+		"lon",
+		"seats",
+		"fullname",
+		"shortname",
+		"number",
+		"name",
+		"address",
+		"type",
+		"furniture",
+		"href",
+	];
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();
 		this.datasetName = QV.validateQuery(queryJSON);
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
+		this.TRANSFORMATIONS = queryJSON.TRANSFORMATIONS;
 		this.data = new Sections(this.datasetName);
 	}
 
@@ -57,6 +74,7 @@ export class Query implements IQuery {
 		}
 		this.loadData();
 		const afterWhere = this.handleWhere(this.WHERE);
+		const afterTransform = this.handleTransformations(afterWhere);
 		return this.handleOptions(afterWhere);
 	}
 
@@ -83,6 +101,132 @@ export class Query implements IQuery {
 			});
 			return all;
 		}
+	}
+
+	private handleTransformations(input: Set<string>) {
+		if (this.TRANSFORMATIONS) {
+			const groupings = this.handleGrouping(input);
+
+			return this.handleApply(groupings);
+		}
+	}
+
+	private handleApply(input: Map<string, Section[]>): Map<string, any> {
+		const results = new Map<string, any>();
+
+		for (const [tuple, sections] of input.entries()) {
+			const result: any = {};
+
+			this.TRANSFORMATIONS!.APPLY.forEach((applyRule) => {
+				const applyKey = Object.keys(applyRule)[0];
+				const applyToken = Object.keys(applyRule[applyKey])[0] as ApplyToken;
+				const field = applyRule[applyKey][applyToken]?.split("_")[1];
+
+				switch (applyToken) {
+					case "MAX":
+						result[applyKey] = Math.max(
+							...sections.map(
+								(section) =>
+									section[
+										this.datasetToFileMappings[field as MField | SField] as keyof Section
+									] as number
+							)
+						);
+						break;
+
+					case "MIN":
+						result[applyKey] = Math.min(
+							...sections.map(
+								(section) =>
+									section[
+										this.datasetToFileMappings[field as MField | SField] as keyof Section
+									] as number
+							)
+						);
+						break;
+
+					case "AVG":
+						let total = new Decimal(0);
+						sections.forEach((section) => {
+							total = total.add(
+								new Decimal(
+									section[
+										this.datasetToFileMappings[field as MField | SField] as keyof Section
+									] as number
+								)
+							);
+						});
+						let avg = total.toNumber() / sections.length;
+						result[applyKey] = Number(avg.toFixed(2));
+						break;
+
+					case "SUM":
+						let sum = sections.reduce((acc, section) => {
+							const sumDecimal = new Decimal(acc).add(
+								new Decimal(
+									section[
+										this.datasetToFileMappings[field as MField | SField] as keyof Section
+									] as number
+								)
+							);
+							return sumDecimal.toNumber();
+						}, 0);
+						result[applyKey] = Number(sum.toFixed(2));
+						break;
+
+					case "COUNT":
+						const uniqueValues = new Set(
+							sections.map(
+								(section) =>
+									section[
+										this.datasetToFileMappings[field as MField | SField] as keyof Section
+									] as number
+							)
+						);
+						result[applyKey] = uniqueValues.size;
+						break;
+				}
+			});
+			const orderTuples = tuple.split("||");
+            orderTuples.map((tuple) => {
+                const [key, value] = tuple.split("__")
+                result[key] = value;
+            })
+
+			results.set(tuple, result);
+		};
+
+		return results;
+	}
+
+	private handleGrouping(input: Set<string>) {
+		const allSections = this.data.getSectionsAsMap();
+		const selectedSections: Section[] = [];
+		input.forEach((uuid) => {
+			const section = allSections.get(uuid);
+			if (section) {
+				selectedSections.push(section);
+			}
+		});
+
+		const groupings = new Map<string, Section[]>();
+
+		selectedSections.forEach((section) => {
+			const tuple = this.TRANSFORMATIONS!.GROUP.map(
+				(key) =>
+					`${key}__${
+						section[this.datasetToFileMappings[key.split("_")[1] as MField | SField] as keyof Section]
+					}`
+			).join("||");
+
+			if (!groupings.has(tuple)) {
+				groupings.set(tuple, []);
+			}
+
+			groupings.get(tuple)!.push(section);
+		});
+
+		return groupings;
 	}
 
 	private handleNegation(input: Negation): Set<string> {
@@ -191,7 +335,7 @@ export class Query implements IQuery {
 			throw new ResultTooLargeError("Greater than 5000 results");
 		}
 
-        // Get all sections and only add input sections to array
+		// Get all sections and only add input sections to array
 		const allSections = this.data.getSectionsAsMap();
 		const selectedSections: Section[] = [];
 		input.forEach((uuid) => {
@@ -201,18 +345,18 @@ export class Query implements IQuery {
 			}
 		});
 
-        // Handle order
+		// Handle order
 		if (this.OPTIONS.ORDER) {
 			if (typeof this.OPTIONS.ORDER === "string") {
 				this.orderSectionsByString(selectedSections);
 			} else {
-				this.orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
+				this.orderSectionsBySortObject(selectedSections);
 			}
 		}
 
-        // Return insightResults
+		// Return insightResults
 		const result: InsightResult[] = selectedSections.map((section) => {
-            // Only keep the fields listed in this.OPTIONS.COLUMNS
+			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
 				const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
@@ -245,9 +389,39 @@ export class Query implements IQuery {
 		});
 	}
 
-	private orderSectionsBySortObject(selectedSections: Section[], sortObj: Sort): void {
-        // Your implementation of ordering based on the Sort object goes here.
-        // You might want to check sortObj.dir and sortObj.keys to decide the order.
-	}
+	private orderSectionsBySortObject(selectedSections: Section[] | Room[]): void {
+		const orderObject = this.OPTIONS.ORDER as Sort;
 
+		selectedSections.sort((a, b) => {
+			for (let key of orderObject.keys) {
+				if (this.SectionFields.includes(key)) {
+					const orderKey = this.datasetToFileMappings[key as MField | SField] as keyof Section;
+
+					// Using type assertion
+					const aSection = a as Section;
+					const bSection = b as Section;
+
+					if (aSection[orderKey] < bSection[orderKey]) {
+						return orderObject.dir === "UP" ? -1 : 1;
+					} else if (aSection[orderKey] > bSection[orderKey]) {
+						return orderObject.dir === "UP" ? 1 : -1;
+					}
+				} else if (this.RoomFields.includes(key)) {
+					const orderKey = key as keyof Room;
+
+					// Using type assertion
+					const aRoom = a as Room;
+					const bRoom = b as Room;
+
+					if (aRoom[orderKey] < bRoom[orderKey]) {
+						return orderObject.dir === "UP" ? -1 : 1;
+					} else if (aRoom[orderKey] > bRoom[orderKey]) {
+						return orderObject.dir === "UP" ? 1 : -1;
+					}
+				}
+				// If equal, the loop will check the next key (tiebreaker)
+			}
+			return 0;
+		});
+	}
 }

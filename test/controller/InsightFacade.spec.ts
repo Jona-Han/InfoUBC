@@ -726,7 +726,7 @@ describe("InsightFacade", async function () {
 	});
 });
 
-describe("Dynamic folder test for unordered queries", function () {
+describe.only("Dynamic folder test for unordered queries", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let sections: string;

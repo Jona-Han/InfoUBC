@@ -4,7 +4,7 @@ import {expect} from "chai";
 import QueryValidator from "../../src/utils/QueryValidator";
 import {InsightError} from "../../src/controller/IInsightFacade";
 
-describe.only("QueryValidator", () => {
+describe("QueryValidator", () => {
 	let QV: QueryValidator;
 	beforeEach(() => {
 		QV = new QueryValidator();
