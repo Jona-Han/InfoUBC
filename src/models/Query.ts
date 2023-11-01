@@ -155,7 +155,7 @@ export class Query implements IQuery {
 			const orderTuples = tuple.split("||");
 			orderTuples.map((tuple) => {
 				const [key, value] = tuple.split("__");
-				result[key] = value;
+				result[key.split("_")[1]] = value;
 			});
 
 			results.push(result);
@@ -347,8 +347,13 @@ export class Query implements IQuery {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
-				const key: string = column.split("_")[1]; // assuming the column field is like 'sections_avg'
-				insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+                let key: string;
+                if (column.includes('_')) {
+                    key = column.split("_")[1]; // if the column is like 'sections_avg'
+                    insight[column] = section[this.datasetToFileMappings[key as MField | SField] as keyof Section];
+                } else {
+                    insight[column] = section[column]; // if the column has no underscore
+                }
 			});
 			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
 		});
