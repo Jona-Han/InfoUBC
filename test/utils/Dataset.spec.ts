@@ -37,9 +37,22 @@ describe("Dataset", async function () {
 				Subject: "test",
 			};
 
+            let expected = {
+				title: "",
+				uuid: "25945",
+				instructor: "",
+				audit: 0,
+				year: 2013,
+				id: "100",
+				pass: 3,
+				fail: 0,
+				avg: 60,
+				dept: "test",
+			};
+
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([section]);
+			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -276,7 +289,7 @@ describe("Dataset", async function () {
 					instructor: "",
 					audit: 0,
 					year: 2013,
-					idj: "100",
+					id: "100",
 					pass: 3,
 					fail: 0,
 					avg: 60,

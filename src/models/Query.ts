@@ -96,7 +96,7 @@ export class Query implements IQuery {
 		} else {
 			const all = new Set<string>();
 			this.data.getSections().forEach((section) => {
-				all.add(section.id);
+				all.add(section.uuid);
 			});
 			return all;
 		}
@@ -221,8 +221,8 @@ export class Query implements IQuery {
 		// Subtract innerResult from allUUIDs to get the result of the NOT filter.
 		const negationResult = new Set<string>();
 		this.data.getSections().forEach((section) => {
-			if (!innerResult.has(section.id)) {
-				negationResult.add(section.id);
+			if (!innerResult.has(section.uuid)) {
+				negationResult.add(section.uuid);
 			}
 		});
 
@@ -239,22 +239,22 @@ export class Query implements IQuery {
 			if (sValue.startsWith("*") && sValue.endsWith("*")) {
 				// Contains inputstring
 				if (section[sField].includes(sValue.substring(1, sValue.length - 1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else if (sValue.startsWith("*")) {
 				// Ends with inputstring
 				if (section[sField].endsWith(sValue.substring(1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else if (sValue.endsWith("*")) {
 				// Starts with inputstring
 				if (section[sField].startsWith(sValue.substring(0, sValue.length - 1))) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			} else {
 				// Matches inputstring exactly
 				if (section[sField] === sValue) {
-					sectionMappings.add(section.id);
+					sectionMappings.add(section.uuid);
 				}
 			}
 		});
@@ -272,11 +272,11 @@ export class Query implements IQuery {
 
 		this.data.getSections().forEach((section: any) => {
 			if (compareKey === "GT" && section[mField] > mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			} else if (compareKey === "LT" && section[mField] < mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			} else if (compareKey === "EQ" && section[mField] === mValue) {
-				sectionMappings.add(section.id);
+				sectionMappings.add(section.uuid);
 			}
 		});
 		return sectionMappings;
@@ -334,13 +334,11 @@ export class Query implements IQuery {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
-                let key: string;
+                let key: string = column;
                 if (column.includes('_')) {
                     key = column.split("_")[1]; // if the column is like 'sections_avg'
-                    insight[column] = section[key];
-                } else {
-                    insight[column] = section[column]; // if the column has no underscore
                 }
+                insight[column] = section[key];
 			});
 			return insight as InsightResult; // forcibly cast the Partial<InsightResult> to InsightResult
 		});

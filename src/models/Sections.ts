@@ -42,7 +42,7 @@ export default class Sections {
 	public getSectionsAsMap(): Map<string, Section> {
 		const map = new Map<string, Section>();
 		this.sections.forEach((section) => {
-			map.set(section.id, section);
+			map.set(section.uuid, section);
 		});
 		return map;
 	}
@@ -65,18 +65,7 @@ export default class Sections {
     private addAlreadyValidSection(section: any): void {
         if (section !== undefined) {
 			try {
-				this.sections.push({
-                    uuid: section.uuid as string,
-                    id: section.id as string,
-                    title: section.title as string,
-                    instructor: section.instructor as string,
-                    dept: section.dept as string,
-                    year: section.year as number,
-                    avg: section.avg as number,
-                    pass: section.pass as number,
-                    fail: section.fail as number,
-                    audit: section.audit as number,
-                });
+				this.sections.push(section as Section);
 				// console.log(this.sections)
 				this.size++;
 			} catch {
@@ -98,7 +87,6 @@ export default class Sections {
             } else {
                 this.addAlreadyValidSection(section);
             }
-
 		}
 		// console.log(this.getSize())
 	}
