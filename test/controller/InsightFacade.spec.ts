@@ -888,3 +888,56 @@ describe("Dynamic folder test for transformation queries", function () {
 		}
 	);
 });
+
+describe.only("Dynamic folder test for unordered rooms queries", function () {
+	type Output = InsightResult[];
+	type PQErrorKind = "InsightError" | "ResultTooLargeError";
+	let rooms: string;
+	let facade: InsightFacade;
+
+	before(async function () {
+		clearDisk();
+        rooms = getContentFromArchives("campus.zip");
+		facade = new InsightFacade();
+		await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+	});
+
+	after(function () {
+		clearDisk();
+	});
+
+	function errorValidator(error: unknown): error is PQErrorKind {
+		return error === "InsightError" || error === "ResultTooLargeError";
+	}
+
+	// Assert value equals expected
+	function assertResult(actual: unknown, expected: Output): void {
+		expect(actual).to.deep.equal(expected);
+	}
+
+	// Assert actual error is of expected type
+	function assertError(actual: unknown, expected: PQErrorKind): void {
+		if (expected === "InsightError") {
+			expect(actual).to.be.an.instanceOf(InsightError);
+		} else if (expected === "ResultTooLargeError") {
+			expect(actual).to.be.an.instanceOf(ResultTooLargeError);
+		} else {
+			expect.fail("Should not be reached in assertError");
+		}
+	}
+
+	function target(input: unknown): Promise<Output> {
+		return facade.performQuery(input);
+	}
+
+	folderTest<unknown, Output, PQErrorKind>(
+		"performQuery tests", // suiteName
+		target, // target
+		"./test/resources/roomsQueries", // path
+		{
+			errorValidator,
+			assertOnResult: assertResult,
+			assertOnError: assertError, // options
+		}
+	);
+});

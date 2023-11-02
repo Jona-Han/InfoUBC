@@ -1,0 +1,25 @@
+{
+	"title": "is_number",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_number": "B306"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_number",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_number": "B306",
+			"rooms_seats": 32,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BUCH-B306"
+		}
+	]
+}

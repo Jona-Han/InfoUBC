@@ -1,0 +1,40 @@
+{
+	"title": "is_shortname",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_shortname": "BIOL"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "BIOL",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-1503"
+		},
+		{
+			"rooms_shortname": "BIOL",
+			"rooms_seats": 228,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-2000"
+		},
+		{
+			"rooms_shortname": "BIOL",
+			"rooms_seats": 76,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-2200"
+		},
+		{
+			"rooms_shortname": "BIOL",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-2519"
+		}
+	]
+}

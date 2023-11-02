@@ -1,0 +1,40 @@
+{
+	"title": "is_number",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_number": "105"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_number",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_number": "105",
+			"rooms_seats": 94,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-105"
+		},
+		{
+			"rooms_number": "105",
+			"rooms_seats": 60,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/LASR-105"
+		},
+		{
+			"rooms_number": "105",
+			"rooms_seats": 30,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MATH-105"
+		},
+		{
+			"rooms_number": "105",
+			"rooms_seats": 47,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SWNG-105"
+		}
+	]
+}

@@ -1,6 +1,5 @@
 import {InsightDatasetKind, InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
 import {
-	ApplyToken,
 	Filter,
 	IQuery,
 	JSONQuery,
@@ -8,20 +7,15 @@ import {
 	LogicComparison,
 	MComparator,
 	MComparison,
-	MField,
 	Negation,
 	Options,
-	RoomMField,
 	SComparison,
 	SField,
-	Sort,
 	Transformations,
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "./QueryValidator";
 import Sections, {Section} from "./Sections";
-import {Room} from "./Rooms";
-import Decimal from "decimal.js";
 import {
 	applyRules,
 	orderSectionsBySortObject,

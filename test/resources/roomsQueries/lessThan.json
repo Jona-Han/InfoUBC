@@ -1,0 +1,295 @@
+{
+	"title": "lessThan",
+	"input": {
+		"WHERE": {
+			"LT": {
+				"rooms_seats": 20
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_name",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_name": "BIOL_1503",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-1503"
+		},
+		{
+			"rooms_name": "BIOL_2519",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-2519"
+		},
+		{
+			"rooms_name": "BUCH_B312",
+			"rooms_seats": 18,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BUCH-B312"
+		},
+		{
+			"rooms_name": "FNH_20",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/FNH-20"
+		},
+		{
+			"rooms_name": "FSC_1402",
+			"rooms_seats": 18,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/FSC-1402"
+		},
+		{
+			"rooms_name": "ANGU_232",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ANGU-232"
+		},
+		{
+			"rooms_name": "ANGU_332",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ANGU-332"
+		},
+		{
+			"rooms_name": "ANGU_432",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ANGU-432"
+		},
+		{
+			"rooms_name": "IBLC_192",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-192"
+		},
+		{
+			"rooms_name": "IBLC_193",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-193"
+		},
+		{
+			"rooms_name": "IBLC_194",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-194"
+		},
+		{
+			"rooms_name": "IBLC_195",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-195"
+		},
+		{
+			"rooms_name": "IBLC_263",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-263"
+		},
+		{
+			"rooms_name": "IBLC_264",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-264"
+		},
+		{
+			"rooms_name": "IBLC_265",
+			"rooms_seats": 10,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-265"
+		},
+		{
+			"rooms_name": "IBLC_266",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-266"
+		},
+		{
+			"rooms_name": "IBLC_460",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/IBLC-460"
+		},
+		{
+			"rooms_name": "SOWK_122",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SOWK-122"
+		},
+		{
+			"rooms_name": "SOWK_324",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SOWK-324"
+		},
+		{
+			"rooms_name": "SOWK_326",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SOWK-326"
+		},
+		{
+			"rooms_name": "MCML_360A",
+			"rooms_seats": 6,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360A"
+		},
+		{
+			"rooms_name": "MCML_360B",
+			"rooms_seats": 6,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360B"
+		},
+		{
+			"rooms_name": "MCML_360C",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360C"
+		},
+		{
+			"rooms_name": "MCML_360D",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360D"
+		},
+		{
+			"rooms_name": "MCML_360E",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360E"
+		},
+		{
+			"rooms_name": "MCML_360F",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360F"
+		},
+		{
+			"rooms_name": "MCML_360G",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360G"
+		},
+		{
+			"rooms_name": "MCML_360H",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360H"
+		},
+		{
+			"rooms_name": "MCML_360J",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360J"
+		},
+		{
+			"rooms_name": "MCML_360K",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360K"
+		},
+		{
+			"rooms_name": "MCML_360L",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360L"
+		},
+		{
+			"rooms_name": "MCML_360M",
+			"rooms_seats": 8,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/MCML-360M"
+		},
+		{
+			"rooms_name": "ORCH_3062",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ORCH-3062"
+		},
+		{
+			"rooms_name": "ORCH_3068",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ORCH-3068"
+		},
+		{
+			"rooms_name": "ORCH_3072",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ORCH-3072"
+		},
+		{
+			"rooms_name": "ORCH_4062",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ORCH-4062"
+		},
+		{
+			"rooms_name": "ORCH_4068",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ORCH-4068"
+		},
+		{
+			"rooms_name": "PHRM_3112",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3112"
+		},
+		{
+			"rooms_name": "PHRM_3114",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3114"
+		},
+		{
+			"rooms_name": "PHRM_3115",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3115"
+		},
+		{
+			"rooms_name": "PHRM_3116",
+			"rooms_seats": 14,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3116"
+		},
+		{
+			"rooms_name": "PHRM_3118",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3118"
+		},
+		{
+			"rooms_name": "PHRM_3120",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3120"
+		},
+		{
+			"rooms_name": "PHRM_3122",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3122"
+		},
+		{
+			"rooms_name": "PHRM_3124",
+			"rooms_seats": 7,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/PHRM-3124"
+		},
+		{
+			"rooms_name": "SPPH_B112",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SPPH-B112"
+		},
+		{
+			"rooms_name": "SPPH_B136",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SPPH-B136"
+		},
+		{
+			"rooms_name": "SPPH_B138",
+			"rooms_seats": 14,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/SPPH-B138"
+		},
+		{
+			"rooms_name": "WOOD_G44",
+			"rooms_seats": 14,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G44"
+		},
+		{
+			"rooms_name": "WOOD_G53",
+			"rooms_seats": 10,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G53"
+		},
+		{
+			"rooms_name": "WOOD_G55",
+			"rooms_seats": 10,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G55"
+		},
+		{
+			"rooms_name": "WOOD_G57",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G57"
+		},
+		{
+			"rooms_name": "WOOD_G59",
+			"rooms_seats": 10,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G59"
+		},
+		{
+			"rooms_name": "WOOD_G65",
+			"rooms_seats": 12,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G65"
+		},
+		{
+			"rooms_name": "WOOD_G66",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/WOOD-G66"
+		}
+	]
+}
