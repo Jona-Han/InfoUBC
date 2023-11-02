@@ -914,6 +914,30 @@ describe("InsightFacade", async function () {
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
+
+        context("no datasets have been added", function () {
+			it("should fail with an insighterror because query is not a string", function () {
+				const query = "string"
+				const result = facade.performQuery(query);
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+        context("no datasets have been added", function () {
+			it("should fail with an insighterror because query is null", function () {
+				const query = null;
+				const result = facade.performQuery(query);
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
+
+        context("no datasets have been added", function () {
+			it("should fail with an insighterror because query is undefined", function () {
+				const query = undefined;
+				const result = facade.performQuery(query);
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
 	});
 });
 

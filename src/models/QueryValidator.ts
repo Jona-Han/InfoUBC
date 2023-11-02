@@ -24,9 +24,6 @@ export default class QueryValidator {
 		if (Object.keys(vQuery.WHERE as object).length !== 0) {
 			this.validateWhere(vQuery.WHERE as object);
 		}
-		if (vQuery.OPTIONS === null) {
-			throw new InsightError("OPTIONS must be object");
-		}
 		this.validateOptions(vQuery.OPTIONS);
 		return this.KV.getDatasetName();
 	}

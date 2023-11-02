@@ -38,7 +38,7 @@ export abstract class Dataset {
 	}
 
 	public addDataFromJSON(fileData: any[]): void {
-		if (fileData === undefined) {
+		if (!fileData || !Array.isArray(fileData)) {
 			throw new InsightError(`No valid ${this.kind}`);
 		}
 		for (let entry of fileData) {

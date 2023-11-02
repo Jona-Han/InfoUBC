@@ -85,11 +85,7 @@ export default class InsightFacade implements IInsightFacade {
 			let QV: QueryValidator = new QueryValidator();
 
 			try {
-				if (!fs.pathExistsSync(persistDir)) {
-					throw new InsightError("No datasets added");
-				}
-
-				if (typeof query !== "object") {
+				if (!query || typeof query !== "object") {
 					throw new InsightError("Query must be an object");
 				}
 				QV.validateQuery(query as object);
