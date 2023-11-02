@@ -1,7 +1,7 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 import {Document} from "parse5/dist/tree-adapters/default";
 import Http from "node:http";
-import { Dataset } from "./Dataset";
+import {Dataset} from "./Dataset";
 
 export interface Room {
 	number: string;
@@ -31,7 +31,7 @@ export default class Rooms extends Dataset {
 	private urlPrefix: string = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team123/";
 
 	constructor(id: string) {
-        super(id, InsightDatasetKind.Rooms);
+		super(id, InsightDatasetKind.Rooms);
 		this.rooms = [];
 	}
 
@@ -39,29 +39,29 @@ export default class Rooms extends Dataset {
 		return this.rooms;
 	}
 
-    public getDataAsMap(): Map<string, any> {
+	public getDataAsMap(): Map<string, any> {
 		const map = new Map<string, Room>();
 		this.rooms.forEach((room) => {
 			map.set(room.href, room);
 		});
 		return map;
-    }
+	}
 
-    public addDataFromJSON(fileData: any[]): void {
-        if (fileData === undefined) {
+	public addDataFromJSON(fileData: any[]): void {
+		if (fileData === undefined) {
 			throw new InsightError("No valid rooms");
 		}
 		for (let room of fileData) {
-            this.addAlreadyValidRoom(room);
-		} 
-    }
-
-    private addAlreadyValidRoom(room: any) {
-		if (room !== undefined) {
-            this.rooms.push(room as Room);
-            this.size++;
+			this.addAlreadyValidRoom(room);
 		}
-    }
+	}
+
+	private addAlreadyValidRoom(room: any) {
+		if (room !== undefined) {
+			this.rooms.push(room as Room);
+			this.size++;
+		}
+	}
 
 	// Searches nodes for links to building files
 	public addBuildings(index: any): Array<Map<string, string | undefined>> {

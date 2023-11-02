@@ -897,7 +897,7 @@ describe("Dynamic folder test for unordered rooms queries", function () {
 
 	before(async function () {
 		clearDisk();
-        rooms = getContentFromArchives("campus.zip");
+		rooms = getContentFromArchives("campus.zip");
 		facade = new InsightFacade();
 		await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
 	});

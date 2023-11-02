@@ -22,8 +22,8 @@ import {
 	orderSectionsByString,
 	validateKeyMatchesKind,
 } from "../utils/QueryUtils";
-import Rooms, { Room } from "./Rooms";
-import { Dataset } from "./Dataset";
+import Rooms, {Room} from "./Rooms";
+import {Dataset} from "./Dataset";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -40,7 +40,7 @@ export class Query implements IQuery {
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
 		this.TRANSFORMATIONS = queryJSON.TRANSFORMATIONS;
-        this.data = undefined;
+		this.data = undefined;
 	}
 
 	public execute(): InsightResult[] {
@@ -51,15 +51,15 @@ export class Query implements IQuery {
 		const afterWhere = this.handleWhere(this.WHERE);
 
 		// Parse WHERE data into a map
-        const selectedEntries: Section[] | Room[] = [];
+		const selectedEntries: Section[] | Room[] = [];
 
-        const allEntries = this.data?.getDataAsMap();
-        afterWhere.forEach((uniqueID) => {
-            const entry = allEntries?.get(uniqueID);
-            if (entry) {
-                selectedEntries.push(entry);
-            }
-        });
+		const allEntries = this.data?.getDataAsMap();
+		afterWhere.forEach((uniqueID) => {
+			const entry = allEntries?.get(uniqueID);
+			if (entry) {
+				selectedEntries.push(entry);
+			}
+		});
 
 		const afterTransform = this.handleTransformations(selectedEntries);
 		return this.handleOptions(afterTransform);
@@ -67,13 +67,13 @@ export class Query implements IQuery {
 
 	private loadData() {
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
-        if (object.kind === InsightDatasetKind.Sections) {
-            this.data = new Sections(object.id)
-        } else if (object.kind === InsightDatasetKind.Rooms) {
-            this.data = new Rooms(object.id);
-        }
+		if (object.kind === InsightDatasetKind.Sections) {
+			this.data = new Sections(object.id);
+		} else if (object.kind === InsightDatasetKind.Rooms) {
+			this.data = new Rooms(object.id);
+		}
 
-        this.data?.addDataFromJSON(object.sections);
+		this.data?.addDataFromJSON(object.sections);
 	}
 
 	private handleWhere(input: Filter): Set<string> {

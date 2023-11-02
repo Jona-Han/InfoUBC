@@ -1,17 +1,17 @@
-import { InsightDatasetKind } from "../controller/IInsightFacade";
+import {InsightDatasetKind} from "../controller/IInsightFacade";
 
 export abstract class Dataset {
-    private id: string;
+	private id: string;
 	protected size: number;
-    private kind: InsightDatasetKind;
-    
-    constructor(id: string, kind: InsightDatasetKind) {
-		this.size = 0;
-        this.id = id;
-        this.kind = kind;
-    }
+	private kind: InsightDatasetKind;
 
-    public getId(): string {
+	constructor(id: string, kind: InsightDatasetKind) {
+		this.size = 0;
+		this.id = id;
+		this.kind = kind;
+	}
+
+	public getId(): string {
 		return this.id;
 	}
 
@@ -19,13 +19,13 @@ export abstract class Dataset {
 		return this.size;
 	}
 
-    public getKind(): InsightDatasetKind {
-        return this.kind;
-    }
+	public getKind(): InsightDatasetKind {
+		return this.kind;
+	}
 
-    abstract getData(): any[];
+    public abstract getData(): any[];
 
-    abstract getDataAsMap(): Map<string, any>;
+    public abstract getDataAsMap(): Map<string, any>;
 
-    abstract addDataFromJSON(fileData: any[]): void;
+    public abstract addDataFromJSON(fileData: any[]): void;
 }

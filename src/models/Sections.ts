@@ -1,5 +1,5 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
-import { Dataset } from "./Dataset";
+import {Dataset} from "./Dataset";
 
 export interface Section {
 	uuid: string;
@@ -18,22 +18,22 @@ export default class Sections extends Dataset {
 	private sections: Section[];
 
 	constructor(id: string) {
-        super(id, InsightDatasetKind.Sections);
+		super(id, InsightDatasetKind.Sections);
 		this.sections = [];
 	}
 
-    public getData(): Section[] {
+	public getData(): Section[] {
 		return this.sections;
 	}
 
-    public addDataFromJSON(fileData: any[]): void {
-        if (fileData === undefined) {
+	public addDataFromJSON(fileData: any[]): void {
+		if (fileData === undefined) {
 			throw new InsightError("No valid sections");
 		}
 		for (let section of fileData) {
-            this.addAlreadyValidSection(section);
-		} 
-    }
+			this.addAlreadyValidSection(section);
+		}
+	}
 
 	public getDataAsMap(): Map<string, any> {
 		const map = new Map<string, Section>();
@@ -43,10 +43,10 @@ export default class Sections extends Dataset {
 		return map;
 	}
 
-    private addAlreadyValidSection(section: any): void {
+	private addAlreadyValidSection(section: any): void {
 		if (section !== undefined) {
-            this.sections.push(section as Section);
-            this.size++;
+			this.sections.push(section as Section);
+			this.size++;
 		}
 	}
 
@@ -73,7 +73,7 @@ export default class Sections extends Dataset {
 			throw new InsightError("No valid sections");
 		}
 		for (let section of sections) {
-            this.addSection(section);
+			this.addSection(section);
 		}
 		// console.log(this.getSize())
 	}
