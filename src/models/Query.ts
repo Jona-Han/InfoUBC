@@ -57,7 +57,7 @@ export class Query implements IQuery {
 		const allEntries = this.data?.getDataAsMap();
 		afterWhere.forEach((uniqueID) => {
 			const entry = allEntries?.get(uniqueID);
-            selectedEntries.push(entry);
+			selectedEntries.push(entry);
 		});
 
 		const afterTransform = this.handleTransformations(selectedEntries);
@@ -76,7 +76,7 @@ export class Query implements IQuery {
 	}
 
 	public handleWhere(input: Filter): Set<string> {
-        if ("AND" in input || "OR" in input) {
+		if ("AND" in input || "OR" in input) {
 			return this.handleLogicComparison(input as LogicComparison);
 		} else if ("LT" in input || "GT" in input || "EQ" in input) {
 			return this.handleMComparison(input as MComparison);
