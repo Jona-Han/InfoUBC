@@ -4,8 +4,6 @@
 **/.idea/tasks.xml
 **/.idea/checkstyle-idea.xml
 **/.idea/shelf/
-**/.nyc_output
-
 
 # Node
 node_modules/
