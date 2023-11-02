@@ -1,4 +1,4 @@
-import {InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError, InsightResult, ResultTooLargeError} from "../controller/IInsightFacade";
 import {
 	ApplyToken,
 	Filter,
@@ -22,7 +22,7 @@ import QueryValidator from "./QueryValidator";
 import Sections, {Section} from "./Sections";
 import {Room} from "./Rooms";
 import Decimal from "decimal.js";
-import {applyRules, orderSectionsBySortObject, orderSectionsByString} from "../utils/QueryUtils";
+import {applyRules, orderSectionsBySortObject, orderSectionsByString, validateKeyMatchesKind} from "../utils/QueryUtils";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -30,23 +30,10 @@ export class Query implements IQuery {
 	public TRANSFORMATIONS?: Transformations;
 	public datasetName: string;
 
+
 	private directory = "./data";
 	private data: Sections;
-
-	private SectionFields = ["avg", "pass", "fail", "audit", "year", "dept", "id", "instructor", "title", "uuid"];
-	private RoomFields = [
-		"lat",
-		"lon",
-		"seats",
-		"fullname",
-		"shortname",
-		"number",
-		"name",
-		"address",
-		"type",
-		"furniture",
-		"href",
-	];
+    private datasetKind: InsightDatasetKind | undefined;
 
 	constructor(queryJSON: JSONQuery) {
 		let QV: QueryValidator = new QueryValidator();
@@ -54,6 +41,7 @@ export class Query implements IQuery {
 		this.WHERE = queryJSON.WHERE;
 		this.OPTIONS = queryJSON.OPTIONS;
 		this.TRANSFORMATIONS = queryJSON.TRANSFORMATIONS;
+        this.datasetKind = undefined;
 		this.data = new Sections(this.datasetName);
 	}
 
@@ -80,6 +68,7 @@ export class Query implements IQuery {
 
 	private loadData() {
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
+        this.datasetKind = object.kind;
 		this.data.addSections(object.sections, false);
 	}
 
@@ -117,10 +106,10 @@ export class Query implements IQuery {
 
 		selectedSections.forEach((section) => {
 			const tuple = this.TRANSFORMATIONS?.GROUP.map(
-				(key) =>
-					`${key}__${
-						section[key.split("_")[1]]
-					}`
+				(key) => {
+                    validateKeyMatchesKind(key, this.datasetKind);
+					return `${key}__${section[key.split("_")[1]]}`;
+                }
 			).join("||");
 
 			if (!groupings.has(tuple as string)) {
@@ -138,7 +127,7 @@ export class Query implements IQuery {
 
 		for (const [encodedTuple, sections] of input.entries()) {
 			const result: any = {};
-			applyRules(sections, result, this.TRANSFORMATIONS?.APPLY);
+			applyRules(sections, result, this.TRANSFORMATIONS?.APPLY, this.datasetKind);
 
 			// Add order keys back to object
 			const decodedTuples = encodedTuple.split("||");
@@ -171,6 +160,7 @@ export class Query implements IQuery {
 	public handleSComparison(input: SComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const key = Object.keys(input.IS)[0]; // Dataset name + SField
+        validateKeyMatchesKind(key, this.datasetKind)
 		const sField = key.split("_")[1] as SField; // SField
 		const sValue = input.IS[key];
 
@@ -204,7 +194,11 @@ export class Query implements IQuery {
 		const sectionMappings = new Set<string>();
 		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
 		const compareObject = input[compareKey] as object;
-		const mField: string = Object.keys(compareObject)[0].split("_")[1]; // MField
+
+        const key = Object.keys(compareObject)[0];
+        validateKeyMatchesKind(key, this.datasetKind)
+
+        const mField: string = key.split("_")[1]; // MField
 		const mValue = Object.values(compareObject)[0];
 
 		this.data.getSections().forEach((section: any) => {
@@ -260,9 +254,9 @@ export class Query implements IQuery {
 		// Handle order
 		if (this.OPTIONS.ORDER) {
 			if (typeof this.OPTIONS.ORDER === "string") {
-				orderSectionsByString(selectedSections, this.OPTIONS.ORDER);
+				orderSectionsByString(selectedSections, this.OPTIONS.ORDER, this.datasetKind);
 			} else {
-				orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER);
+				orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER, this.datasetKind);
 			}
 		}
 
@@ -273,6 +267,7 @@ export class Query implements IQuery {
 			this.OPTIONS.COLUMNS.forEach((column) => {
 				let key: string = column;
 				if (column.includes("_")) {
+                    validateKeyMatchesKind(key, this.datasetKind);
 					key = column.split("_")[1]; // if the column is like 'sections_avg'
 				}
 				insight[column] = section[key];

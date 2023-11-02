@@ -1,8 +1,10 @@
-import {InsightError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import * as fs from "fs-extra";
 
 export default class KeyValidator {
 	public dataset: string;
 	public transformationKeys: Set<string>;
+
 
 	constructor() {
 		this.dataset = "";
@@ -37,12 +39,12 @@ export default class KeyValidator {
 		return true;
 	}
 
-	public checkForMultipleDataset(input: string) {
-		const [contentName, key] = input.split("_");
+	public checkForMultipleDataset(input: string): void {
+		const [contentName,] = input.split("_");
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
-			throw new InsightError("Cannot query from multiple datasets");
+            throw new InsightError("Cannot query from multiple datasets");
 		}
 	}
 
@@ -73,7 +75,7 @@ export default class KeyValidator {
 		if (typeof input === "undefined") {
 			return false;
 		}
-		return (this.validateMKey(input) || this.validateSKey(input));
+		return (this.validateMKey(input));
 	}
 
 	public validateOrderKey(key: any, columnKeys: String[]) {

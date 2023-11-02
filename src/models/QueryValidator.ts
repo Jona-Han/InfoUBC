@@ -16,6 +16,7 @@ export default class QueryValidator {
 	private KV = new KeyValidator();
 
 	public validateQuery(query: object): string {
+        
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
 		if ("TRANSFORMATIONS" in vQuery) {
