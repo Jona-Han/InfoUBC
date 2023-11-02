@@ -68,7 +68,8 @@ export default class Rooms extends Dataset {
 		let buildings = [];
 		let tables = this.findTags(index, "table");
 		for (const table of tables) {
-			let rows = this.findTags(table, "tr");
+			let body = this.findTags(table, "tbody");
+			let rows = this.findTags(body[0], "tr");
 			for (let row of rows) {
 				let building = this.addBuilding(row);
 				if (this.buildingIsValid(building)) {
@@ -102,7 +103,8 @@ export default class Rooms extends Dataset {
 		let rooms = [];
 		let tables = this.findTags(buildingContent, "table");
 		for (const table of tables) {
-			let rows = this.findTags(table, "tr");
+			let body = this.findTags(table, "tbody");
+			let rows = this.findTags(body[0], "tr");
 			for (let row of rows) {
 				let room = this.addRoom(row);
 				let shortname = building.get("shortname");
@@ -112,6 +114,7 @@ export default class Rooms extends Dataset {
 					room.set("name", name);
 				}
 				if (this.isValidRoom(room)) {
+					// console.log(room)
 					rooms.push(room);
 				}
 			}
@@ -150,7 +153,11 @@ export default class Rooms extends Dataset {
 	private isValidRoom(room: Map<string, string | number | undefined>): boolean {
 		let requiredKeys = ["number", "name", "seats", "type", "furniture", "href"];
 		for (let key of requiredKeys) {
+			// console.log(key)
+			// console.log(key)
+			// console.log(room.get(key))
 			if (room.get(key) === undefined) {
+				// console.log(key)
 				return false;
 			}
 		}
@@ -164,10 +171,11 @@ export default class Rooms extends Dataset {
 		let room: Map<string, string | number | undefined> = new Map();
 
 		room.set("seats", Number(this.findClassValue(row, "views-field views-field-field-room-capacity")));
-		room.set("furniture", String(this.findClassValue(row, "views-field views-field-field-room-furniture")));
-		room.set("number", String(this.findClassValue(row, "views-field views-field-field-room-number")));
-		room.set("type", String(this.findClassValue(row, "views-field views-field-field-room-type")));
-		room.set("href", String(this.findHref(row)));
+		room.set("furniture", this.findClassValue(row, "views-field views-field-field-room-furniture"));
+		room.set("number", this.findClassValue(row, "views-field views-field-field-room-number"));
+		room.set("type", this.findClassValue(row, "views-field views-field-field-room-type"));
+		room.set("href", this.findHref(row));
+		// console.log(room)
 		return room;
 	}
 
@@ -212,6 +220,11 @@ export default class Rooms extends Dataset {
 						attribute.value &&
 						attribute.value === className
 					) {
+						let value = this.findFirstLeaf(cell).value;
+						// console.log(value)
+						if (value === undefined) {
+							return "";
+						}
 						return this.findFirstLeaf(cell).value.replace("\n", "").trim();
 					}
 				}

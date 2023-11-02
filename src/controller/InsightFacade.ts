@@ -228,6 +228,7 @@ export default class InsightFacade implements IInsightFacade {
 			}
 			await Promise.all(promises);
 			rooms.update(buildings);
+
 			if (rooms.getSize() < 1) {
 				throw new InsightError("No valid rooms");
 			}
