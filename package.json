@@ -46,7 +46,6 @@
 		"test": "mocha --require ts-node/register --timeout 10000 --extension .spec.ts --recursive test",
 		"pretty": "prettier --config ./.prettierrc.json --write \"./**/*.ts\"",
 		"lint": "eslint src test --ext .ts",
-		"fix": "yarn lint --fix",
-        "test-query": "mocha --require ts-node/register ./test/utils/QueryValidator.spec.ts"
+		"fix": "yarn lint --fix"
 	}
 }

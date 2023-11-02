@@ -74,7 +74,7 @@ describe("KeyValidator", () => {
 
 	it("should throw for duplicate applyKey", () => {
         // Assuming the `keys` set has a value 'duplicateKey' already
-		KV.transformationKeys.add("duplicateKey");
+		KV.addToTransformationKeys("duplicateKey");
 		expect(() => KV.validateApplyKey("duplicateKey"))
 			.to.throw(InsightError, "Duplicate APPLY key duplicateKey");
 	});

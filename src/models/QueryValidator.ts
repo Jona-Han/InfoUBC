@@ -10,7 +10,6 @@ import {
 	Negation,
 	JSONQuery,
 } from "./IQuery";
-interface RuleType { [key: string]: any }
 
 export default class QueryValidator {
 	private KV = new KeyValidator();
@@ -165,7 +164,7 @@ export default class QueryValidator {
 		}
 	}
 
-	public validateApplyRule(rule: RuleType): void {
+	public validateApplyRule(rule: any): void {
 		if (Object.keys(rule).length > 1) {
 			throw new InsightError(`Apply rule should only have 1 key, has ${Object.keys(rule).length}`);
 		}
@@ -191,7 +190,7 @@ export default class QueryValidator {
 			throw new InsightError("Invalid apply rule target key");
 		}
 		if (!this.KV.validateApplyRuleTargetKey(applyValue[token])) {
-			throw new InsightError(`Invalid key: ${applyValue[token]}`);
+			throw new InsightError(`Invalid key in ${token}: ${applyValue[token]}`);
 		}
 	}
 
@@ -225,7 +224,7 @@ export default class QueryValidator {
 
 		const fieldObject = mComparison[comparator];
 		if (typeof fieldObject !== "object" || Array.isArray(fieldObject)) {
-			throw new InsightError(`MComparison for ${comparator} has invalid type`);
+			throw new InsightError(`${comparator} value has invalid type`);
 		}
 
 		const fieldKeys = Object.keys(fieldObject);
@@ -234,7 +233,7 @@ export default class QueryValidator {
 		}
 
 		if (!this.KV.validateMKey(fieldKeys[0])) {
-			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+			throw new InsightError(`Invalid key in ${comparator}: ${fieldKeys[0]}`);
 		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
@@ -245,8 +244,7 @@ export default class QueryValidator {
 
 	public validateSComparison(object: object): void {
 		const sComparison = object as SComparison;
-		const mComparatorKeys = Object.keys(sComparison);
-		const comparator = mComparatorKeys[0] as SComparator;
+		const comparator = Object.keys(sComparison)[0] as SComparator;
 
 		const fieldObject = sComparison[comparator];
 		if (typeof fieldObject !== "object" || Array.isArray(fieldObject)) {
@@ -259,12 +257,12 @@ export default class QueryValidator {
 		}
 
 		if (!this.KV.validateSKey(fieldKeys[0])) {
-			throw new InsightError(`Invalid key: ${fieldKeys[0]}`);
+			throw new InsightError(`Invalid key in IS: ${fieldKeys[0]}`);
 		}
 
 		const fieldValue = fieldObject[fieldKeys[0]];
 		if (typeof fieldValue !== "string") {
-			throw new InsightError(`Invalid value for ${fieldKeys[0]} in SComparison. Expected a string`);
+			throw new InsightError(`Invalid value type for ${fieldKeys[0]} in IS. Expected a string`);
 		}
 
 		this.validateWildcardUsage(fieldValue);

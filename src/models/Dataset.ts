@@ -1,6 +1,4 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
-import {Room} from "./Rooms";
-import {Section} from "./Sections";
 
 export abstract class Dataset {
 	private id: string;
