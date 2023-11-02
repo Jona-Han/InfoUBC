@@ -182,7 +182,7 @@ export default class InsightFacade implements IInsightFacade {
 			await this.writeDatasetToFile(dataset, InsightDatasetKind.Sections);
 			return this.updateDatasets(dataset, InsightDatasetKind.Sections);
 		} catch (e) {
-			throw new InsightError("Error extracting data: " + e);
+			return Promise.reject(new InsightError("Error extracting data: " + e));
 		}
 	}
 
@@ -231,7 +231,7 @@ export default class InsightFacade implements IInsightFacade {
 			await this.writeDatasetToFile(rooms, InsightDatasetKind.Rooms);
 			return this.updateDatasets(rooms, InsightDatasetKind.Rooms);
 		} catch (e) {
-			throw new InsightError("Error extracting data: " + e);
+			return Promise.reject(new InsightError("Error extracting data: " + e));
 		}
 	}
 
