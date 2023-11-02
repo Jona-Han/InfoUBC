@@ -44,7 +44,7 @@ export default class KeyValidator {
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
-            throw new InsightError("Cannot query from multiple datasets");
+			throw new InsightError("Cannot query from multiple datasets");
 		}
 	}
 
@@ -61,14 +61,14 @@ export default class KeyValidator {
 
 	public validateColumnKey(columnKey: string) {
         // Transformation present. Just check if columnKey is one of the transformation keys and return
-        if (this.transformationKeys.size !== 0) {
-            if (!this.transformationKeys.has(columnKey)) {
-                throw new InsightError("Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present");
-            }
-            return;
-        } else if (!this.validateMKey(columnKey) && !this.validateSKey(columnKey)){ // No transformation, validate key
-            throw new InsightError(`Invalid key: ${columnKey}`);
-        }
+		if (this.transformationKeys.size !== 0) {
+			if (!this.transformationKeys.has(columnKey)) {
+				throw new InsightError("Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present");
+			}
+			return;
+		} else if (!this.validateMKey(columnKey) && !this.validateSKey(columnKey)){ // No transformation, validate key
+			throw new InsightError(`Invalid key: ${columnKey}`);
+		}
 	}
 
 	public validateApplyRuleTargetKey(input: string) {
@@ -78,10 +78,10 @@ export default class KeyValidator {
 		return (this.validateMKey(input));
 	}
 
-	public validateOrderKey(key: any, columnKeys: String[]) {
-        if (!columnKeys.includes(key)) {
-            throw new InsightError("All ORDER keys must be in COLUMNS");
-        }
+	public validateOrderKey(key: any, columnKeys: string[]) {
+		if (!columnKeys.includes(key)) {
+			throw new InsightError("All ORDER keys must be in COLUMNS");
+		}
 	}
 
 	public validateApplyKey(applyKey: string): void {

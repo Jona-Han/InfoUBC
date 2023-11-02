@@ -18,9 +18,9 @@ export function validateKeyMatchesKind(key: string | undefined, kind: InsightDat
 		"furniture",
 		"href",
 	];
-    if (key === undefined) {
-        throw new InsightError("Fatal error. Key undefined when validating match with dataset kind.")
-    } else if (kind === undefined) {
+	if (key === undefined) {
+		throw new InsightError("Fatal error. Key undefined when validating match with dataset kind.");
+	} else if (kind === undefined) {
 		throw new InsightError("Fatal error. Dataset has no kind set.");
 	} else if (kind === InsightDatasetKind.Sections && !SectionFields.includes(key.split("_")[1])) {
 		throw new InsightError(`Invalid key: ${key}`);
@@ -29,9 +29,13 @@ export function validateKeyMatchesKind(key: string | undefined, kind: InsightDat
 	}
 }
 
-export function orderSectionsByString(selectedSections: any[], orderKey: string, kind: InsightDatasetKind | undefined): void {
+export function orderSectionsByString(
+	selectedSections: any[],
+	orderKey: string,
+	kind: InsightDatasetKind | undefined
+): void {
 	if (orderKey.includes("_")) {
-        validateKeyMatchesKind(orderKey, kind);
+		validateKeyMatchesKind(orderKey, kind);
 		orderKey = orderKey.split("_")[1];
 	}
 
@@ -45,14 +49,18 @@ export function orderSectionsByString(selectedSections: any[], orderKey: string,
 	});
 }
 
-export function orderSectionsBySortObject(selectedSections: any[], orderObject: Sort, kind: InsightDatasetKind | undefined): void {
+export function orderSectionsBySortObject(
+	selectedSections: any[],
+	orderObject: Sort,
+	kind: InsightDatasetKind | undefined
+): void {
 	selectedSections.sort((a, b) => {
 		for (let key of orderObject.keys) {
 			let orderKey = key;
 
 			// If key in keys is a section or room key, keep only the part after "_"
 			if (key.includes("_")) {
-                validateKeyMatchesKind(orderKey, kind);
+				validateKeyMatchesKind(orderKey, kind);
 				orderKey = key.split("_")[1];
 			}
 
@@ -89,28 +97,23 @@ export function applyRules(
 						...sections.map((section) => section[field as keyof Section] as number)
 					);
 					break;
-
 				case "MIN":
 					result[applyKey] = Math.min(
 						...sections.map((section) => section[field as keyof Section] as number)
 					);
 					break;
-
 				case "AVG":
 					sections.forEach((section) => {
 						total = total.add(new Decimal(section[field as keyof Section] as number));
 					});
 					result[applyKey] = Number((total.toNumber() / sections.length).toFixed(2));
 					break;
-
 				case "SUM":
 					sum = sections.reduce((acc, section) => {
-						const sumDecimal = new Decimal(acc).add(new Decimal(section[field as keyof Section] as number));
-						return sumDecimal.toNumber();
+						return new Decimal(acc).add(new Decimal(section[field as keyof Section] as number)).toNumber();
 					}, 0);
 					result[applyKey] = Number(sum.toFixed(2));
 					break;
-
 				case "COUNT":
 					result[applyKey] = new Set(
 						sections.map((section) => section[field as keyof Section] as number)

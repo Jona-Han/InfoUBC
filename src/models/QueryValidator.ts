@@ -16,7 +16,7 @@ export default class QueryValidator {
 	private KV = new KeyValidator();
 
 	public validateQuery(query: object): string {
-        
+
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
 		if ("TRANSFORMATIONS" in vQuery) {
@@ -117,7 +117,7 @@ export default class QueryValidator {
 
 	public validateOrder(order: unknown, columnKeys: string[]) {
 		if (typeof order === "string") {
-            this.KV.validateOrderKey(order, columnKeys);
+			this.KV.validateOrderKey(order, columnKeys);
 		} else if (typeof order === "object") {
 			if (!order || !("dir" in order) || !("keys" in order)) {
 				throw new InsightError("Invalid Order structure");
@@ -131,7 +131,7 @@ export default class QueryValidator {
 			}
             // Check if each element of order.keys is a string and is present in columnKeys
 			for (const key of order.keys) {
-                this.KV.validateOrderKey(key, columnKeys);
+				this.KV.validateOrderKey(key, columnKeys);
 			}
 		} else {
 			throw new InsightError("Invalid Order type. Must be string or object.");
