@@ -115,7 +115,7 @@ export function applyRules(
 					break;
 				case "COUNT":
 					result[applyKey] = new Set(
-						sections.map((entry) => entry[field as string] as number)
+						sections.map((entry) => entry[field as string])
 					).size;
 					break;
 			}

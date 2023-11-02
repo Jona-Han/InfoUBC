@@ -15,39 +15,8 @@ export interface Section {
 }
 
 export default class Sections extends Dataset {
-	private sections: Section[];
-
 	constructor(id: string) {
 		super(id, InsightDatasetKind.Sections);
-		this.sections = [];
-	}
-
-	public getData(): Section[] {
-		return this.sections;
-	}
-
-	public addDataFromJSON(fileData: any[]): void {
-		if (fileData === undefined) {
-			throw new InsightError("No valid sections");
-		}
-		for (let section of fileData) {
-			this.addAlreadyValidSection(section);
-		}
-	}
-
-	public getDataAsMap(): Map<string, any> {
-		const map = new Map<string, Section>();
-		this.sections.forEach((section) => {
-			map.set(section.uuid, section);
-		});
-		return map;
-	}
-
-	private addAlreadyValidSection(section: any): void {
-		if (section !== undefined) {
-			this.sections.push(section as Section);
-			this.size++;
-		}
 	}
 
 	// Adds section to this.section and increases size by 1
@@ -56,8 +25,8 @@ export default class Sections extends Dataset {
 		if (section !== undefined) {
 			try {
 				const formattedSection: Section = this.newSection(section);
-				this.sections.push(formattedSection);
-				// console.log(this.sections)
+				this.data.push(formattedSection);
+				// console.log(this.data)
 				this.size++;
 			} catch {
 				// do nothing

@@ -75,7 +75,7 @@ export default class KeyValidator {
 		if (typeof input === "undefined") {
 			return false;
 		}
-		return (this.validateMKey(input));
+		return (this.validateMKey(input) || this.validateSKey(input));
 	}
 
 	public validateOrderKey(key: any, columnKeys: string[]) {
