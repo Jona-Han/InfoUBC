@@ -39,11 +39,28 @@ export default class Rooms extends Dataset {
 		return this.rooms;
 	}
 
-    getDataAsMap(): Map<string, any> {
-        throw new Error("Method not implemented.");
+    public getDataAsMap(): Map<string, any> {
+		const map = new Map<string, Room>();
+		this.rooms.forEach((room) => {
+			map.set(room.href, room);
+		});
+		return map;
     }
-    addDataFromJSON(fileData: any[]): void {
-        throw new Error("Method not implemented.");
+
+    public addDataFromJSON(fileData: any[]): void {
+        if (fileData === undefined) {
+			throw new InsightError("No valid rooms");
+		}
+		for (let room of fileData) {
+            this.addAlreadyValidRoom(room);
+		} 
+    }
+
+    private addAlreadyValidRoom(room: any) {
+		if (room !== undefined) {
+            this.rooms.push(room as Room);
+            this.size++;
+		}
     }
 
 	// Searches nodes for links to building files

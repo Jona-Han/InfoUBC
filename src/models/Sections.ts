@@ -43,6 +43,13 @@ export default class Sections extends Dataset {
 		return map;
 	}
 
+    private addAlreadyValidSection(section: any): void {
+		if (section !== undefined) {
+            this.sections.push(section as Section);
+            this.size++;
+		}
+	}
+
 	// Adds section to this.section and increases size by 1
 	// If section is missing required keys then it does not add
 	public addSection(section: any): void {
@@ -50,18 +57,6 @@ export default class Sections extends Dataset {
 			try {
 				const formattedSection: Section = this.newSection(section);
 				this.sections.push(formattedSection);
-				// console.log(this.sections)
-				this.size++;
-			} catch {
-				// do nothing
-			}
-		}
-	}
-
-	private addAlreadyValidSection(section: any): void {
-		if (section !== undefined) {
-			try {
-				this.sections.push(section as Section);
 				// console.log(this.sections)
 				this.size++;
 			} catch {
