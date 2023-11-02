@@ -1,3 +1,5 @@
+import {InsightResult} from "../controller/IInsightFacade";
+
 export type Logic = "AND" | "OR";
 export type MComparator = "LT" | "GT" | "EQ";
 export type SComparator = "IS";
@@ -61,4 +63,6 @@ export interface JSONQuery {
 
 export interface IQuery extends JSONQuery {
 	datasetName: string;
+
+    execute(): InsightResult[];
 }

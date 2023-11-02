@@ -15,15 +15,11 @@ import {
 } from "./IQuery";
 import * as fs from "fs-extra";
 import QueryValidator from "./QueryValidator";
-import Sections, {Section} from "./Sections";
-import {
-	applyRules,
-	orderEntriesBySortObject,
-	orderEntriesByString,
-	validateKeyMatchesKind,
-} from "../utils/QueryUtils";
-import Rooms, {Room} from "./Rooms";
-import {Dataset} from "./Dataset";
+import Sections, {Section} from "../models/Sections";
+import {orderEntriesBySortObject, orderEntriesByString, validateKeyMatchesKind} from "../utils/SortUtils";
+import Rooms, {Room} from "../models/Rooms";
+import {Dataset} from "../models/Dataset";
+import {handleTransformations} from "../utils/TransformUtils";
 
 export class Query implements IQuery {
 	public WHERE: Filter;
@@ -43,39 +39,60 @@ export class Query implements IQuery {
 		this.data = undefined;
 	}
 
+	/**
+	 * Executes the current query against the stored dataset.
+	 * @returns {InsightResult[]} The results of the executed query.
+	 */
 	public execute(): InsightResult[] {
+		// Check if dataset file exists
 		if (!fs.pathExistsSync(this.directory + "/" + this.datasetName + ".json")) {
 			throw new InsightError(`Cannot query from ${this.datasetName} due to not being added yet.`);
 		}
+
+		// Load dataset from file
 		this.loadData();
 
+		// Evaluate WHERE clause of the query and get matching entries
 		const afterWhere = this.handleWhere(this.WHERE);
-
-		// Parse WHERE data into a map
 		const selectedEntries: Section[] | Room[] = [];
-
 		const allEntries = this.data?.getDataAsMap();
+
+		// Populate selectedEntries with entries that match the WHERE clause
 		afterWhere.forEach((uniqueID) => {
 			const entry = allEntries?.get(uniqueID);
 			selectedEntries.push(entry);
 		});
 
-		const afterTransform = this.handleTransformations(selectedEntries);
+		// Apply transformations, if any, and then handle options (e.g., sort, limit)
+		const afterTransform = handleTransformations(selectedEntries, this.TRANSFORMATIONS, this.data?.getKind());
 		return this.handleOptions(afterTransform);
 	}
 
+	/**
+	 * Loads the dataset from the filesystem.
+	 * Sets the internal data attribute based on dataset kind.
+	 */
 	private loadData() {
+		// Read dataset from file
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
+
+		// Determine the dataset kind and initialize accordingly
 		if (object.kind === InsightDatasetKind.Sections) {
 			this.data = new Sections(object.id);
 		} else {
 			this.data = new Rooms(object.id);
 		}
 
+		// Add the data to the dataset object
 		this.data?.addDataFromJSON(object.sections);
 	}
 
-	public handleWhere(input: Filter): Set<string> {
+	/**
+	 * Evaluates the WHERE clause of the query.
+	 * @param {Filter} input - The filter object from the WHERE clause.
+	 * @returns {Set<string>} A set of unique IDs of entries that satisfy the WHERE clause.
+	 */
+	private handleWhere(input: Filter): Set<string> {
 		if ("AND" in input || "OR" in input) {
 			return this.handleLogicComparison(input as LogicComparison);
 		} else if ("LT" in input || "GT" in input || "EQ" in input) {
@@ -85,6 +102,7 @@ export class Query implements IQuery {
 		} else if ("NOT" in input) {
 			return this.handleNegation(input as Negation);
 		} else {
+			// If no specific comparison is found, include all entries
 			const all = new Set<string>();
 			this.data?.getData().forEach((entry) => {
 				all.add(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href);
@@ -93,59 +111,16 @@ export class Query implements IQuery {
 		}
 	}
 
-	private handleTransformations(input: any[]): any[] {
-		if (this.TRANSFORMATIONS) {
-			const groupings = this.handleGrouping(input);
-
-			return this.handleApply(groupings);
-		}
-		return input;
-	}
-
-	private handleGrouping(selectedEntries: any[]): Map<string, any[]> {
-		const groupings = new Map<string, any[]>();
-
-		selectedEntries.forEach((entry) => {
-			const tuple = this.TRANSFORMATIONS?.GROUP.map((key) => {
-				validateKeyMatchesKind(key, this.data?.getKind());
-				return `${key}__${entry[key.split("_")[1]]}`;
-			}).join("||");
-
-			if (!groupings.has(tuple as string)) {
-				groupings.set(tuple as string, []);
-			}
-
-			groupings.get(tuple as string)?.push(entry);
-		});
-
-		return groupings;
-	}
-
-	private handleApply(input: Map<string, any[]>): any[] {
-		const results: any[] = [];
-
-		for (const [encodedTuple, sections] of input.entries()) {
-			const result: any = {};
-			applyRules(sections, result, this.TRANSFORMATIONS?.APPLY, this.data?.getKind());
-
-			// Add order keys back to object
-			const decodedTuples = encodedTuple.split("||");
-			decodedTuples.map((tuple) => {
-				let [key] = tuple.split("__");
-				key = key.split("_")[1];
-				result[key] = sections[0][key];
-			});
-			results.push(result);
-		}
-
-		return results;
-	}
-
+	/**
+	 * Evaluates the NOT filter in the WHERE clause.
+	 * @param {Negation} input - Negation filter to be evaluated.
+	 * @returns {Set<string>} Set of unique IDs of entries that satisfy the NOT filter.
+	 */
 	private handleNegation(input: Negation): Set<string> {
-		// Handle the filter inside the NOT and get its result.
+		// Handle the inner filter of the NOT clause
 		const innerResult = this.handleWhere(input.NOT);
 
-		// Subtract innerResult from all to get the result of the NOT filter.
+		// Compute the result of the NOT filter
 		const negationResult = new Set<string>();
 		this.data?.getData().forEach((entry) => {
 			if (!innerResult.has(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href)) {
@@ -156,15 +131,22 @@ export class Query implements IQuery {
 		return negationResult;
 	}
 
-	public handleSComparison(input: SComparison): Set<string> {
+	/**
+	 * Evaluates the string comparison in the WHERE clause.
+	 * @param {SComparison} input - String comparison filter to be evaluated.
+	 * @returns {Set<string>} Set of unique IDs of entries that match the string comparison.
+	 */
+	private handleSComparison(input: SComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const key = Object.keys(input.IS)[0]; // Dataset name + SField
 		validateKeyMatchesKind(key, this.data?.getKind());
 		const sField = key.split("_")[1] as SField; // SField
 		const sValue = input.IS[key];
 
+		// Check different string match conditions
 		this.data?.getData().forEach((entry: any) => {
 			if (sValue === "*") {
+				// single asterik
 				sectionMappings.add(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href);
 			} else if (sValue.startsWith("*") && sValue.endsWith("*")) {
 				// Contains inputstring
@@ -191,6 +173,11 @@ export class Query implements IQuery {
 		return sectionMappings;
 	}
 
+	/**
+	 * Evaluates the numeric comparison in the WHERE clause.
+	 * @param {MComparison} input - Numeric comparison filter to be evaluated.
+	 * @returns {Set<string>} Set of unique IDs of entries that match the numeric comparison.
+	 */
 	private handleMComparison(input: MComparison): Set<string> {
 		const sectionMappings = new Set<string>();
 		const compareKey: keyof MComparison = Object.keys(input)[0] as MComparator; // GT, LT, or EQ
@@ -214,6 +201,11 @@ export class Query implements IQuery {
 		return sectionMappings;
 	}
 
+	/**
+	 * Evaluates the logical comparison in the WHERE clause.
+	 * @param {LogicComparison} input - Logical comparison filter (AND/OR) to be evaluated.
+	 * @returns {Set<string>} Set of unique IDs of entries that match the logical comparison.
+	 */
 	private handleLogicComparison(input: LogicComparison): Set<string> {
 		const allMappings: Array<Set<string>> = [];
 		const logicKey = Object.keys(input)[0] as Logic;
@@ -223,6 +215,7 @@ export class Query implements IQuery {
 		});
 
 		const result = new Set<string>();
+		// Check the logical key (AND/OR) and aggregate results
 		if (logicKey === "AND") {
 			// Initialize result with elements from the first set
 			allMappings[0]?.forEach((uniqueIdentifier) => result.add(uniqueIdentifier));
@@ -247,6 +240,11 @@ export class Query implements IQuery {
 		return result;
 	}
 
+	/**
+	 * Handles options like ordering and selecting specific columns.
+	 * @param {any[]} selectedEntries - Array of selected dataset entries.
+	 * @returns {InsightResult[]} Array of processed entries based on provided options.
+	 */
 	private handleOptions(selectedEntries: any[]): InsightResult[] {
 		if (selectedEntries.length > 5000) {
 			throw new ResultTooLargeError("Greater than 5000 results");
@@ -261,9 +259,9 @@ export class Query implements IQuery {
 			}
 		}
 
-		// Return insightResults
+		// Create final result based on selected columns
 		const result: InsightResult[] = selectedEntries.map((entry) => {
-			// Only keep the fields listed in this.OPTIONS.COLUMNS
+			// Map columns from options to final result
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
 				let key: string = column;

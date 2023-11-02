@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {InsightError} from "../../src/controller/IInsightFacade";
-import KeyValidator from "../../src/utils/KeyValidator";
+import KeyValidator from "../../src/query/KeyValidator";
 
 describe("KeyValidator", () => {
 	let KV: KeyValidator;

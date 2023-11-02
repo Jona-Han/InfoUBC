@@ -1,7 +1,7 @@
-import {Negation} from "../../src/models/IQuery";
+import {Negation} from "../../src/query/IQuery";
 
 import {expect} from "chai";
-import QueryValidator from "../../src/models/QueryValidator";
+import QueryValidator from "../../src/query/QueryValidator";
 import {InsightError} from "../../src/controller/IInsightFacade";
 
 describe("QueryValidator", () => {

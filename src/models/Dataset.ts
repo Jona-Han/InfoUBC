@@ -1,4 +1,4 @@
-import { InsightDatasetKind, InsightError } from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 
 /**
  * Abstract class representing a generic dataset.

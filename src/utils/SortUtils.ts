@@ -1,5 +1,4 @@
-import Decimal from "decimal.js";
-import {ApplyRule, ApplyToken, Sort} from "../models/IQuery";
+import {Sort} from "../query/IQuery";
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 
 /**
@@ -94,58 +93,4 @@ export function orderEntriesBySortObject(
 		// If entries are equal for all keys, they are considered the same
 		return 0;
 	});
-}
-
-/**
- * Applies the provided rules on the sections and populates the result object.
- * @param {any[]} sections - The array of sections to apply the rules on.
- * @param {any} result - The result object to populate.
- * @param {ApplyRule[] | undefined} rules - The array of rules to apply.
- * @param {InsightDatasetKind | undefined} kind - The kind of dataset being considered.
- */
-export function applyRules(
-	sections: any[],
-	result: any,
-	rules: ApplyRule[] | undefined,
-	kind: InsightDatasetKind | undefined
-): void {
-	if (rules !== undefined) {
-		rules.forEach((applyRule) => {
-			const applyKey = Object.keys(applyRule)[0];
-			const applyToken = Object.keys(applyRule[applyKey])[0] as ApplyToken;
-			validateKeyMatchesKind(applyRule[applyKey][applyToken], kind);
-			const field = applyRule[applyKey][applyToken]?.split("_")[1];
-
-
-			// Apply the rule based on its token
-			switch (applyToken) {
-				case "MAX": {
-					result[applyKey] = Math.max(...sections.map((entry) => entry[field as string] as number));
-					break;
-				}
-				case "MIN": {
-					result[applyKey] = Math.min(...sections.map((entry) => entry[field as string] as number));
-					break;
-				}
-				case "AVG": {
-					let total = new Decimal(0);
-					sections.forEach((entry) => (total = total.add(new Decimal(entry[field as string] as number))));
-					result[applyKey] = Number((total.toNumber() / sections.length).toFixed(2));
-					break;
-				}
-				case "SUM": {
-					const sum = sections.reduce(
-						(acc, entry) => new Decimal(acc).add(new Decimal(entry[field as string] as number)).toNumber(),
-						0
-					);
-					result[applyKey] = Number(sum.toFixed(2));
-					break;
-				}
-				case "COUNT": {
-					result[applyKey] = new Set(sections.map((entry) => entry[field as string])).size;
-					break;
-				}
-			}
-		});
-	}
 }

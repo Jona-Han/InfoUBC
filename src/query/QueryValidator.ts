@@ -1,5 +1,5 @@
 import {InsightError} from "../controller/IInsightFacade";
-import KeyValidator from "../utils/KeyValidator";
+import KeyValidator from "./KeyValidator";
 import {
 	Logic,
 	LogicComparison,
