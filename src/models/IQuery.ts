@@ -12,7 +12,7 @@ export type AnyKey = Key | ApplyKey;
 export type ApplyKey = string; // One or more of any character, except underscore.
 export type Key = string; // mkey or skey
 
-export type Filter = LogicComparison | MComparison | SComparison | Negation | null;
+export type Filter = LogicComparison | MComparison | SComparison | Negation;
 
 export type LogicComparison = {
 	[key in Logic]?: Filter[];

@@ -48,6 +48,7 @@ export class Query implements IQuery {
 			throw new InsightError(`Cannot query from ${this.datasetName} due to not being added yet.`);
 		}
 		this.loadData();
+
 		const afterWhere = this.handleWhere(this.WHERE);
 
 		// Parse WHERE data into a map
@@ -76,10 +77,8 @@ export class Query implements IQuery {
 		this.data?.addDataFromJSON(object.sections);
 	}
 
-	private handleWhere(input: Filter): Set<string> {
-		if (!input) {
-			throw new InsightError("this.WHERE should not be NULL after query validated");
-		} else if ("AND" in input || "OR" in input) {
+	public handleWhere(input: Filter): Set<string> {
+        if ("AND" in input || "OR" in input) {
 			return this.handleLogicComparison(input as LogicComparison);
 		} else if ("LT" in input || "GT" in input || "EQ" in input) {
 			return this.handleMComparison(input as MComparison);

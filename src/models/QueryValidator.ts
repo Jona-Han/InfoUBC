@@ -17,19 +17,21 @@ export default class QueryValidator {
 	public validateQuery(query: object): string {
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
+
 		if ("TRANSFORMATIONS" in vQuery) {
 			this.validateTransformations(vQuery.TRANSFORMATIONS as object);
 		}
-
 		if (Object.keys(vQuery.WHERE as object).length !== 0) {
 			this.validateWhere(vQuery.WHERE as object);
 		}
-
+		if (vQuery.OPTIONS === null) {
+			throw new InsightError("OPTIONS must be object");
+		}
 		this.validateOptions(vQuery.OPTIONS);
 		return this.KV.getDatasetName();
 	}
 
-	public validateQueryOutside(query: object) {
+	public validateQueryOutside(query: any) {
 		const keys = Object.keys(query);
 		if (keys.length > 2 && !("TRANSFORMATIONS" in query)) {
 			throw new InsightError("Excess Keys in Query");
@@ -43,11 +45,18 @@ export default class QueryValidator {
 			throw new InsightError("Missing OPTIONS");
 		}
 
-		if (typeof query.WHERE !== "object" || Array.isArray(query.WHERE)) {
+		if (
+			("TRANSFORMATIONS" in query && typeof query.TRANSFORMATIONS !== "object") ||
+			Array.isArray(query.TRANSFORMATIONS)
+		) {
+			throw new InsightError("Transformations not well typed");
+		}
+
+		if (!query.WHERE || typeof query.WHERE !== "object" || Array.isArray(query.WHERE)) {
 			throw new InsightError("Invalid WHERE type");
 		}
 
-		if (typeof query.OPTIONS !== "object" || Array.isArray(query.OPTIONS)) {
+		if (!query.OPTIONS || typeof query.OPTIONS !== "object" || Array.isArray(query.OPTIONS)) {
 			throw new InsightError("Invalid OPTIONS type");
 		}
 	}
@@ -84,7 +93,7 @@ export default class QueryValidator {
 			throw new InsightError("Options missing COLUMNS");
 		}
 
-        // Check for invalid keys
+		// Check for invalid keys
 		for (const key of keys) {
 			if (key !== "COLUMNS" && key !== "ORDER") {
 				throw new InsightError("Options contains invalid keys");
@@ -121,11 +130,11 @@ export default class QueryValidator {
 			if (typeof order.dir !== "string" || !["DOWN", "UP"].includes(order.dir)) {
 				throw new InsightError("Invalid ORDER direction.");
 			}
-            // Check if order.keys is an array
+			// Check if order.keys is an array
 			if (!Array.isArray(order.keys) || order.keys.length === 0) {
 				throw new InsightError("ORDER keys must be a non-empty array");
 			}
-            // Check if each element of order.keys is a string and is present in columnKeys
+			// Check if each element of order.keys is a string and is present in columnKeys
 			for (const key of order.keys) {
 				this.KV.validateOrderKey(key, columnKeys);
 			}
@@ -271,7 +280,8 @@ export default class QueryValidator {
 		const asteriskCount = (value.match(/\*/g) || []).length;
 
 		if (
-			asteriskCount > 2 || (asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) ||
+			asteriskCount > 2 ||
+			(asteriskCount === 1 && !startsWithAsterisk && !endsWithAsterisk) ||
 			(asteriskCount === 2 && (!startsWithAsterisk || !endsWithAsterisk))
 		) {
 			throw new InsightError(
