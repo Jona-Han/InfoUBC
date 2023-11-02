@@ -167,9 +167,9 @@ export class Query implements IQuery {
 		const sValue = input.IS[key];
 
 		this.data?.getData().forEach((entry: any) => {
-            if (sValue === "*") {
-                sectionMappings.add(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href);
-            } else if (sValue.startsWith("*") && sValue.endsWith("*")) {
+			if (sValue === "*") {
+				sectionMappings.add(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href);
+			} else if (sValue.startsWith("*") && sValue.endsWith("*")) {
 				// Contains inputstring
 				if (entry[sField].includes(sValue.substring(1, sValue.length - 1))) {
 					sectionMappings.add(this.data?.getKind() === InsightDatasetKind.Sections ? entry.uuid : entry.href);
