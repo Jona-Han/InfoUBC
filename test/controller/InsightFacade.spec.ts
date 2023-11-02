@@ -15,10 +15,12 @@ import {folderTest} from "@ubccpsc310/folder-test";
 
 describe("InsightFacade", async function () {
 	let sections: string;
+	let rooms: string;
 	let facade: InsightFacade;
 
 	before(function () {
 		sections = getContentFromArchives("10validcourses.zip");
+		rooms = getContentFromArchives("1ValidBuilding.zip");
 	});
 
 	beforeEach(function () {
@@ -31,23 +33,31 @@ describe("InsightFacade", async function () {
 
 	describe("addDataset", function () {
 		context("free mutant", function () {
-			it("should reject with an empty dataset id", function () {
+			it("should reject with an empty dataset id", async function () {
 				const result = facade.addDataset("", sections, InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("", rooms, InsightDatasetKind.Rooms);
 
-				return expect(result).to.eventually.be.rejectedWith(InsightError);
+				await expect(result).to.eventually.be.rejectedWith(InsightError);
+				return expect(result2).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
 		context("when id contains an underscore", function () {
-			it("should reject with an InsightError for underscore in id", function () {
+			it("should reject with an InsightError for underscore in id", async function () {
 				const result = facade.addDataset("invalid_id", sections, InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("invalid_id", rooms, InsightDatasetKind.Rooms);
+
+				await expect(result).to.eventually.be.rejectedWith(InsightError);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
 		context("when id is only whitespace characters", function () {
-			it("should reject with an InsightError for whitespace in id", function () {
+			it("should reject with an InsightError for whitespace in id", async function () {
 				const result = facade.addDataset("    ", sections, InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("       ", rooms, InsightDatasetKind.Rooms);
+
+				await expect(result).to.eventually.be.rejectedWith(InsightError);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
@@ -58,40 +68,61 @@ describe("InsightFacade", async function () {
 					const firstCall = await facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
 					expect(firstCall).to.have.members(["ubc"]);
 
+					const secondCall = await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+					expect(secondCall).to.have.members(["rooms", "ubc"]);
+
 					let result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
-					return expect(result).to.eventually.rejectedWith(InsightError);
+					let result2 = facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+					let result3 = facade.addDataset("ubc", rooms, InsightDatasetKind.Rooms);
+					let result4 = facade.addDataset("rooms", sections, InsightDatasetKind.Sections);
+
+					await expect(result).to.eventually.rejectedWith(InsightError);
+					await expect(result2).to.eventually.rejectedWith(InsightError);
+					await expect(result3).to.eventually.rejectedWith(InsightError);
+					await expect(result4).to.eventually.rejectedWith(InsightError);
 				} catch (error) {
-					return expect.fail("Incorrect error thrown");
+					return expect.fail("Incorrect error thrown:" + error);
 				}
 			});
 		});
 
 		context("when dataset content is empty", function () {
-			it("should reject with an InsightError for empty content", function () {
+			it("should reject with an InsightError for empty content", async function () {
 				const result = facade.addDataset("validId", "", InsightDatasetKind.Sections);
-				return expect(result).to.eventually.be.rejectedWith(InsightError);
+				const result2 = facade.addDataset("validId2", "", InsightDatasetKind.Rooms);
+
+				await expect(result).to.eventually.be.rejectedWith(InsightError);
+				return expect(result2).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
 		context("when both id and content are empty", function () {
-			it("should reject with an InsightError for both empty", function () {
+			it("should reject with an InsightError for both empty", async function () {
 				const result = facade.addDataset("", "", InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("", "", InsightDatasetKind.Rooms);
+
+				await expect(result2).to.eventually.be.rejectedWith(InsightError);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
 		context("when dataset content is not base64", function () {
-			it("should reject with an InsightError for nonBase64", function () {
+			it("should reject with an InsightError for nonBase64", async function () {
 				const result = facade.addDataset("validId", "nonBase64_Content", InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("validId", "nonBase64_Content2", InsightDatasetKind.Rooms);
+				await expect(result2).to.eventually.be.rejectedWith(InsightError);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
 		context("when dataset content is not a zip file", function () {
-			it("should reject with an InsightError for not a zip file", function () {
+			it("should reject with an InsightError for not a zip file", async function () {
 				let txtFile = getContentFromArchives("notAZip.txt");
+				// let campus = getContentFromArchives("campus/")
 
 				const result = facade.addDataset("validId", txtFile, InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("validId", txtFile, InsightDatasetKind.Rooms);
+				await expect(result2).to.eventually.be.rejectedWith(InsightError);
 				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
@@ -150,11 +181,153 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context("when adding a valid dataset", function () {
-			it("should successfully add a dataset", function () {
-				const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+		context("when trying to add a rooms dataset as kind = Sections and vice versa", function () {
+			it("should reject with an InsightError unable to parse", async function () {
+				const result = facade.addDataset("validId", rooms, InsightDatasetKind.Sections);
+				const result2 = facade.addDataset("validId", sections, InsightDatasetKind.Rooms);
+				await expect(result2).to.eventually.be.rejectedWith(InsightError);
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
+			});
+		});
 
-				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+		context("when adding a valid section dataset", function () {
+			it("should successfully add a sections dataset", function () {
+				try {
+					const result = facade.addDataset("ubc", sections, InsightDatasetKind.Sections);
+
+					return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+				} catch (error) {
+					expect.fail("Unexpected error: " + error);
+				}
+			});
+		});
+
+		context("when adding a valid rooms dataset", function () {
+			it("should successfully add a rooms dataset", function () {
+				try {
+					const result = facade.addDataset("ubc", rooms, InsightDatasetKind.Rooms);
+
+					return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+				} catch (error) {
+					expect.fail("unexpected error: " + error);
+				}
+			});
+		});
+
+		context(
+			"when adding a rooms dataset with 1 room and all fields empty except capacity and address",
+			function () {
+				it("should successfully add this rooms dataset dataset", function () {
+					try {
+						const valid = getContentFromArchives("addressAndCapacityNotBlank.zip");
+						const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+						return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+					} catch (error) {
+						expect.fail("unexpected error thrown: " + error);
+					}
+				});
+			}
+		);
+
+		context("when adding a rooms dataset with 1 room and all blank fields except address", function () {
+			it("should reject with insight error since capacity needs to be number", function () {
+				const valid = getContentFromArchives("roomCapacityNotANumber.zip");
+				const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a rooms dataset with no linke to building file", function () {
+			it("should reject with insighno valid roomst error since the building file cannot be reached", function () {
+				const valid = getContentFromArchives("noHrefInIndex.zip");
+				const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a rooms dataset with 1 room and all blank fields except address", function () {
+			it("should reject with insight error since capacity cannot be converte to number", function () {
+				const valid = getContentFromArchives("destinationFolderWithNoClassrooms.zip");
+				const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a rooms dataset with an empty index file", function () {
+			it("should reject with insight error since no index file", function () {
+				const valid = getContentFromArchives("emptyIndex.zip");
+				const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.rejectedWith(InsightError);
+			});
+		});
+
+		context("when adding a rooms dataset with incorrect file format", function () {
+			it("all should reject with incorrect file formats", async function () {
+				try {
+					const valid = getContentFromArchives("emptyIndex.zip");
+					const valid2 = getContentFromArchives("emptyTableBody.zip");
+					const valid3 = getContentFromArchives("noIndex.zip");
+					const valid4 = getContentFromArchives("noTableInRoomFile.zip");
+
+					const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+					const result2 = facade.addDataset("ubc2", valid2, InsightDatasetKind.Rooms);
+					const result3 = facade.addDataset("ubc3", valid3, InsightDatasetKind.Rooms);
+					const result4 = facade.addDataset("ubc4", valid4, InsightDatasetKind.Rooms);
+
+					await expect(result).to.eventually.rejectedWith(InsightError);
+					await expect(result2).to.eventually.rejectedWith(InsightError);
+					await expect(result3).to.eventually.rejectedWith(InsightError);
+					return expect(result4).to.eventually.rejectedWith(InsightError);
+				} catch (e) {
+					expect.fail(e + " unexpected");
+				}
+			});
+		});
+
+		context("when adding a rooms dataset with a missing field", function () {
+			it("all should reject with midding fileds", async function () {
+				const contents = [
+					getContentFromArchives("missingBuildingName.zip"),
+					getContentFromArchives("missingBuildingShortName.zip"),
+					getContentFromArchives("missingAddress.zip"),
+					getContentFromArchives("missingCapacity.zip"),
+					getContentFromArchives("missingRoomFurniture.zip"),
+					getContentFromArchives("missingRoomHref.zip"),
+					getContentFromArchives("missingRoomNumber.zip"),
+					getContentFromArchives("missingRoomType.zip"),
+				];
+				try {
+					const result = facade.addDataset("ubc", contents[0], InsightDatasetKind.Rooms);
+					await expect(result).to.eventually.be.rejectedWith(InsightError);
+
+					const result2 = facade.addDataset("ubc", contents[1], InsightDatasetKind.Rooms);
+					await expect(result2).to.eventually.be.rejectedWith(InsightError);
+
+					const result3 = facade.addDataset("ubc", contents[2], InsightDatasetKind.Rooms);
+					await expect(result3).to.eventually.be.rejectedWith(InsightError);
+
+					const result4 = facade.addDataset("ubc", contents[3], InsightDatasetKind.Rooms);
+					await expect(result4).to.eventually.be.rejectedWith(InsightError);
+
+					const result5 = facade.addDataset("ubc", contents[4], InsightDatasetKind.Rooms);
+					await expect(result5).to.eventually.be.rejectedWith(InsightError);
+
+					const result6 = facade.addDataset("ubc", contents[5], InsightDatasetKind.Rooms);
+					await expect(result6).to.eventually.be.rejectedWith(InsightError);
+
+					const result7 = facade.addDataset("ubc", contents[6], InsightDatasetKind.Rooms);
+					await expect(result7).to.eventually.be.rejectedWith(InsightError);
+
+					const result8 = facade.addDataset("ubc", contents[7], InsightDatasetKind.Rooms);
+					await expect(result8).to.eventually.be.rejectedWith(InsightError);
+				} catch (e) {
+					expect.fail(e + " error unxepect");
+				}
 			});
 		});
 
@@ -187,6 +360,15 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("when adding a dataset with more than one table, but only one is valid", function () {
+			it("should successfully add a dataset with the valid rooms only", function () {
+				const validSection = getContentFromArchives("twoTablesOneValid.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+			});
+		});
+
 		context("when adding a course that is a PDF", function () {
 			it("should return for a PDF course insightError", function () {
 				const validSection = getContentFromArchives("courseIsAPDF.zip");
@@ -202,6 +384,15 @@ describe("InsightFacade", async function () {
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
 				return expect(result).to.eventually.have.lengthOf(1).and.have.deep.members(["ubc"]);
+			});
+		});
+
+		context("when adding a course with an invalid address", function () {
+			it("should reject with Insight error", function () {
+				const validSection = getContentFromArchives("invalidAddress.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
