@@ -41,10 +41,6 @@ export default class Rooms {
 		return this.id;
 	}
 
-	public getRooms(): Room[] {
-		return this.rooms;
-	}
-
 	public getSections(): Room[] {
 		return this.rooms;
 	}
@@ -94,11 +90,8 @@ export default class Rooms {
 		let tables = this.findTags(buildingContent, "table");
 		for (const table of tables) {
 			let body = this.findTags(table, "tbody");
-			// console.log(body)
 			let rows = this.findTags(body[0], "tr");
-			// console.log(rows)
 			for (let row of rows) {
-				// console.log(row)
 				let room = this.addRoom(row);
 				let shortname = building.get("shortname");
 				let number = room.get("number");

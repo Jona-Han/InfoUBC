@@ -227,6 +227,15 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("when adding a rooms dataset with no linke to building file", function () {
+			it("should rejecti with insighno valid roomst error since ", function () {
+				const valid = getContentFromArchives("noHrefInIndex.zip");
+				const result = facade.addDataset("ubc", valid, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.rejectedWith(InsightError);
+			});
+		});
+
 		context("when adding a rooms dataset with 1 room and all blank fields except address", function () {
 			it("should rejecti with insight error since capacity needs to be number", function () {
 				const valid = getContentFromArchives("destinationFolderWithNoClassrooms.zip");
@@ -264,7 +273,7 @@ describe("InsightFacade", async function () {
 			});
 		});
 
-		context.only("when adding a rooms dataset with a missing field", function () {
+		context("when adding a rooms dataset with a missing field", function () {
 			it("all should reject", async function () {
 				const contents = [
 					getContentFromArchives("missingBuildingName.zip"),
@@ -332,6 +341,15 @@ describe("InsightFacade", async function () {
 			});
 		});
 
+		context("when adding a dataset with more than one table, but only one is valid", function () {
+			it("should successfully add a dataset with the valid rooms only", function () {
+				const validSection = getContentFromArchives("twoTablesOneValid.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Rooms);
+
+				return expect(result).to.eventually.have.lengthOf(1).and.include.members(["ubc"]);
+			});
+		});
+
 		context("when adding a course that is a PDF", function () {
 			it("should return for a PDF course insightError", function () {
 				const validSection = getContentFromArchives("courseIsAPDF.zip");
@@ -347,6 +365,15 @@ describe("InsightFacade", async function () {
 				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
 
 				return expect(result).to.eventually.have.lengthOf(1).and.have.deep.members(["ubc"]);
+			});
+		});
+
+		context("when adding a course with an invalid address", function () {
+			it("should reject with Insight error", function () {
+				const validSection = getContentFromArchives("invalidAddress.zip");
+				const result = facade.addDataset("ubc", validSection, InsightDatasetKind.Sections);
+
+				return expect(result).to.eventually.be.rejectedWith(InsightError);
 			});
 		});
 
