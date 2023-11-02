@@ -1,5 +1,5 @@
 {
-	"title": "wildcard_single_asterik",
+	"title": "wildcard_single_asterik_GT",
 	"input": {
 		"WHERE": {
 			"OR": [

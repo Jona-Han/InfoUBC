@@ -81,10 +81,10 @@ export default class InsightFacade implements IInsightFacade {
 	// 5. return output
 	public performQuery(query: unknown): Promise<InsightResult[]> {
 		return new Promise((resolve, reject) => {
-			let results: InsightResult[] = [];
-			let QV: QueryValidator = new QueryValidator();
-
 			try {
+				let results: InsightResult[] = [];
+				let QV: QueryValidator = new QueryValidator();
+
 				if (!query || typeof query !== "object") {
 					throw new InsightError("Query must be an object");
 				}
