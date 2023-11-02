@@ -11,9 +11,9 @@ import Rooms from "../models/Rooms";
 
 import fs from "fs-extra";
 import JSZip from "jszip";
-import QueryValidator from "../models/QueryValidator";
-import {Query} from "../models/Query";
-import {JSONQuery} from "../models/IQuery";
+import QueryValidator from "../query/QueryValidator";
+import {Query} from "../query/Query";
+import {JSONQuery} from "../query/IQuery";
 import {parse} from "parse5";
 import {Document} from "parse5/dist/tree-adapters/default";
 
@@ -85,11 +85,7 @@ export default class InsightFacade implements IInsightFacade {
 			let QV: QueryValidator = new QueryValidator();
 
 			try {
-				if (!fs.pathExistsSync(persistDir)) {
-					throw new InsightError("No datasets added");
-				}
-
-				if (typeof query !== "object") {
+				if (!query || typeof query !== "object") {
 					throw new InsightError("Query must be an object");
 				}
 				QV.validateQuery(query as object);

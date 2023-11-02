@@ -1,0 +1,47 @@
+{
+	"title": "wildcard_rooms_left",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_furniture": "*e"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"count",
+				"max"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"count": {
+						"COUNT": "rooms_seats"
+					}
+				},
+				{
+					"max": {
+						"MAX": "rooms_seats"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_shortname": "ESB",
+			"count": 1,
+			"max": 150
+		},
+		{
+			"rooms_shortname": "ORCH",
+			"count": 5,
+			"max": 72
+		}
+	]
+}

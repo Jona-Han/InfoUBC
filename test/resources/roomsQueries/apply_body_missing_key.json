@@ -1,0 +1,28 @@
+{
+	"title": "apply_body_missing_key",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"rooms_seats": 50
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_shortname",
+				"count"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"rooms_shortname"
+			],
+			"APPLY": [
+				{
+					"count": {}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}
