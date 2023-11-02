@@ -1,4 +1,4 @@
-import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {InsightError} from "../controller/IInsightFacade";
 
 /**
  * KeyValidator class to handle key validation and dataset name management.
