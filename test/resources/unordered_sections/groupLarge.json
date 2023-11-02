@@ -1,5 +1,5 @@
 {
-	"title": "count_min",
+	"title": "GroupLarge",
 	"input": {
 		"WHERE": {},
 		"OPTIONS": {
@@ -15,7 +15,7 @@
 			"APPLY": [
 				{
 					"test": {
-						"MIN": "sections_avg"
+						"COUNT": "sections_dept"
 					}
 				}
 			]
@@ -25,47 +25,47 @@
 	"expected": [
 		{
 			"sections_year": 1900,
-			"test": 0
+			"test": 189
 		},
 		{
 			"sections_year": 2007,
-			"test": 46.5
+			"test": 101
 		},
 		{
 			"sections_year": 2008,
-			"test": 33.2
+			"test": 133
 		},
 		{
 			"sections_year": 2009,
-			"test": 0
+			"test": 130
 		},
 		{
 			"sections_year": 2010,
-			"test": 33
+			"test": 145
 		},
 		{
 			"sections_year": 2011,
-			"test": 42
+			"test": 151
 		},
 		{
 			"sections_year": 2012,
-			"test": 50
+			"test": 153
 		},
 		{
 			"sections_year": 2013,
-			"test": 4.5
+			"test": 161
 		},
 		{
 			"sections_year": 2014,
-			"test": 48.9
+			"test": 169
 		},
 		{
 			"sections_year": 2015,
-			"test": 39.03
+			"test": 187
 		},
 		{
 			"sections_year": 2016,
-			"test": 4
+			"test": 112
 		}
 	]
 }

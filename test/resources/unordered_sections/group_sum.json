@@ -1,0 +1,276 @@
+{
+	"title": "group_sum",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"sections_year": 2015
+					}
+				},
+				{
+					"GT": {
+						"sections_avg": 85
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"test"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"SUM": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "adhe",
+			"test": 356.27
+		},
+		{
+			"sections_dept": "anat",
+			"test": 86.29
+		},
+		{
+			"sections_dept": "arch",
+			"test": 431.5
+		},
+		{
+			"sections_dept": "arst",
+			"test": 173.52
+		},
+		{
+			"sections_dept": "audi",
+			"test": 361
+		},
+		{
+			"sections_dept": "ba",
+			"test": 173.77
+		},
+		{
+			"sections_dept": "babs",
+			"test": 85.89
+		},
+		{
+			"sections_dept": "bafi",
+			"test": 434.53
+		},
+		{
+			"sections_dept": "bama",
+			"test": 86.82
+		},
+		{
+			"sections_dept": "bapa",
+			"test": 85.4
+		},
+		{
+			"sections_dept": "basc",
+			"test": 85.12
+		},
+		{
+			"sections_dept": "baul",
+			"test": 85.62
+		},
+		{
+			"sections_dept": "bioc",
+			"test": 173.28
+		},
+		{
+			"sections_dept": "biol",
+			"test": 608.85
+		},
+		{
+			"sections_dept": "bmeg",
+			"test": 85.6
+		},
+		{
+			"sections_dept": "bota",
+			"test": 90.71
+		},
+		{
+			"sections_dept": "caps",
+			"test": 85.33
+		},
+		{
+			"sections_dept": "chbe",
+			"test": 178.79
+		},
+		{
+			"sections_dept": "chem",
+			"test": 86.4
+		},
+		{
+			"sections_dept": "civl",
+			"test": 87.74
+		},
+		{
+			"sections_dept": "cnps",
+			"test": 804.65
+		},
+		{
+			"sections_dept": "comm",
+			"test": 174.78
+		},
+		{
+			"sections_dept": "crwr",
+			"test": 263.01
+		},
+		{
+			"sections_dept": "dani",
+			"test": 175.89
+		},
+		{
+			"sections_dept": "eced",
+			"test": 178.57
+		},
+		{
+			"sections_dept": "econ",
+			"test": 352.26
+		},
+		{
+			"sections_dept": "edcp",
+			"test": 273.89
+		},
+		{
+			"sections_dept": "edst",
+			"test": 704.6
+		},
+		{
+			"sections_dept": "educ",
+			"test": 180.19
+		},
+		{
+			"sections_dept": "eece",
+			"test": 174.99
+		},
+		{
+			"sections_dept": "ends",
+			"test": 85.39
+		},
+		{
+			"sections_dept": "eosc",
+			"test": 441.34
+		},
+		{
+			"sections_dept": "epse",
+			"test": 1464.47
+		},
+		{
+			"sections_dept": "etec",
+			"test": 275.68
+		},
+		{
+			"sections_dept": "fnel",
+			"test": 87.5
+		},
+		{
+			"sections_dept": "food",
+			"test": 87.09
+		},
+		{
+			"sections_dept": "frst",
+			"test": 436.65
+		},
+		{
+			"sections_dept": "germ",
+			"test": 776.28
+		},
+		{
+			"sections_dept": "gpp",
+			"test": 88.92
+		},
+		{
+			"sections_dept": "hgse",
+			"test": 352.41
+		},
+		{
+			"sections_dept": "hist",
+			"test": 86.25
+		},
+		{
+			"sections_dept": "ital",
+			"test": 89.5
+		},
+		{
+			"sections_dept": "kin",
+			"test": 263.29
+		},
+		{
+			"sections_dept": "lais",
+			"test": 86.33
+		},
+		{
+			"sections_dept": "larc",
+			"test": 346.85
+		},
+		{
+			"sections_dept": "libr",
+			"test": 618.58
+		},
+		{
+			"sections_dept": "ling",
+			"test": 87.4
+		},
+		{
+			"sections_dept": "lled",
+			"test": 354.61
+		},
+		{
+			"sections_dept": "math",
+			"test": 629.93
+		},
+		{
+			"sections_dept": "medg",
+			"test": 91.83
+		},
+		{
+			"sections_dept": "micb",
+			"test": 87.26
+		},
+		{
+			"sections_dept": "midw",
+			"test": 359.05
+		},
+		{
+			"sections_dept": "mine",
+			"test": 261.61
+		},
+		{
+			"sections_dept": "musc",
+			"test": 181.18
+		},
+		{
+			"sections_dept": "nurs",
+			"test": 454.69
+		},
+		{
+			"sections_dept": "phar",
+			"test": 364.06
+		},
+		{
+			"sections_dept": "phth",
+			"test": 349.57
+		},
+		{
+			"sections_dept": "phys",
+			"test": 85.83
+		},
+		{
+			"sections_dept": "plan",
+			"test": 355.14
+		}
+	]
+}

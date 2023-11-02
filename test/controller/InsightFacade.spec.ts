@@ -562,8 +562,7 @@ describe("InsightFacade", async function () {
 				const threeSection = getContentFromArchives("3validsections.zip");
 				await facade.addDataset("three", threeSection, InsightDatasetKind.Sections);
 
-				const ubc = getContentFromArchives("pair.zip");
-				await facade.addDataset("ubc", ubc, InsightDatasetKind.Sections);
+				await facade.addDataset("ubc", threeSection, InsightDatasetKind.Sections);
 
 				// simulate crash
 				const newFacade: InsightFacade = new InsightFacade();
@@ -586,7 +585,7 @@ describe("InsightFacade", async function () {
 						{
 							id: "ubc",
 							kind: InsightDatasetKind.Sections,
-							numRows: 64612,
+							numRows: 3,
 						},
 					])
 					.and.have.lengthOf(3);
@@ -607,7 +606,7 @@ describe("InsightFacade", async function () {
 						{
 							id: "ubc",
 							kind: InsightDatasetKind.Sections,
-							numRows: 64612,
+							numRows: 3,
 						},
 					])
 					.and.have.lengthOf(2);
