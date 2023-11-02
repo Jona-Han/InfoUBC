@@ -1,6 +1,7 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 import {Document} from "parse5/dist/tree-adapters/default";
 import Http from "node:http";
+import { Dataset } from "./Dataset";
 
 export interface Room {
 	number: string;
@@ -25,33 +26,25 @@ export interface Building {
 	rooms: Room[];
 }
 
-export default class Rooms {
-	private id: string;
+export default class Rooms extends Dataset {
 	private rooms: Room[];
-	private size: number;
 	private urlPrefix: string = "http://cs310.students.cs.ubc.ca:11316/api/v1/project_team123/";
 
 	constructor(id: string) {
-		this.id = id;
+        super(id, InsightDatasetKind.Rooms);
 		this.rooms = [];
-		this.size = 0;
 	}
 
-	public getId(): string {
-		return this.id;
-	}
-
-	public getRooms(): Room[] {
+	public getData(): Room[] {
 		return this.rooms;
 	}
 
-	public getSections(): Room[] {
-		return this.rooms;
-	}
-
-	public getSize(): number {
-		return this.size;
-	}
+    getDataAsMap(): Map<string, any> {
+        throw new Error("Method not implemented.");
+    }
+    addDataFromJSON(fileData: any[]): void {
+        throw new Error("Method not implemented.");
+    }
 
 	// Searches nodes for links to building files
 	public addBuildings(index: any): Array<Map<string, string | undefined>> {

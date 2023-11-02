@@ -889,7 +889,7 @@ describe("Dynamic folder test for transformation queries", function () {
 	);
 });
 
-describe.only("Dynamic folder test for unordered rooms queries", function () {
+describe("Dynamic folder test for unordered rooms queries", function () {
 	type Output = InsightResult[];
 	type PQErrorKind = "InsightError" | "ResultTooLargeError";
 	let rooms: string;

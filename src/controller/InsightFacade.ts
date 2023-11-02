@@ -166,7 +166,7 @@ export default class InsightFacade implements IInsightFacade {
 								.then((fileContent) => {
 									let object = JSON.parse(fileContent);
 									let result = object["result"];
-									dataset.addSections(result, true);
+									dataset.addSections(result);
 								})
 								.catch((e) => {
 									return Promise.resolve();
@@ -243,7 +243,7 @@ export default class InsightFacade implements IInsightFacade {
 			id: dataset.getId(),
 			kind: kind,
 			numRows: dataset.getSize(),
-			sections: dataset.getSections(),
+			sections: dataset.getData(),
 		};
 		return fs.writeFile(persistDir + "/" + dataset.getId() + ".json", JSON.stringify(data));
 	}
