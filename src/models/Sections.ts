@@ -1,4 +1,5 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {Dataset} from "./Dataset";
 
 export interface Section {
 	uuid: string;
@@ -13,38 +14,40 @@ export interface Section {
 	audit: number;
 }
 
-export default class Sections {
-	private id: string;
-	private size: number;
+export default class Sections extends Dataset {
 	private sections: Section[];
-	private kind: InsightDatasetKind;
 
 	constructor(id: string) {
-		this.id = id;
-		this.size = 0;
+		super(id, InsightDatasetKind.Sections);
 		this.sections = [];
-		this.kind = InsightDatasetKind.Sections;
 	}
 
-	// Getters
-	public getId(): string {
-		return this.id;
-	}
-
-	public getSize(): number {
-		return this.size;
-	}
-
-	public getSections(): Section[] {
+	public getData(): Section[] {
 		return this.sections;
 	}
 
-	public getSectionsAsMap(): Map<string, Section> {
+	public addDataFromJSON(fileData: any[]): void {
+		if (fileData === undefined) {
+			throw new InsightError("No valid sections");
+		}
+		for (let section of fileData) {
+			this.addAlreadyValidSection(section);
+		}
+	}
+
+	public getDataAsMap(): Map<string, any> {
 		const map = new Map<string, Section>();
 		this.sections.forEach((section) => {
 			map.set(section.uuid, section);
 		});
 		return map;
+	}
+
+	private addAlreadyValidSection(section: any): void {
+		if (section !== undefined) {
+			this.sections.push(section as Section);
+			this.size++;
+		}
 	}
 
 	// Adds section to this.section and increases size by 1
@@ -62,31 +65,15 @@ export default class Sections {
 		}
 	}
 
-	private addAlreadyValidSection(section: any): void {
-		if (section !== undefined) {
-			try {
-				this.sections.push(section as Section);
-				// console.log(this.sections)
-				this.size++;
-			} catch {
-				// do nothing
-			}
-		}
-	}
-
 	// Adds sections to a dataset
 	// Throws InsightError if input list is empty
-	public addSections(sections: any[], neverBeforeAdded: boolean): void {
+	public addSections(sections: any[]): void {
 		// console.log(this.getSize())
 		if (sections === undefined) {
 			throw new InsightError("No valid sections");
 		}
 		for (let section of sections) {
-			if (neverBeforeAdded) {
-				this.addSection(section);
-			} else {
-				this.addAlreadyValidSection(section);
-			}
+			this.addSection(section);
 		}
 		// console.log(this.getSize())
 	}

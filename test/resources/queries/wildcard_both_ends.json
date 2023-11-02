@@ -1,0 +1,249 @@
+{
+	"title": "wildcard_both_ends",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "*e*"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"maxAvg"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"maxAvg"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"maxAvg": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "epse",
+			"maxAvg": 98.8
+		},
+		{
+			"sections_dept": "eece",
+			"maxAvg": 98.75
+		},
+		{
+			"sections_dept": "educ",
+			"maxAvg": 97.5
+		},
+		{
+			"sections_dept": "mine",
+			"maxAvg": 96.59
+		},
+		{
+			"sections_dept": "etec",
+			"maxAvg": 96.47
+		},
+		{
+			"sections_dept": "edst",
+			"maxAvg": 96.46
+		},
+		{
+			"sections_dept": "adhe",
+			"maxAvg": 96.11
+		},
+		{
+			"sections_dept": "edcp",
+			"maxAvg": 95.58
+		},
+		{
+			"sections_dept": "chbe",
+			"maxAvg": 95.54
+		},
+		{
+			"sections_dept": "hgse",
+			"maxAvg": 95.29
+		},
+		{
+			"sections_dept": "bmeg",
+			"maxAvg": 95.15
+		},
+		{
+			"sections_dept": "econ",
+			"maxAvg": 95
+		},
+		{
+			"sections_dept": "medg",
+			"maxAvg": 94.7
+		},
+		{
+			"sections_dept": "cell",
+			"maxAvg": 94.4
+		},
+		{
+			"sections_dept": "dent",
+			"maxAvg": 94.33
+		},
+		{
+			"sections_dept": "ceen",
+			"maxAvg": 94.27
+		},
+		{
+			"sections_dept": "elec",
+			"maxAvg": 93.93
+		},
+		{
+			"sections_dept": "eced",
+			"maxAvg": 93.72
+		},
+		{
+			"sections_dept": "mech",
+			"maxAvg": 93.5
+		},
+		{
+			"sections_dept": "medi",
+			"maxAvg": 93.5
+		},
+		{
+			"sections_dept": "eosc",
+			"maxAvg": 93.47
+		},
+		{
+			"sections_dept": "lled",
+			"maxAvg": 93.2
+		},
+		{
+			"sections_dept": "chem",
+			"maxAvg": 92.57
+		},
+		{
+			"sections_dept": "libe",
+			"maxAvg": 92.26
+		},
+		{
+			"sections_dept": "germ",
+			"maxAvg": 92.25
+		},
+		{
+			"sections_dept": "name",
+			"maxAvg": 91.57
+		},
+		{
+			"sections_dept": "geog",
+			"maxAvg": 90
+		},
+		{
+			"sections_dept": "engl",
+			"maxAvg": 89.68
+		},
+		{
+			"sections_dept": "udes",
+			"maxAvg": 89.5
+		},
+		{
+			"sections_dept": "mrne",
+			"maxAvg": 89.4
+		},
+		{
+			"sections_dept": "pers",
+			"maxAvg": 89.25
+		},
+		{
+			"sections_dept": "rmes",
+			"maxAvg": 89.25
+		},
+		{
+			"sections_dept": "envr",
+			"maxAvg": 89.17
+		},
+		{
+			"sections_dept": "igen",
+			"maxAvg": 89.06
+		},
+		{
+			"sections_dept": "fren",
+			"maxAvg": 88.5
+		},
+		{
+			"sections_dept": "fre",
+			"maxAvg": 88.47
+		},
+		{
+			"sections_dept": "geob",
+			"maxAvg": 88.17
+		},
+		{
+			"sections_dept": "cens",
+			"maxAvg": 87.87
+		},
+		{
+			"sections_dept": "fnel",
+			"maxAvg": 87.5
+		},
+		{
+			"sections_dept": "nest",
+			"maxAvg": 87.5
+		},
+		{
+			"sections_dept": "ends",
+			"maxAvg": 87.17
+		},
+		{
+			"sections_dept": "baen",
+			"maxAvg": 87.13
+		},
+		{
+			"sections_dept": "cpen",
+			"maxAvg": 86.9
+		},
+		{
+			"sections_dept": "scie",
+			"maxAvg": 86.81
+		},
+		{
+			"sections_dept": "enph",
+			"maxAvg": 85.69
+		},
+		{
+			"sections_dept": "swed",
+			"maxAvg": 84.92
+		},
+		{
+			"sections_dept": "relg",
+			"maxAvg": 84.6
+		},
+		{
+			"sections_dept": "grek",
+			"maxAvg": 84.43
+		},
+		{
+			"sections_dept": "iwme",
+			"maxAvg": 84
+		},
+		{
+			"sections_dept": "hebr",
+			"maxAvg": 83.57
+		},
+		{
+			"sections_dept": "coec",
+			"maxAvg": 82.77
+		},
+		{
+			"sections_dept": "test",
+			"maxAvg": 60
+		}
+	]
+}

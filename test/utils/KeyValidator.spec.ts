@@ -45,36 +45,36 @@ describe("KeyValidator", () => {
 		});
 	});
 
-	describe("validateKey", () => {
+	describe("validateGroupKey", () => {
 		it("should return true for a valid column key input with MField", () => {
-			const result = KV.validateKey("validContent_avg");
+			const result = KV.validateGroupKey("validContent_avg");
 			expect(result).to.equal(true);
 		});
 
 		it("should return true for a valid column key input with SField", () => {
-			const result = KV.validateKey("validContent_dept");
+			const result = KV.validateGroupKey("validContent_dept");
 			expect(result).to.equal(true);
 		});
 
 		it("should return false for an invalid column key input", () => {
-			const result = KV.validateKey("validContent_not");
+			const result = KV.validateGroupKey("validContent_not");
 			expect(result).to.equal(false);
 		});
 
 		it("should return false for input without an underscore", () => {
-			const result = KV.validateKey("invalidContentdept");
+			const result = KV.validateGroupKey("invalidContentdept");
 			expect(result).to.equal(false);
 		});
 
 		it("should return false for input with more than one underscore", () => {
-			const result = KV.validateKey("validContent_dept_extra");
+			const result = KV.validateGroupKey("validContent_dept_extra");
 			expect(result).to.equal(false);
 		});
 	});
 
 	it("should throw for duplicate applyKey", () => {
         // Assuming the `keys` set has a value 'duplicateKey' already
-		KV.keys.add("duplicateKey");
+		KV.transformationKeys.add("duplicateKey");
 		expect(() => KV.validateApplyKey("duplicateKey"))
 			.to.throw(InsightError, "Duplicate APPLY key duplicateKey");
 	});

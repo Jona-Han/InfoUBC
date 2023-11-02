@@ -12,14 +12,14 @@ describe("Dataset", async function () {
 		it("Add an incorrectly formatted object should do nothing", function () {
 			dataset.addSection({});
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
 		it("Add an undefined object should do nothing", function () {
 			dataset.addSection(undefined);
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
@@ -52,7 +52,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -86,7 +86,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -119,7 +119,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -152,7 +152,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -211,7 +211,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -231,7 +231,7 @@ describe("Dataset", async function () {
 			dataset.addSection(section);
 
 			expect(dataset.getSize()).to.equal(0);
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 		});
 
 		it("Add a section with an mkey key of the wrong type", function () {
@@ -250,7 +250,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
@@ -309,10 +309,10 @@ describe("Dataset", async function () {
 				},
 			];
 
-			dataset.addSections(sections, true);
+			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(2);
-			expect(dataset.getSections()).to.have.lengthOf(2).and.deep.members(expected);
+			expect(dataset.getData()).to.have.lengthOf(2).and.deep.members(expected);
 		});
 
 		it("Add a list of invalid sections", function () {
@@ -341,10 +341,10 @@ describe("Dataset", async function () {
 				},
 			];
 
-			dataset.addSections(sections, true);
+			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(0);
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 		});
 
 		it("Add a list mixed with valid and invalid sections", function () {
@@ -424,10 +424,10 @@ describe("Dataset", async function () {
 				},
 			];
 
-			dataset.addSections(sections, true);
+			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(2);
-			expect(dataset.getSections()).to.have.lengthOf(2).and.deep.members(expected);
+			expect(dataset.getData()).to.have.lengthOf(2).and.deep.members(expected);
 		});
 	});
 });

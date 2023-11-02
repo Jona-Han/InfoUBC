@@ -1,0 +1,45 @@
+{
+	"title": "is_fullname",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_fullname": "Allard Hall (LAW)"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_fullname",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_fullname": "Allard Hall (LAW)",
+			"rooms_seats": 94,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-105"
+		},
+		{
+			"rooms_fullname": "Allard Hall (LAW)",
+			"rooms_seats": 20,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-112"
+		},
+		{
+			"rooms_fullname": "Allard Hall (LAW)",
+			"rooms_seats": 20,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-113"
+		},
+		{
+			"rooms_fullname": "Allard Hall (LAW)",
+			"rooms_seats": 50,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-121"
+		},
+		{
+			"rooms_fullname": "Allard Hall (LAW)",
+			"rooms_seats": 44,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/ALRD-B101"
+		}
+	]
+}

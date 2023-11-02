@@ -1,13 +1,13 @@
-import {InsightError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import * as fs from "fs-extra";
 
 export default class KeyValidator {
 	public dataset: string;
-	public keys: Set<string>;
 	public transformationKeys: Set<string>;
+
 
 	constructor() {
 		this.dataset = "";
-		this.keys = new Set();
 		this.transformationKeys = new Set();
 	}
 
@@ -39,21 +39,20 @@ export default class KeyValidator {
 		return true;
 	}
 
-	public checkForMultipleDataset(input: string) {
-		const [contentName, key] = input.split("_");
+	public checkForMultipleDataset(input: string): void {
+		const [contentName,] = input.split("_");
 		if (this.dataset === "") {
 			this.dataset = contentName;
 		} else if (this.dataset !== contentName) {
 			throw new InsightError("Cannot query from multiple datasets");
 		}
-		this.keys.add(key);
 	}
 
-	public validateKey(input: string | undefined): boolean {
+	public validateGroupKey(input: string | undefined): boolean {
 		if (typeof input === "undefined") {
 			return false;
 		}
-		if (!this.validateMKey(input) && !this.validateSKey(input) && !this.transformationKeys.has(input)) {
+		if (!this.validateMKey(input) && !this.validateSKey(input)) {
 			return false;
 		}
 		this.transformationKeys.add(input);
@@ -61,11 +60,13 @@ export default class KeyValidator {
 	}
 
 	public validateColumnKey(columnKey: string) {
-		if (this.transformationKeys.size !== 0 && !this.transformationKeys.has(columnKey)) {
-			throw new InsightError("Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present");
-		}
-
-		if (!this.validateMKey(columnKey) && !this.validateSKey(columnKey) && !this.transformationKeys.has(columnKey)) {
+        // Transformation present. Just check if columnKey is one of the transformation keys and return
+		if (this.transformationKeys.size !== 0) {
+			if (!this.transformationKeys.has(columnKey)) {
+				throw new InsightError("Keys in COLUMNS must be in GROUP or APPLY when TRANSFORMATIONS is present");
+			}
+			return;
+		} else if (!this.validateMKey(columnKey) && !this.validateSKey(columnKey)){ // No transformation, validate key
 			throw new InsightError(`Invalid key: ${columnKey}`);
 		}
 	}
@@ -74,14 +75,13 @@ export default class KeyValidator {
 		if (typeof input === "undefined") {
 			return false;
 		}
-		return (this.validateMKey(input) || this.validateSKey(input) || this.transformationKeys.has(input));
+		return (this.validateMKey(input));
 	}
 
-	public validateOrderKey(input: string) {
-		if (typeof input === "undefined") {
-			return false;
+	public validateOrderKey(key: any, columnKeys: string[]) {
+		if (!columnKeys.includes(key)) {
+			throw new InsightError("All ORDER keys must be in COLUMNS");
 		}
-		return (this.validateMKey(input) || this.validateSKey(input) || this.transformationKeys.has(input));
 	}
 
 	public validateApplyKey(applyKey: string): void {
@@ -90,10 +90,9 @@ export default class KeyValidator {
 			throw new InsightError("Cannot have underscore in applyKey");
 		}
 
-		if (this.keys.has(applyKey)) {
+		if (this.transformationKeys.has(applyKey)) {
 			throw new InsightError(`Duplicate APPLY key ${applyKey}`);
 		}
 		this.transformationKeys.add(applyKey);
-		this.keys.add(applyKey);
 	}
 }

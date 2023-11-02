@@ -1,0 +1,25 @@
+{
+	"title": "is_name",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_name": "BIOL_1503"
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_name",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_name": "BIOL_1503",
+			"rooms_seats": 16,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/BIOL-1503"
+		}
+	]
+}
