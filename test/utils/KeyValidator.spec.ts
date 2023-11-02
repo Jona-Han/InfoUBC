@@ -46,6 +46,11 @@ describe("KeyValidator", () => {
 	});
 
 	describe("validateGroupKey", () => {
+		it("shoudl return false for undefined passed in", () => {
+			const result = KV.validateGroupKey(undefined);
+			expect(result).to.equal(false);
+		});
+
 		it("should return true for a valid column key input with MField", () => {
 			const result = KV.validateGroupKey("validContent_avg");
 			expect(result).to.equal(true);
@@ -77,5 +82,24 @@ describe("KeyValidator", () => {
 		KV.addToTransformationKeys("duplicateKey");
 		expect(() => KV.validateApplyKey("duplicateKey"))
 			.to.throw(InsightError, "Duplicate APPLY key duplicateKey");
+	});
+
+	describe("validateApplyRuleTargetKey", () => {
+		it("should return true for valid mKey", () => {
+            // Assuming "someDataset_avg" is a valid mKey
+			const result = KV.validateApplyRuleTargetKey("someDataset_avg");
+			expect(result).to.be.true;
+		});
+
+		it("should return true for valid sKey", () => {
+            // Assuming "someDataset_dept" is a valid sKey
+			const result = KV.validateApplyRuleTargetKey("someDataset_dept");
+			expect(result).to.be.true;
+		});
+
+		it("should return false for invalid key", () => {
+			const result = KV.validateApplyRuleTargetKey("someDataset_invalidKey");
+			expect(result).to.be.false;
+		});
 	});
 });

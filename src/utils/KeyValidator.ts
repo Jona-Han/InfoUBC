@@ -113,9 +113,6 @@ export default class KeyValidator {
 	 * @return {boolean} True if the key is valid, false otherwise.
 	 */
 	public validateApplyRuleTargetKey(input: string) {
-		if (typeof input === "undefined") {
-			return false;
-		}
 		return this.validateMKey(input) || this.validateSKey(input);
 	}
 

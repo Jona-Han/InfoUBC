@@ -15,7 +15,6 @@ export default class QueryValidator {
 	private KV = new KeyValidator();
 
 	public validateQuery(query: object): string {
-
 		this.validateQueryOutside(query);
 		const vQuery = query as JSONQuery;
 		if ("TRANSFORMATIONS" in vQuery) {
@@ -61,10 +60,6 @@ export default class QueryValidator {
 
 		// Check that key is one of the valid keys
 		const key = keys[0];
-		const validKeys = ["AND", "OR", "LT", "GT", "EQ", "IS", "NOT"];
-		if (!validKeys.includes(key)) {
-			throw new InsightError("Invalid key in WHERE");
-		}
 		if (key === "AND" || key === "OR") {
 			this.validateLogicComparison(where);
 		} else if (key === "IS") {
@@ -73,6 +68,8 @@ export default class QueryValidator {
 			this.validateMComparison(where);
 		} else if (key === "NOT") {
 			this.validateNot(where);
+		} else {
+			throw new InsightError("Invalid key in WHERE");
 		}
 	}
 
