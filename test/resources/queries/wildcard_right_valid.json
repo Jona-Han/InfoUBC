@@ -1,0 +1,97 @@
+{
+	"title": "wildcard_right_valid",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "e*"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"maxAvg"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"maxAvg"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"maxAvg": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "epse",
+			"maxAvg": 98.8
+		},
+		{
+			"sections_dept": "eece",
+			"maxAvg": 98.75
+		},
+		{
+			"sections_dept": "educ",
+			"maxAvg": 97.5
+		},
+		{
+			"sections_dept": "etec",
+			"maxAvg": 96.47
+		},
+		{
+			"sections_dept": "edst",
+			"maxAvg": 96.46
+		},
+		{
+			"sections_dept": "edcp",
+			"maxAvg": 95.58
+		},
+		{
+			"sections_dept": "econ",
+			"maxAvg": 95
+		},
+		{
+			"sections_dept": "elec",
+			"maxAvg": 93.93
+		},
+		{
+			"sections_dept": "eced",
+			"maxAvg": 93.72
+		},
+		{
+			"sections_dept": "eosc",
+			"maxAvg": 93.47
+		},
+		{
+			"sections_dept": "engl",
+			"maxAvg": 89.68
+		},
+		{
+			"sections_dept": "envr",
+			"maxAvg": 89.17
+		},
+		{
+			"sections_dept": "ends",
+			"maxAvg": 87.17
+		},
+		{
+			"sections_dept": "enph",
+			"maxAvg": 85.69
+		}
+	]
+}

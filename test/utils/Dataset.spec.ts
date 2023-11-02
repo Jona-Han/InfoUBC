@@ -12,14 +12,14 @@ describe("Dataset", async function () {
 		it("Add an incorrectly formatted object should do nothing", function () {
 			dataset.addSection({});
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
 		it("Add an undefined object should do nothing", function () {
 			dataset.addSection(undefined);
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
@@ -37,9 +37,22 @@ describe("Dataset", async function () {
 				Subject: "test",
 			};
 
+			let expected = {
+				title: "",
+				uuid: "25945",
+				instructor: "",
+				audit: 0,
+				year: 2013,
+				id: "100",
+				pass: 3,
+				fail: 0,
+				avg: 60,
+				dept: "test",
+			};
+
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([section]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -59,21 +72,21 @@ describe("Dataset", async function () {
 			};
 
 			let expected = {
-				Title: "",
-				id: "25945",
-				Professor: "",
-				Audit: 0,
-				Year: 1900,
-				Course: "100",
-				Pass: 3,
-				Fail: 0,
-				Avg: 60,
-				Subject: "test",
+				title: "",
+				uuid: "25945",
+				instructor: "",
+				audit: 0,
+				year: 1900,
+				id: "100",
+				pass: 3,
+				fail: 0,
+				avg: 60,
+				dept: "test",
 			};
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -92,21 +105,21 @@ describe("Dataset", async function () {
 			};
 
 			let expected = {
-				Title: "",
-				id: "25945",
-				Professor: "",
-				Audit: 0,
-				Year: 1900,
-				Course: "100",
-				Pass: 3,
-				Fail: 0,
-				Avg: 60,
-				Subject: "test",
+				title: "",
+				uuid: "25945",
+				instructor: "",
+				audit: 0,
+				year: 1900,
+				id: "100",
+				pass: 3,
+				fail: 0,
+				avg: 60,
+				dept: "test",
 			};
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -125,21 +138,21 @@ describe("Dataset", async function () {
 			};
 
 			let expected = {
-				Title: "1234",
-				id: "25945",
-				Professor: "123",
-				Audit: 0,
-				Year: 2013,
-				Course: "100",
-				Pass: 3,
-				Fail: 0,
-				Avg: 60,
-				Subject: "1234",
+				title: "1234",
+				uuid: "25945",
+				instructor: "123",
+				audit: 0,
+				year: 2013,
+				id: "100",
+				pass: 3,
+				fail: 0,
+				avg: 60,
+				dept: "1234",
 			};
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -184,21 +197,21 @@ describe("Dataset", async function () {
 			};
 
 			let expected = {
-				Title: "comptr security",
-				id: "81239",
-				Professor: "beznosov, konstantin",
-				Audit: 0,
-				Year: 2015,
-				Course: "442",
-				Pass: 68,
-				Fail: 0,
-				Avg: 81.28,
-				Subject: "cpen",
+				title: "comptr security",
+				uuid: "81239",
+				instructor: "beznosov, konstantin",
+				audit: 0,
+				year: 2015,
+				id: "442",
+				pass: 68,
+				fail: 0,
+				avg: 81.28,
+				dept: "cpen",
 			};
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.have.lengthOf(1).and.have.deep.members([expected]);
+			expect(dataset.getData()).to.have.lengthOf(1).and.have.deep.members([expected]);
 			expect(dataset.getSize()).to.equal(1);
 		});
 
@@ -218,7 +231,7 @@ describe("Dataset", async function () {
 			dataset.addSection(section);
 
 			expect(dataset.getSize()).to.equal(0);
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 		});
 
 		it("Add a section with an mkey key of the wrong type", function () {
@@ -237,7 +250,7 @@ describe("Dataset", async function () {
 
 			dataset.addSection(section);
 
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 			expect(dataset.getSize()).to.equal(0);
 		});
 
@@ -269,10 +282,37 @@ describe("Dataset", async function () {
 				},
 			];
 
+			let expected = [
+				{
+					title: "",
+					uuid: "25945",
+					instructor: "",
+					audit: 0,
+					year: 2013,
+					id: "100",
+					pass: 3,
+					fail: 0,
+					avg: 60,
+					dept: "test",
+				},
+				{
+					title: "yes",
+					uuid: "25",
+					instructor: "asd",
+					audit: 2,
+					year: 2022,
+					id: "101",
+					pass: 3,
+					fail: 0,
+					avg: 60,
+					dept: "else",
+				},
+			];
+
 			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(2);
-			expect(dataset.getSections()).to.have.lengthOf(2).and.deep.members(sections);
+			expect(dataset.getData()).to.have.lengthOf(2).and.deep.members(expected);
 		});
 
 		it("Add a list of invalid sections", function () {
@@ -304,7 +344,7 @@ describe("Dataset", async function () {
 			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(0);
-			expect(dataset.getSections()).to.be.empty;
+			expect(dataset.getData()).to.be.empty;
 		});
 
 		it("Add a list mixed with valid and invalid sections", function () {
@@ -359,35 +399,35 @@ describe("Dataset", async function () {
 
 			let expected = [
 				{
-					Title: "",
-					id: "25945",
-					Professor: "",
-					Audit: 0,
-					Year: 2013,
-					Course: "100",
-					Pass: 3,
-					Fail: 0,
-					Avg: 60,
-					Subject: "test",
+					title: "",
+					uuid: "25945",
+					instructor: "",
+					audit: 0,
+					year: 2013,
+					id: "100",
+					pass: 3,
+					fail: 0,
+					avg: 60,
+					dept: "test",
 				},
 				{
-					Title: "yes",
-					id: "25",
-					Professor: "asd",
-					Audit: 2,
-					Year: 2022,
-					Course: "101",
-					Pass: 3,
-					Fail: 0,
-					Avg: 60,
-					Subject: "else",
+					title: "yes",
+					uuid: "25",
+					instructor: "asd",
+					audit: 2,
+					year: 2022,
+					id: "101",
+					pass: 3,
+					fail: 0,
+					avg: 60,
+					dept: "else",
 				},
 			];
 
 			dataset.addSections(sections);
 
 			expect(dataset.getSize()).to.equal(2);
-			expect(dataset.getSections()).to.have.lengthOf(2).and.deep.members(expected);
+			expect(dataset.getData()).to.have.lengthOf(2).and.deep.members(expected);
 		});
 	});
 });

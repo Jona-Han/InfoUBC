@@ -1,50 +1,53 @@
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
+import {Dataset} from "./Dataset";
 
 export interface Section {
+	uuid: string;
 	id: string;
-	Course: string;
-	Title: string;
-	Professor: string;
-	Subject: string;
-	Year: number;
-	Avg: number;
-	Pass: number;
-	Fail: number;
-	Audit: number;
+	title: string;
+	instructor: string;
+	dept: string;
+	year: number;
+	avg: number;
+	pass: number;
+	fail: number;
+	audit: number;
 }
 
-export default class Sections {
-	private id: string;
-	private size: number;
+export default class Sections extends Dataset {
 	private sections: Section[];
-	private kind: InsightDatasetKind;
 
 	constructor(id: string) {
-		this.id = id;
-		this.size = 0;
+		super(id, InsightDatasetKind.Sections);
 		this.sections = [];
-		this.kind = InsightDatasetKind.Sections;
 	}
 
-	// Getters
-	public getId(): string {
-		return this.id;
-	}
-
-	public getSize(): number {
-		return this.size;
-	}
-
-	public getSections(): Section[] {
+	public getData(): Section[] {
 		return this.sections;
 	}
 
-	public getSectionsAsMap(): Map<string, Section> {
+	public addDataFromJSON(fileData: any[]): void {
+		if (fileData === undefined) {
+			throw new InsightError("No valid sections");
+		}
+		for (let section of fileData) {
+			this.addAlreadyValidSection(section);
+		}
+	}
+
+	public getDataAsMap(): Map<string, any> {
 		const map = new Map<string, Section>();
 		this.sections.forEach((section) => {
-			map.set(section.id, section);
+			map.set(section.uuid, section);
 		});
 		return map;
+	}
+
+	private addAlreadyValidSection(section: any): void {
+		if (section !== undefined) {
+			this.sections.push(section as Section);
+			this.size++;
+		}
 	}
 
 	// Adds section to this.section and increases size by 1
@@ -77,16 +80,16 @@ export default class Sections {
 
 	private newSection(section: any): Section {
 		let newSection: Section = {
-			id: this.keyToString(section, "id"),
-			Course: this.keyToString(section, "Course"),
-			Title: this.keyToString(section, "Title"),
-			Professor: this.keyToString(section, "Professor"),
-			Subject: this.keyToString(section, "Subject"),
-			Year: this.getYear(section),
-			Avg: this.keyToNumber(section, "Avg"),
-			Pass: this.keyToNumber(section, "Pass"),
-			Fail: this.keyToNumber(section, "Fail"),
-			Audit: this.keyToNumber(section, "Audit"),
+			uuid: this.keyToString(section, "id"),
+			id: this.keyToString(section, "Course"),
+			title: this.keyToString(section, "Title"),
+			instructor: this.keyToString(section, "Professor"),
+			dept: this.keyToString(section, "Subject"),
+			year: this.getYear(section),
+			avg: this.keyToNumber(section, "Avg"),
+			pass: this.keyToNumber(section, "Pass"),
+			fail: this.keyToNumber(section, "Fail"),
+			audit: this.keyToNumber(section, "Audit"),
 		};
 		return newSection;
 	}

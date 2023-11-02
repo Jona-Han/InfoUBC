@@ -1,0 +1,434 @@
+{
+	"title": "valid_complex_query",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 80
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"sections_audit"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"sections_audit"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year",
+				"sections_audit"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 1900,
+			"sections_audit": 23
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 21
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 20
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 19
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 19
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 18
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 18
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 17
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 15
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 14
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 13
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 12
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 12
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 11
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 11
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 10
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 10
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 10
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 9
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 8
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 8
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 7
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 7
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 7
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 7
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 7
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 6
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 5
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 4
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 3
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 2
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 1
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 0
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 0
+		}
+	]
+}

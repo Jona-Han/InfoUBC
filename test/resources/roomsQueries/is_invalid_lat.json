@@ -1,0 +1,19 @@
+{
+	"title": "is_invalid_lt",
+	"input": {
+		"WHERE": {
+			"IS": {
+				"rooms_lat": 50
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_number",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

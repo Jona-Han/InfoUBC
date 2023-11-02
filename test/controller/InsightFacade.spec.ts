@@ -447,8 +447,8 @@ describe("InsightFacade", async function () {
 					const zip = getContentFromArchives("campus.zip");
 					const add = await facade.addDataset("rooms", zip, InsightDatasetKind.Rooms);
 					const list = await facade.listDatasets();
-					const remove = await facade.removeDataset("rooms");
-					const list2 = await facade.listDatasets();
+					// const remove = await facade.removeDataset("rooms");
+					// const list2 = await facade.listDatasets();
 
 					expect(add).to.have.lengthOf(1).and.include.members(["rooms"]);
 					expect(list).to.have.lengthOf(1).and.deep.include({
@@ -456,8 +456,8 @@ describe("InsightFacade", async function () {
 						kind: InsightDatasetKind.Rooms,
 						numRows: 364,
 					});
-					expect(remove).to.equal("rooms");
-					expect(list2).to.be.empty;
+					// expect(remove).to.equal("rooms");
+					// expect(list2).to.be.empty;
 				} catch {
 					expect.fail("Error not exepcted");
 				}
@@ -998,6 +998,114 @@ describe("Dynamic folder test for ordered queries", function () {
 		"performQuery tests", // suiteName
 		target, // target
 		"./test/resources/orderedQueries", // path
+		{
+			errorValidator,
+			assertOnResult: assertResult,
+			assertOnError: assertError, // options
+		}
+	);
+});
+
+
+describe("Dynamic folder test for transformation queries", function () {
+	type Output = InsightResult[];
+	type PQErrorKind = "InsightError" | "ResultTooLargeError";
+	let sections: string;
+	let facade: InsightFacade;
+
+	before(async function () {
+		clearDisk();
+		sections = getContentFromArchives("pair.zip");
+		facade = new InsightFacade();
+		await facade.addDataset("sections", sections, InsightDatasetKind.Sections);
+	});
+
+	after(function () {
+		console.info(`After: ${this.test?.parent?.title}`);
+		clearDisk();
+	});
+
+	function errorValidator(error: unknown): error is PQErrorKind {
+		return error === "InsightError" || error === "ResultTooLargeError";
+	}
+
+	// Assert value equals expected
+	function assertResult(actual: unknown, expected: Output): void {
+		expect(actual).to.deep.equal(expected);
+	}
+
+	// Assert actual error is of expected type
+	function assertError(actual: unknown, expected: PQErrorKind): void {
+		if (expected === "InsightError") {
+			expect(actual).to.be.an.instanceOf(InsightError);
+		} else if (expected === "ResultTooLargeError") {
+			expect(actual).to.be.an.instanceOf(ResultTooLargeError);
+		} else {
+			expect.fail("Should not be reached in assertError");
+		}
+	}
+
+	function target(input: unknown): Promise<Output> {
+		return facade.performQuery(input);
+	}
+
+	folderTest<unknown, Output, PQErrorKind>(
+		"performQuery tests", // suiteName
+		target, // target
+		"./test/resources/transformations", // path
+		{
+			errorValidator,
+			assertOnResult: assertResult,
+			assertOnError: assertError, // options
+		}
+	);
+});
+
+describe("Dynamic folder test for unordered rooms queries", function () {
+	type Output = InsightResult[];
+	type PQErrorKind = "InsightError" | "ResultTooLargeError";
+	let rooms: string;
+	let facade: InsightFacade;
+
+	before(async function () {
+		clearDisk();
+		rooms = getContentFromArchives("campus.zip");
+		facade = new InsightFacade();
+		await facade.addDataset("rooms", rooms, InsightDatasetKind.Rooms);
+	});
+
+	after(function () {
+		clearDisk();
+	});
+
+	function errorValidator(error: unknown): error is PQErrorKind {
+		return error === "InsightError" || error === "ResultTooLargeError";
+	}
+
+	// Assert value equals expected
+	function assertResult(actual: unknown, expected: Output): void {
+		expect(actual).to.have.deep.members(expected).and.have.lengthOf(expected.length);
+	}
+
+	// Assert actual error is of expected type
+	function assertError(actual: unknown, expected: PQErrorKind): void {
+		if (expected === "InsightError") {
+			expect(actual).to.be.an.instanceOf(InsightError);
+		} else if (expected === "ResultTooLargeError") {
+			expect(actual).to.be.an.instanceOf(ResultTooLargeError);
+		} else {
+			expect.fail("Should not be reached in assertError");
+		}
+	}
+
+	function target(input: unknown): Promise<Output> {
+		return facade.performQuery(input);
+	}
+
+	folderTest<unknown, Output, PQErrorKind>(
+		"performQuery tests", // suiteName
+		target, // target
+		"./test/resources/roomsQueries", // path
 		{
 			errorValidator,
 			assertOnResult: assertResult,

@@ -1,0 +1,49 @@
+{
+	"title": "wildcard_left_valid",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"IS": {
+						"sections_dept": "*be"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_dept",
+				"maxAvg"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"maxAvg"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_dept"
+			],
+			"APPLY": [
+				{
+					"maxAvg": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_dept": "chbe",
+			"maxAvg": 95.54
+		},
+		{
+			"sections_dept": "libe",
+			"maxAvg": 92.26
+		}
+	]
+}
