@@ -44,6 +44,57 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Excess Keys in Query");
 		});
 
+        it("should throw InsightError for null WHERE", () => {
+			const invalidQuery = {
+				WHERE: null,
+				OPTIONS: {
+					COLUMNS: ["sections_dept"],
+					ORDER: "sections_avg",
+				}
+			};
+
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "WHERE must be object");
+		});
+
+        it("should throw InsightError null OPTIONS", () => {
+			const invalidQuery = {
+				WHERE: {},
+				OPTIONS: null
+			};
+
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "OPTIONS must be object");
+		});
+
+        it("should throw InsightError null TRANSFORMATIONS", () => {
+			const invalidQuery = {
+				WHERE: {},
+				OPTIONS: {},
+                TRANSFORMATIONS: null
+			};
+
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "TRANSFORMATIONS must be object");
+		});
+
+        it("should throw InsightError array TRANSFORMATIONS", () => {
+			const invalidQuery = {
+				WHERE: {},
+				OPTIONS: {},
+                TRANSFORMATIONS: []
+			};
+
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "TRANSFORMATIONS must be object");
+		});
+
+        it("should throw InsightError string TRANSFORMATIONS", () => {
+			const invalidQuery = {
+				WHERE: {},
+				OPTIONS: {},
+                TRANSFORMATIONS: "string"
+			};
+
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "TRANSFORMATIONS must be object");
+		});
+
 		it("should throw InsightError for missing WHERE", () => {
 			const invalidQuery = {
 				OPTIONS: {
@@ -67,7 +118,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Missing OPTIONS");
 		});
 
-		it("should throw InsightError for invalid WHERE type (string)", () => {
+		it("should throw InsightError for WHERE must be object (string)", () => {
 			const invalidQuery = {
 				WHERE: "invalidType",
 				OPTIONS: {
@@ -76,10 +127,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid WHERE type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "WHERE must be object");
 		});
 
-		it("should throw InsightError for invalid WHERE type (array)", () => {
+		it("should throw InsightError for WHERE must be object (array)", () => {
 			const invalidQuery = {
 				WHERE: [],
 				OPTIONS: {
@@ -88,10 +139,10 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid WHERE type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "WHERE must be object");
 		});
 
-		it("should throw InsightError for invalid OPTIONS type (string)", () => {
+		it("should throw InsightError for OPTIONS must be object (string)", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -101,10 +152,10 @@ describe("QueryValidator", () => {
 				OPTIONS: "invalidType",
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid OPTIONS type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "OPTIONS must be object");
 		});
 
-		it("should throw InsightError for invalid OPTIONS type (array)", () => {
+		it("should throw InsightError for OPTIONS must be object (array)", () => {
 			const invalidQuery = {
 				WHERE: {
 					GT: {
@@ -114,7 +165,7 @@ describe("QueryValidator", () => {
 				OPTIONS: [],
 			};
 
-			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "Invalid OPTIONS type");
+			expect(() => QV.validateQueryOutside(invalidQuery)).to.throw(InsightError, "OPTIONS must be object");
 		});
 
 		// Test cases for validateQueryOutside
@@ -639,7 +690,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateWhere(validWhere)).to.not.throw();
 		});
 
-		it("should throw InsightError for invalid WHERE type", () => {
+		it("should throw InsightError for WHERE must be object", () => {
 			const invalidWhere = {
 				INVALID: {
 					sections_avg: 95,
@@ -936,7 +987,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQuery(queryWithoutWhere)).to.throw("Missing WHERE");
 		});
 
-		it("should throw an error for invalid WHERE type", () => {
+		it("should throw an error for WHERE must be object", () => {
 			const queryWithInvalidWhere = {
 				WHERE: "invalid",
 				OPTIONS: {
@@ -945,7 +996,7 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateQuery(queryWithInvalidWhere)).to.throw("Invalid WHERE type");
+			expect(() => QV.validateQuery(queryWithInvalidWhere)).to.throw("WHERE must be object");
 		});
 
 		it("should pass and return dept", () => {

@@ -57,9 +57,7 @@ export class Query implements IQuery {
 		const allEntries = this.data?.getDataAsMap();
 		afterWhere.forEach((uniqueID) => {
 			const entry = allEntries?.get(uniqueID);
-			if (entry) {
-				selectedEntries.push(entry);
-			}
+            selectedEntries.push(entry);
 		});
 
 		const afterTransform = this.handleTransformations(selectedEntries);
@@ -70,7 +68,7 @@ export class Query implements IQuery {
 		const object = fs.readJSONSync(this.directory + "/" + this.datasetName + ".json");
 		if (object.kind === InsightDatasetKind.Sections) {
 			this.data = new Sections(object.id);
-		} else if (object.kind === InsightDatasetKind.Rooms) {
+		} else {
 			this.data = new Rooms(object.id);
 		}
 

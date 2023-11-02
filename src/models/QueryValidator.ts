@@ -46,18 +46,18 @@ export default class QueryValidator {
 		}
 
 		if (
-			("TRANSFORMATIONS" in query && typeof query.TRANSFORMATIONS !== "object") ||
-			Array.isArray(query.TRANSFORMATIONS)
+			("TRANSFORMATIONS" in query && (!query.TRANSFORMATIONS || typeof query.TRANSFORMATIONS !== "object") ||
+			Array.isArray(query.TRANSFORMATIONS))
 		) {
-			throw new InsightError("Transformations not well typed");
+			throw new InsightError("TRANSFORMATIONS must be object");
 		}
 
 		if (!query.WHERE || typeof query.WHERE !== "object" || Array.isArray(query.WHERE)) {
-			throw new InsightError("Invalid WHERE type");
+			throw new InsightError("WHERE must be object");
 		}
 
 		if (!query.OPTIONS || typeof query.OPTIONS !== "object" || Array.isArray(query.OPTIONS)) {
-			throw new InsightError("Invalid OPTIONS type");
+			throw new InsightError("OPTIONS must be object");
 		}
 	}
 

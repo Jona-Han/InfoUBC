@@ -3,7 +3,7 @@ import { InsightDatasetKind, InsightError } from "../../src/controller/IInsightF
 import InsightFacade from "../../src/controller/InsightFacade";
 import { clearDisk, getContentFromArchives } from "../TestUtil";
 
-describe.only("performQuery", function () {
+describe("performQuery", function () {
     let sections: string;
 	let facade: InsightFacade;
 
