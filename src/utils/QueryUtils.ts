@@ -1,6 +1,5 @@
 import Decimal from "decimal.js";
 import {ApplyRule, ApplyToken, Sort} from "../models/IQuery";
-import {Section} from "../models/Sections";
 import {InsightDatasetKind, InsightError} from "../controller/IInsightFacade";
 
 export function validateKeyMatchesKind(key: string | undefined, kind: InsightDatasetKind | undefined) {
@@ -29,8 +28,8 @@ export function validateKeyMatchesKind(key: string | undefined, kind: InsightDat
 	}
 }
 
-export function orderSectionsByString(
-	selectedSections: any[],
+export function orderEntriesByString(
+	entries: any[],
 	orderKey: string,
 	kind: InsightDatasetKind | undefined
 ): void {
@@ -39,7 +38,7 @@ export function orderSectionsByString(
 		orderKey = orderKey.split("_")[1];
 	}
 
-	selectedSections.sort((a, b) => {
+	entries.sort((a, b) => {
 		if (a[orderKey] < b[orderKey]) {
 			return -1;
 		} else if (a[orderKey] > b[orderKey]) {
@@ -49,12 +48,12 @@ export function orderSectionsByString(
 	});
 }
 
-export function orderSectionsBySortObject(
-	selectedSections: any[],
+export function orderEntriesBySortObject(
+	entries: any[],
 	orderObject: Sort,
 	kind: InsightDatasetKind | undefined
 ): void {
-	selectedSections.sort((a, b) => {
+	entries.sort((a, b) => {
 		for (let key of orderObject.keys) {
 			let orderKey = key;
 
@@ -76,7 +75,7 @@ export function orderSectionsBySortObject(
 }
 
 export function applyRules(
-	sections: Section[],
+	sections: any[],
 	result: any,
 	rules: ApplyRule[] | undefined,
 	kind: InsightDatasetKind | undefined
@@ -94,29 +93,29 @@ export function applyRules(
 			switch (applyToken) {
 				case "MAX":
 					result[applyKey] = Math.max(
-						...sections.map((section) => section[field as keyof Section] as number)
+						...sections.map((entry) => entry[field as string] as number)
 					);
 					break;
 				case "MIN":
 					result[applyKey] = Math.min(
-						...sections.map((section) => section[field as keyof Section] as number)
+						...sections.map((entry) => entry[field as string] as number)
 					);
 					break;
 				case "AVG":
-					sections.forEach((section) => {
-						total = total.add(new Decimal(section[field as keyof Section] as number));
+					sections.forEach((entry) => {
+						total = total.add(new Decimal(entry[field as string] as number));
 					});
 					result[applyKey] = Number((total.toNumber() / sections.length).toFixed(2));
 					break;
 				case "SUM":
-					sum = sections.reduce((acc, section) => {
-						return new Decimal(acc).add(new Decimal(section[field as keyof Section] as number)).toNumber();
+					sum = sections.reduce((acc, entry) => {
+						return new Decimal(acc).add(new Decimal(entry[field as string] as number)).toNumber();
 					}, 0);
 					result[applyKey] = Number(sum.toFixed(2));
 					break;
 				case "COUNT":
 					result[applyKey] = new Set(
-						sections.map((section) => section[field as keyof Section] as number)
+						sections.map((entry) => entry[field as string] as number)
 					).size;
 					break;
 			}

@@ -931,7 +931,7 @@ describe("Dynamic folder test for unordered rooms queries", function () {
 	}
 
 	folderTest<unknown, Output, PQErrorKind>(
-		"performQuery tests", // suiteName
+		"performQuery tests for unordered rooms", // suiteName
 		target, // target
 		"./test/resources/roomsQueries", // path
 		{

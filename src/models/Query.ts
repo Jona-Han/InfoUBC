@@ -18,8 +18,8 @@ import QueryValidator from "./QueryValidator";
 import Sections, {Section} from "./Sections";
 import {
 	applyRules,
-	orderSectionsBySortObject,
-	orderSectionsByString,
+	orderEntriesBySortObject,
+	orderEntriesByString,
 	validateKeyMatchesKind,
 } from "../utils/QueryUtils";
 import Rooms, {Room} from "./Rooms";
@@ -105,10 +105,10 @@ export class Query implements IQuery {
 		return input;
 	}
 
-	private handleGrouping(selectedSections: any[]): Map<string, any[]> {
+	private handleGrouping(selectedEntries: any[]): Map<string, any[]> {
 		const groupings = new Map<string, any[]>();
 
-		selectedSections.forEach((entry) => {
+		selectedEntries.forEach((entry) => {
 			const tuple = this.TRANSFORMATIONS?.GROUP.map((key) => {
 				validateKeyMatchesKind(key, this.data?.getKind());
 				return `${key}__${entry[key.split("_")[1]]}`;
@@ -250,22 +250,22 @@ export class Query implements IQuery {
 		return result;
 	}
 
-	private handleOptions(selectedSections: any[]): InsightResult[] {
-		if (selectedSections.length > 5000) {
+	private handleOptions(selectedEntries: any[]): InsightResult[] {
+		if (selectedEntries.length > 5000) {
 			throw new ResultTooLargeError("Greater than 5000 results");
 		}
 
 		// Handle order
 		if (this.OPTIONS.ORDER) {
 			if (typeof this.OPTIONS.ORDER === "string") {
-				orderSectionsByString(selectedSections, this.OPTIONS.ORDER, this.data?.getKind());
+				orderEntriesByString(selectedEntries, this.OPTIONS.ORDER, this.data?.getKind());
 			} else {
-				orderSectionsBySortObject(selectedSections, this.OPTIONS.ORDER, this.data?.getKind());
+				orderEntriesBySortObject(selectedEntries, this.OPTIONS.ORDER, this.data?.getKind());
 			}
 		}
 
 		// Return insightResults
-		const result: InsightResult[] = selectedSections.map((entry) => {
+		const result: InsightResult[] = selectedEntries.map((entry) => {
 			// Only keep the fields listed in this.OPTIONS.COLUMNS
 			const insight: Partial<InsightResult> = {};
 			this.OPTIONS.COLUMNS.forEach((column) => {
