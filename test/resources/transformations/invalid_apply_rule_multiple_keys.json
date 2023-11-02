@@ -1,0 +1,29 @@
+{
+	"title": "invalid_apply_rule_multiple_keys",
+	"input": {
+		"WHERE": {},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"test"
+			]
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					},
+					"tests": {
+						"MAX": "sections_year"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": true,
+	"expected": "InsightError"
+}

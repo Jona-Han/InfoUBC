@@ -1,0 +1,534 @@
+{
+	"title": "valid_complex_query1",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_avg": 80
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"sections_audit",
+				"test"
+			],
+			"ORDER": {
+				"dir": "DOWN",
+				"keys": [
+					"sections_audit"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year",
+				"sections_audit"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 1900,
+			"sections_audit": 23,
+			"test": 88.79
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 21,
+			"test": 90.53
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 20,
+			"test": 87.26
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 19,
+			"test": 85.56
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 19,
+			"test": 87
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 18,
+			"test": 90.53
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 18,
+			"test": 87.14
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 17,
+			"test": 88
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 15,
+			"test": 88.2
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 14,
+			"test": 82.56
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 13,
+			"test": 86.19
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 12,
+			"test": 84.38
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 12,
+			"test": 88.25
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 11,
+			"test": 80.29
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 11,
+			"test": 84.5
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 10,
+			"test": 85.14
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 10,
+			"test": 85.73
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 10,
+			"test": 91.4
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 9,
+			"test": 94.44
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 9,
+			"test": 95
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 9,
+			"test": 91.22
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 9,
+			"test": 95
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 9,
+			"test": 87.4
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 9,
+			"test": 84.5
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 8,
+			"test": 90.8
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 8,
+			"test": 90.8
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 7,
+			"test": 85.78
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 7,
+			"test": 85.6
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 7,
+			"test": 91
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 7,
+			"test": 85.13
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 7,
+			"test": 88.57
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 6,
+			"test": 93.33
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 6,
+			"test": 93.33
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 6,
+			"test": 84.14
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 6,
+			"test": 94
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 6,
+			"test": 89.67
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 6,
+			"test": 84.44
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 5,
+			"test": 94.17
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 5,
+			"test": 94.17
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 5,
+			"test": 80.81
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 5,
+			"test": 81.29
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 5,
+			"test": 88.75
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 5,
+			"test": 86.9
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 5,
+			"test": 86.42
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 5,
+			"test": 86.86
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 4,
+			"test": 86.4
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 4,
+			"test": 91.65
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 4,
+			"test": 91.65
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 4,
+			"test": 91.64
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 4,
+			"test": 87.14
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 4,
+			"test": 87.14
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 4,
+			"test": 86.86
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 4,
+			"test": 89.71
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 4,
+			"test": 95
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 4,
+			"test": 87.4
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 3,
+			"test": 88.47
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 3,
+			"test": 93.7
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 3,
+			"test": 90.07
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 3,
+			"test": 93.7
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 3,
+			"test": 88.25
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 3,
+			"test": 89.5
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 3,
+			"test": 91.8
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 3,
+			"test": 85.38
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 3,
+			"test": 89.09
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 3,
+			"test": 93.22
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 3,
+			"test": 82.88
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 2,
+			"test": 95
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 2,
+			"test": 95
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 2,
+			"test": 94.24
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 2,
+			"test": 91.13
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 2,
+			"test": 94.44
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 2,
+			"test": 89.62
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 2,
+			"test": 87.4
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 2,
+			"test": 89.25
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 2,
+			"test": 92.5
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 2,
+			"test": 92.78
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 2,
+			"test": 93
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 1,
+			"test": 96.1
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 1,
+			"test": 97.25
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 1,
+			"test": 96.27
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 1,
+			"test": 94.5
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 1,
+			"test": 93.69
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 1,
+			"test": 94.69
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 1,
+			"test": 94.72
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 1,
+			"test": 93
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 1,
+			"test": 95.09
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 1,
+			"test": 92.88
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 1,
+			"test": 97.25
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 0,
+			"test": 98.98
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 0,
+			"test": 99.78
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 0,
+			"test": 96.94
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 0,
+			"test": 98.58
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 0,
+			"test": 98.5
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 0,
+			"test": 98.8
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 0,
+			"test": 99.78
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 0,
+			"test": 98.71
+		},
+		{
+			"sections_year": 2007,
+			"sections_audit": 0,
+			"test": 97.67
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 0,
+			"test": 99.19
+		},
+		{
+			"sections_year": 2016,
+			"sections_audit": 0,
+			"test": 96.73
+		}
+	]
+}

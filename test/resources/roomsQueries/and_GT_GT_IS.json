@@ -1,0 +1,39 @@
+{
+	"title": "and_GT_GT_IS",
+	"input": {
+		"WHERE": {
+			"AND": [
+				{
+					"GT": {
+						"rooms_seats": 50
+					}
+				},
+				{
+					"GT": {
+						"rooms_seats": 100
+					}
+				},
+				{
+					"IS": {
+						"rooms_number": "120"
+					}
+				}
+			]
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"rooms_number",
+				"rooms_seats",
+				"rooms_href"
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"rooms_number": "120",
+			"rooms_seats": 144,
+			"rooms_href": "http://students.ubc.ca/campus/discover/buildings-and-classrooms/room/AERL-120"
+		}
+	]
+}

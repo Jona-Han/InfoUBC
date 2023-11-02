@@ -1,7 +1,7 @@
 import {Negation} from "../../src/models/IQuery";
 
 import {expect} from "chai";
-import QueryValidator from "../../src/utils/QueryValidator";
+import QueryValidator from "../../src/models/QueryValidator";
 import {InsightError} from "../../src/controller/IInsightFacade";
 
 describe("QueryValidator", () => {
@@ -197,6 +197,16 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "COLUMNS must be non-empty array");
 		});
 
+		it("should throw InsightError for non-string in columns", () => {
+			const invalidOptions = {
+				COLUMNS: ["ubc_lat", {}],
+				ORDER: "col1",
+			};
+
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError,
+				"All elements in COLUMNS must be strings");
+		});
+
 		it("should throw InsightError for invalid keys", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
@@ -214,17 +224,18 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateOptions(invalidOptions)).to.throw(
 				InsightError,
-				"Invalid Order type. Must be string."
+				"Invalid Order type. Must be string or object."
 			);
 		});
 
-		it("should throw InsightError for invalid ORDER type", () => {
+		it("should throw InsightError for invalid ORDER key", () => {
 			const invalidOptions = {
 				COLUMNS: ["sections_dept", "sections_avg"],
 				ORDER: "sections",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError,
+				"All ORDER keys must be in COLUMNS");
 		});
 
 		it("should throw InsightError for columns contains invalid key", () => {
@@ -233,7 +244,7 @@ describe("QueryValidator", () => {
 				ORDER: "sections_dept",
 			};
 
-			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateOptions(invalidOptions)).to.throw(InsightError, "Invalid key: sections");
 		});
 	});
 
@@ -246,6 +257,19 @@ describe("QueryValidator", () => {
 			};
 
 			expect(() => QV.validateMComparison(validMComparison)).to.not.throw();
+		});
+
+		it("should throw InsightError for invalid mComparator", () => {
+			const invalidMComparison = {
+				WRONG: {
+					course_dept: 28,
+				},
+			};
+
+			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
+				InsightError,
+				"Invalid key: course_dept"
+			);
 		});
 
 		it("should throw InsightError for invalid MComparison type", () => {
@@ -277,7 +301,7 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(InsightError, "Invalid key: coursedept");
 		});
 
 		it("should throw InsightError for invalid mKey", () => {
@@ -289,7 +313,7 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateMComparison(invalidMComparison)).to.throw(
 				InsightError,
-				"Invalid type for MComparison. dept is not a valid type"
+				"Invalid key: course_dept"
 			);
 		});
 
@@ -398,7 +422,7 @@ describe("QueryValidator", () => {
 				},
 			};
 
-			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(InsightError, "Invalid query key");
+			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(InsightError, "Invalid key: coursedept");
 		});
 
 		it("should throw InsightError for invalid sKey", () => {
@@ -410,7 +434,7 @@ describe("QueryValidator", () => {
 
 			expect(() => QV.validateSComparison(invalidSComparison)).to.throw(
 				InsightError,
-				"Invalid type for SComparison. avg is not a valid type"
+				"Invalid key: course_avg"
 			);
 		});
 
@@ -672,88 +696,126 @@ describe("QueryValidator", () => {
 		});
 	});
 
-	describe("validateMKey", () => {
-		it("should not throw for a valid MField input", () => {
-			expect(() => QV.validateMKey("validContent_avg")).to.not.throw();
+	describe("validateTransformations", () => {
+		it("should not throw for valid transformations", () => {
+			const transformations = {
+				GROUP: ["rooms_lat", "rooms_lon"],
+				APPLY: [{
+					maxSeats: {
+						MAX: "rooms_seats"
+					}
+				}]
+			};
+
+			expect(() => QV.validateTransformations(transformations)).to.not.throw();
+		});
+		it("should throw if GROUP is not in transformations", () => {
+			const transformations = {
+				APPLY: []
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "TRANSFORMATIONS missing GROUP");
 		});
 
-		it("should throw InsightError for an invalid MField input", () => {
-			expect(() => QV.validateMKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid type for MComparison. not is not a valid type"
-			);
+		it("should throw if APPLY is not in transformations", () => {
+			const transformations = {
+				GROUP: []
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "TRANSFORMATIONS missing APPLY");
 		});
 
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateMKey("invalidContentavg")).to.throw(
-				InsightError,
-				"Invalid query key for MComparison"
-			);
+		it("should throw if GROUP is not an array", () => {
+			const transformations = {
+				GROUP: {},
+				APPLY: []
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "GROUP must be a non-empty array");
 		});
 
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateMKey("validContent_avg_extra")).to.throw(
-				InsightError,
-				"Invalid query key for MComparison"
-			);
+		it("should throw if APPLY is not an array", () => {
+			const transformations = {
+				GROUP: [],
+				APPLY: {}
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "APPLY must be a non-empty array");
+		});
+
+		it("should throw if not all elements in GROUP are strings", () => {
+			const transformations = {
+				GROUP: ["validKey1", {}, "validKey3"],
+				APPLY: []
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "All elements in GROUP must be strings");
+		});
+
+		it("should throw if an invalid key is present in GROUP", () => {
+            // Assuming validateKey returns false for 'invalidKey'
+			const transformations = {
+				GROUP: ["rooms_lat", "invalidKey"],
+				APPLY: []
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError, "Invalid key in GROUP: invalidKey");
+		});
+
+		it("should throw if an apply rule in APPLY is invalid", () => {
+            // Assuming validateApplyRule would throw an error for the given rule
+			const transformations = {
+				GROUP: ["validKey"],
+				APPLY: [{invalidRule: {}}]
+			};
+			expect(() => QV.validateTransformations(transformations))
+				.to.throw(InsightError);
 		});
 	});
 
-	describe("validateSKey", () => {
-		it("should not throw for a valid SField input", () => {
-			expect(() => QV.validateSKey("validContent_dept")).to.not.throw();
+	describe("validateApplyRule", () => {
+		it("should not throw for valid ApplyRule", () => {
+			expect(() => QV.validateApplyRule({maxSeats: {MAX: "rooms_seats"}})).to.not.throw(InsightError);
 		});
 
-		it("should throw InsightError for an invalid SField input", () => {
-			expect(() => QV.validateSKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid type for SComparison. not is not a valid type"
-			);
+		it("should throw if rule has more than one key", () => {
+			expect(() => QV.validateApplyRule({key1: {}, key2: {}}))
+				.to.throw(InsightError, "Apply rule should only have 1 key, has 2");
 		});
 
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateSKey("invalidContentdept")).to.throw(
-				InsightError,
-				"Invalid query key for SComparison"
-			);
+		it("should throw if applyKey has underscore", () => {
+			expect(() => QV.validateApplyRule({key_with_underscore: {}}))
+				.to.throw(InsightError, "Cannot have underscore in applyKey");
 		});
 
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateSKey("validContent_dept_extra")).to.throw(
-				InsightError,
-				"Invalid query key for SComparison"
-			);
+
+		it("should throw if applyValue is not an object", () => {
+			expect(() => QV.validateApplyRule({validKey: "invalidValue"}))
+				.to.throw(InsightError, "Apply body must be object");
+		});
+
+		it("should throw if applyValue has more than one key", () => {
+			expect(() => QV.validateApplyRule({validKey: {key1: "val1", key2: "val2"}}))
+				.to.throw(InsightError, "Apply body should only have 1 key, has 2");
+		});
+
+		it("should throw for invalid transformation operator", () => {
+			expect(() => QV.validateApplyRule({validKey: {INVALID: "targetKey"}}))
+				.to.throw(InsightError, "Invalid transformation operator");
+		});
+
+		it("should throw if applyValue[token] is not a string", () => {
+			expect(() => QV.validateApplyRule({validKey: {MAX: {invalid: "value"}}}))
+				.to.throw(InsightError, "Invalid apply rule target key");
+		});
+
+		it("should throw for invalid key in applyValue[token]", () => {
+            // Assuming `validateKey` returns false for 'invalidKey'
+			expect(() => QV.validateApplyRule({validKey: {MAX: "invalidKey"}}))
+				.to.throw(InsightError, "Invalid key: invalidKey");
 		});
 	});
 
-	describe("validateKey", () => {
-		it("should not throw for a valid column key input", () => {
-			expect(() => QV.validateKey("validContent_dept")).to.not.throw();
-		});
-
-		it("should throw InsightError for an invalid column key input", () => {
-			expect(() => QV.validateKey("validContent_not")).to.throw(
-				InsightError,
-				"Invalid key type. not is not a valid type"
-			);
-		});
-
-		it("should throw InsightError for input without an underscore", () => {
-			expect(() => QV.validateKey("invalidContentdept")).to.throw(InsightError, "Invalid query key");
-		});
-
-		it("should throw InsightError for input with more than one underscore", () => {
-			expect(() => QV.validateKey("validContent_dept_extra")).to.throw(InsightError, "Invalid query key");
-		});
-
-		it("should not throw for a valid column key input with MField", () => {
-			expect(() => QV.validateKey("validContent_avg")).to.not.throw();
-		});
-
-		it("should not throw for a valid column key input with SField", () => {
-			expect(() => QV.validateKey("validContent_dept")).to.not.throw();
-		});
-	});
 
 	describe("Query Validation Integration Tests", () => {
 		it("should validate a valid query", () => {
@@ -806,7 +868,7 @@ describe("QueryValidator", () => {
 			expect(() => QV.validateQuery(validQuery)).to.throw("Cannot query from multiple datasets");
 		});
 
-		it("should fail due to querying from multiple dataset (1)", () => {
+		it("should fail due to querying from multiple dataset (2)", () => {
 			const validQuery = {
 				WHERE: {
 					AND: [
@@ -825,31 +887,6 @@ describe("QueryValidator", () => {
 				OPTIONS: {
 					COLUMNS: ["dept_id", "ubc_title"],
 					ORDER: "dept_id",
-				},
-			};
-
-			expect(() => QV.validateQuery(validQuery)).to.throw("Cannot query from multiple datasets");
-		});
-
-		it("should fail due to querying from multiple dataset (1)", () => {
-			const validQuery = {
-				WHERE: {
-					AND: [
-						{
-							GT: {
-								dept_avg: 90,
-							},
-						},
-						{
-							EQ: {
-								dept_avg: 20,
-							},
-						},
-					],
-				},
-				OPTIONS: {
-					COLUMNS: ["dept_id", "dept_title"],
-					ORDER: "ubc_id",
 				},
 			};
 
@@ -895,4 +932,52 @@ describe("QueryValidator", () => {
 			expect(result).to.equal("dept");
 		});
 	});
+
+	describe("validateOrder", function() {
+
+		const validKeys = ["ubc_lat", "validKey2"];
+
+		it("should not throw an error for a valid string order", () => {
+			expect(() => QV.validateOrder("ubc_lat", validKeys)).to.not.throw();
+		});
+
+		it("should throw an error for an invalid string order", () => {
+			expect(() => QV.validateOrder("invalidKey", validKeys)).to.throw("All ORDER keys must be in COLUMNS");
+		});
+
+		it("should not throw an error for a valid object order", () => {
+			const validOrder = {dir: "DOWN", keys: ["ubc_lat"]};
+			expect(() => QV.validateOrder(validOrder, validKeys)).to.not.throw();
+		});
+
+		it("should throw an error for missing dir in order object", () => {
+			const invalidOrder = {keys: ["validKey1"]};
+			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("Invalid Order structure");
+		});
+
+		it("should throw an error for invalid dir value in order object", () => {
+			const invalidOrder = {dir: "LEFT", keys: ["validKey1"]};
+			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("Invalid ORDER direction.");
+		});
+
+		it("should throw an error for missing keys in order object", () => {
+			const invalidOrder = {dir: "UP"};
+			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("Invalid Order structure");
+		});
+
+		it("should throw an error for invalid keys type in order object", () => {
+			const invalidOrder = {dir: "UP", keys: "validKey1"};
+			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("ORDER keys must be a non-empty array");
+		});
+
+		it("should throw an error for a key in keys array that's not in columnKeys", () => {
+			const invalidOrder = {dir: "UP", keys: ["anotherInvalidKey"]};
+			expect(() => QV.validateOrder(invalidOrder, validKeys)).to.throw("All ORDER keys must be in COLUMNS");
+		});
+
+		it("should throw an error for an invalid order type", () => {
+			expect(() => QV.validateOrder(12345, validKeys)).to.throw("Invalid Order type. Must be string or object.");
+		});
+	});
+
 });
