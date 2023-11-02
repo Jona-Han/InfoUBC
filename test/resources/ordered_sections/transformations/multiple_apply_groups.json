@@ -1,0 +1,154 @@
+{
+	"title": "multiple_apply_groups",
+	"input": {
+		"WHERE": {
+			"GT": {
+				"sections_pass": 700
+			}
+		},
+		"OPTIONS": {
+			"COLUMNS": [
+				"sections_year",
+				"sections_audit",
+				"test",
+				"tests"
+			],
+			"ORDER": {
+				"dir": "UP",
+				"keys": [
+					"test",
+					"sections_year"
+				]
+			}
+		},
+		"TRANSFORMATIONS": {
+			"GROUP": [
+				"sections_year",
+				"sections_audit"
+			],
+			"APPLY": [
+				{
+					"test": {
+						"MAX": "sections_avg"
+					}
+				},
+				{
+					"tests": {
+						"AVG": "sections_pass"
+					}
+				}
+			]
+		}
+	},
+	"errorExpected": false,
+	"expected": [
+		{
+			"sections_year": 2007,
+			"sections_audit": 0,
+			"test": 64.98,
+			"tests": 915
+		},
+		{
+			"sections_year": 2008,
+			"sections_audit": 1,
+			"test": 68.58,
+			"tests": 999
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 7,
+			"test": 69.54,
+			"tests": 1147
+		},
+		{
+			"sections_year": 2011,
+			"sections_audit": 3,
+			"test": 70,
+			"tests": 1087
+		},
+		{
+			"sections_year": 2009,
+			"sections_audit": 1,
+			"test": 70.48,
+			"tests": 1026
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 6,
+			"test": 71.78,
+			"tests": 1476.5
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 2,
+			"test": 71.78,
+			"tests": 1126
+		},
+		{
+			"sections_year": 2012,
+			"sections_audit": 0,
+			"test": 72.84,
+			"tests": 999.5
+		},
+		{
+			"sections_year": 2013,
+			"sections_audit": 0,
+			"test": 72.85,
+			"tests": 1018
+		},
+		{
+			"sections_year": 2010,
+			"sections_audit": 0,
+			"test": 73.45,
+			"tests": 1158
+		},
+		{
+			"sections_year": 2014,
+			"sections_audit": 0,
+			"test": 73.66,
+			"tests": 797
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 1,
+			"test": 73.7,
+			"tests": 1174
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 3,
+			"test": 76.61,
+			"tests": 1023
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 4,
+			"test": 76.95,
+			"tests": 723.33
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 2,
+			"test": 79.67,
+			"tests": 1284.2
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 1,
+			"test": 81.27,
+			"tests": 1315.61
+		},
+		{
+			"sections_year": 2015,
+			"sections_audit": 0,
+			"test": 81.42,
+			"tests": 833
+		},
+		{
+			"sections_year": 1900,
+			"sections_audit": 0,
+			"test": 82.13,
+			"tests": 1147.18
+		}
+	]
+}
