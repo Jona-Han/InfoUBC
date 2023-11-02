@@ -4,6 +4,9 @@
 **/.idea/tasks.xml
 **/.idea/checkstyle-idea.xml
 **/.idea/shelf/
+**/.vscode/
+**/.nyc_output
+
 
 # Node
 node_modules/
