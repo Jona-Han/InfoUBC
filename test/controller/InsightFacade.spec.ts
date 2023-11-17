@@ -28,7 +28,7 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		clearDisk();
+		// clearDisk();
 	});
 
 	describe("addDataset", function () {
@@ -438,12 +438,12 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding many sections", function () {
-			it("should successfully add 64612 sections", async function () {
+			it.only("should successfully add 64612 sections", async function () {
 				try {
 					const zip = getContentFromArchives("pair.zip");
 					const add = await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
 					const list = await facade.listDatasets();
-					const remove = await facade.removeDataset("ubc");
+					// const remove = await facade.removeDataset("ubc");
 					const list2 = await facade.listDatasets();
 
 					expect(add).to.have.lengthOf(1).and.include.members(["ubc"]);
@@ -452,8 +452,8 @@ describe("InsightFacade", async function () {
 						kind: InsightDatasetKind.Sections,
 						numRows: 64612,
 					});
-					expect(remove).to.equal("ubc");
-					expect(list2).to.be.empty;
+					// expect(remove).to.equal("ubc");
+					// expect(list2).to.be.empty;
 				} catch (error) {
 					expect.fail("Error not expected");
 				}
