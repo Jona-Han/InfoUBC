@@ -86,10 +86,10 @@ export default class Server {
 		this.express.get("/echo/:msg", Server.echo);
 
 		// TODO: your other endpoints should go here
+		this.express.put("/dataset/:id/:kind", RouteHandlers.putNewDataset);
 		this.express.get("/datasets", RouteHandlers.getAllDatasetsHandler);
 		this.express.delete("/dataset/:id", RouteHandlers.deleteDatasetHandler);
 		this.express.post("/query", RouteHandlers.postQueryHandler);
-
 	}
 
 	// The next two methods handle the echo service.
