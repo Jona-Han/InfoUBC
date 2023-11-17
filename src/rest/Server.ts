@@ -86,7 +86,8 @@ export default class Server {
 		this.express.get("/echo/:msg", Server.echo);
 
 		// TODO: your other endpoints should go here
-        this.express.get("/datasets", RouteHandlers.getAllDatasets)
+        this.express.get("/datasets", RouteHandlers.getAllDatasets);
+        this.express.delete("/dataset/:id", RouteHandlers.deleteDataset);
 
 	}
 
