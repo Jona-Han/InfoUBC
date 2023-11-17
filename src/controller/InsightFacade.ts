@@ -50,8 +50,12 @@ export default class InsightFacade implements IInsightFacade {
 
 		if (kind === InsightDatasetKind.Sections) {
 			return this.addSectionDataset(id, content);
+		} else if (kind === InsightDatasetKind.Rooms) {
+			return this.addRoomsDataset(id, content);
+		} else {
+			return Promise.reject(new InsightError("Invalid dataset kind: must be sections or rooms"));
 		}
-		return this.addRoomsDataset(id, content);
+
 	}
 
 	// 1. Check valid id
