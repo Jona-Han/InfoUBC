@@ -816,7 +816,7 @@ describe("QueryValidator", () => {
 			};
 			expect(() => QV.validateTransformations(transformations)).to.throw(
 				InsightError,
-				"APPLY must be a non-empty array"
+				"APPLY must be an array"
 			);
 		});
 

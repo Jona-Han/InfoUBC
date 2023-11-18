@@ -151,7 +151,7 @@ export default class QueryValidator {
 			throw new InsightError("GROUP must be a non-empty array");
 		}
 		if (!Array.isArray(transformations.APPLY)) {
-			throw new InsightError("APPLY must be a non-empty array");
+			throw new InsightError("APPLY must be an array");
 		}
 		if (!transformations.GROUP.every((key: any) => typeof key === "string")) {
 			throw new InsightError("All elements in GROUP must be strings");

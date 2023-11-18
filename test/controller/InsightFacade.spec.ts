@@ -28,7 +28,7 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		// clearDisk();
+		clearDisk();
 	});
 
 	describe("addDataset", function () {
@@ -438,7 +438,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding many sections", function () {
-			it.only("should successfully add 64612 sections", async function () {
+			it("should successfully add 64612 sections", async function () {
 				try {
 					const zip = getContentFromArchives("pair.zip");
 					const add = await facade.addDataset("ubc", zip, InsightDatasetKind.Sections);
