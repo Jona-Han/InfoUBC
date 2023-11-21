@@ -1,7 +1,8 @@
-import express, {Application, Request, Response} from "express";
+import express, {Application, NextFunction, Request, Response} from "express";
 import * as http from "http";
 import cors from "cors";
 import RouteHandlers from "./RouteHandlers";
+import {InsightError, NotFoundError, ResultTooLargeError} from "../controller/IInsightFacade";
 
 export default class Server {
 	private readonly port: number;
@@ -15,6 +16,7 @@ export default class Server {
 
 		this.registerMiddleware();
 		this.registerRoutes();
+		this.express.use(Server.errorHandler);
 
 		// NOTE: you can serve static frontend files in from your express server
 		// by uncommenting the line below. This makes files in ./frontend/public
@@ -104,6 +106,18 @@ export default class Server {
 			res.status(400).json({error: err});
 		}
 	}
+
+	private static errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+		if (err instanceof SyntaxError && "body" in err) {
+			res.status(400).json({err: err.message});
+		} else if (err instanceof InsightError || err instanceof ResultTooLargeError) {
+			res.status(400).json({err: err.message});
+		} else if (err instanceof NotFoundError) {
+			res.status(404).json({err: err.message});
+		} else {
+			next(err);
+		}
+	};
 
 	private static performEcho(msg: string): string {
 		if (typeof msg !== "undefined" && msg !== null) {
