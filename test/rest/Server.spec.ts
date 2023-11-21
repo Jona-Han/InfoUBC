@@ -96,7 +96,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - multiple adds in series", async function () {
+		it.only("PUT - multiple adds in series", async function () {
 			try {
 				let data = await fs.readFile("test/resources/archives/pair.zip");
 
@@ -104,13 +104,13 @@ describe("Facade D3", function () {
 					.put("/dataset/ubc/sections")
 					.send(data)
 					.set("Content-Type", "application/x-zip-compressed");
-                
-                data = await fs.readFile("test/resources/archives/campus.zip");
 
-                const res = await request(SERVER_URL)
-                .put("/dataset/second/rooms")
-                .send(data)
-                .set("Content-Type", "application/x-zip-compressed");
+				data = await fs.readFile("test/resources/archives/campus.zip");
+
+				const res = await request(SERVER_URL)
+					.put("/dataset/second/rooms")
+					.send(data)
+					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(200);
 				expect(res.body).to.have.property("result");
@@ -120,7 +120,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - adding an sections formatted zip as rooms kind", async function () {
+		it.only("PUT - adding an sections formatted zip as rooms kind", async function () {
 			try {
 				const data = await fs.readFile("test/resources/archives/pair.zip");
 
@@ -136,7 +136,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - adding an rooms formatted zip as sections kind", async function () {
+		it.only("PUT - adding an rooms formatted zip as sections kind", async function () {
 			try {
 				const data = await fs.readFile("test/resources/archives/1ValidBuilding.zip");
 
@@ -152,7 +152,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - invalid zip", async function () {
+		it.only("PUT - invalid zip", async function () {
 			try {
 				const data = await fs.readFile("test/resources/archives/noValidSections.zip");
 
@@ -168,7 +168,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - txt file not zip", async function () {
+		it.only("PUT - txt file not zip", async function () {
 			try {
 				const data = await fs.readFile("test/resources/archives/notAZip.txt");
 
@@ -184,7 +184,7 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it.only("PUT - already base 64", async function () {
+		it.only("PUT - already base 64", async function () {
 			try {
 				const data = (await fs.readFile("test/resources/archives/only1section.zip")).toString("base64");
 
@@ -202,17 +202,17 @@ describe("Facade D3", function () {
 	});
 
 
-    describe("GET", function () {
-        it("should return an empty list of datasets", async function() {
-            const res = await request(server)
-                .get('/datasets');
-    
-            expect(res.status).to.equal(200);
-            expect(res.body).to.have.property('result');
-            expect(res.body.result).to.be.an('array');
-            expect(res.body.result).to.equal([]);
-        });
-    })
+	describe("GET", function () {
+		it("should return an empty list of datasets", async function() {
+			const res = await request(server)
+				.get("/datasets");
+
+			expect(res.status).to.equal(200);
+			expect(res.body).to.have.property("result");
+			expect(res.body.result).to.be.an("array");
+			expect(res.body.result).to.equal([]);
+		});
+	});
 
 
 	// The other endpoints work similarly. You should be able to find all instructions at the supertest documentation

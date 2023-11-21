@@ -12,11 +12,11 @@ export default class RouteHandlers {
 			const results = await fc.addDataset(id, base64Data, kind as InsightDatasetKind);
 			res.status(200).json({result: results});
 		} catch (err: any) {
-            if (err instanceof InsightError) {
-                res.status(400).json({err: err.message});
-            } else {
-                res.status(500).json({err: err.message});
-            }
+			if (err instanceof InsightError) {
+				res.status(400).json({err: err.message});
+			} else {
+				res.status(500).json({err: err.message});
+			}
 		}
 	}
 
@@ -37,12 +37,12 @@ export default class RouteHandlers {
 			res.status(200).json({result: results});
 		} catch (err: any) {
 			if (err instanceof NotFoundError) {
-                res.status(404).json({err: err.message});
-            } else if (err instanceof InsightError) {
-                res.status(400).json({err: err.message});
-            } else {
-                res.status(500).json({err: err.message});
-            }
+				res.status(404).json({err: err.message});
+			} else if (err instanceof InsightError) {
+				res.status(400).json({err: err.message});
+			} else {
+				res.status(500).json({err: err.message});
+			}
 		}
 	}
 
@@ -52,11 +52,11 @@ export default class RouteHandlers {
 			const results = await fc.performQuery(req.body);
 			res.status(200).json({result: results});
 		} catch (err: any) {
-            if (err instanceof InsightError) {
-                res.status(400).json({err: err.message});
-            } else {
-                res.status(500).json({err: err.message});
-            }
+			if (err instanceof InsightError) {
+				res.status(400).json({err: err.message});
+			} else {
+				res.status(500).json({err: err.message});
+			}
 		}
 	}
 }
