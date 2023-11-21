@@ -152,7 +152,68 @@ describe("Facade D3", function () {
 				expect.fail();
 			}
 		});
+
+        it.only("PUT - invalid zip", async function () {
+			try {
+				const data = await fs.readFile("test/resources/archives/noValidSections.zip");
+
+				const res = await request(SERVER_URL)
+					.put("/dataset/ubc/sections")
+					.send(data)
+					.set("Content-Type", "application/x-zip-compressed");
+
+				expect(res.status).to.equal(400);
+				expect(res.body).to.have.property("err");
+			} catch (err) {
+				expect.fail();
+			}
+		});
+
+        it.only("PUT - txt file not zip", async function () {
+			try {
+				const data = await fs.readFile("test/resources/archives/notAZip.txt");
+
+				const res = await request(SERVER_URL)
+					.put("/dataset/ubc/sections")
+					.send(data)
+					.set("Content-Type", "application/x-zip-compressed");
+
+				expect(res.status).to.equal(400);
+				expect(res.body).to.have.property("err");
+			} catch (err) {
+				expect.fail();
+			}
+		});
+
+        it.only("PUT - already base 64", async function () {
+			try {
+				const data = (await fs.readFile("test/resources/archives/only1section.zip")).toString("base64");
+
+				const res = await request(SERVER_URL)
+					.put("/dataset/ubc/sections")
+					.send(data)
+					.set("Content-Type", "application/x-zip-compressed");
+
+				expect(res.status).to.equal(400);
+				expect(res.body).to.have.property("err");
+			} catch (err) {
+				expect.fail();
+			}
+		});
 	});
+
+
+    describe("GET", function () {
+        it("should return an empty list of datasets", async function() {
+            const res = await request(server)
+                .get('/datasets');
+    
+            expect(res.status).to.equal(200);
+            expect(res.body).to.have.property('result');
+            expect(res.body.result).to.be.an('array');
+            expect(res.body.result).to.equal([]);
+        });
+    })
 
 
 	// The other endpoints work similarly. You should be able to find all instructions at the supertest documentation
