@@ -5,7 +5,6 @@ import {expect} from "chai";
 import request, {Response} from "supertest";
 import fs from "fs-extra";
 import {clearDisk} from "../TestUtil";
-import {InsightError} from "../../src/controller/IInsightFacade";
 
 describe("Facade D3", function () {
 
