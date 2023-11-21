@@ -6,7 +6,7 @@ import request from "supertest";
 import fs from "fs-extra";
 import {clearDisk} from "../TestUtil";
 
-describe("Facade D3", function () {
+describe.only("Facade D3", function () {
 	let facade: InsightFacade;
 	let server: Server;
 
@@ -31,6 +31,7 @@ describe("Facade D3", function () {
 	after(async function () {
 		// TODO: stop server here once!
 		try {
+			clearDisk();
 			await server.stop();
 			console.log("Server::Server stopped successfully");
 		} catch (err) {
@@ -52,7 +53,7 @@ describe("Facade D3", function () {
 			try {
 				const res = await request(SERVER_URL)
 					.put("/dataset/ubc/rooms")
-					.send(roomsData)
+					.send(smallRoomsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(200);
@@ -81,12 +82,12 @@ describe("Facade D3", function () {
 			try {
 				await request(SERVER_URL)
 					.put("/dataset/ubc/sections")
-					.send(sectionsData)
+					.send(smallSectionsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				const res = await request(SERVER_URL)
 					.put("/dataset/second/rooms")
-					.send(roomsData)
+					.send(smallRoomsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(200);
@@ -101,7 +102,7 @@ describe("Facade D3", function () {
 			try {
 				const res = await request(SERVER_URL)
 					.put("/dataset/ubc/rooms")
-					.send(sectionsData)
+					.send(smallSectionsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
@@ -115,7 +116,7 @@ describe("Facade D3", function () {
 			try {
 				const res = await request(SERVER_URL)
 					.put("/dataset/ubc_j/sections")
-					.send(roomsData)
+					.send(smallSectionsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
@@ -129,7 +130,7 @@ describe("Facade D3", function () {
 			try {
 				const res = await request(SERVER_URL)
 					.put("/dataset/ubc/sections")
-					.send(roomsData)
+					.send(smallRoomsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
@@ -171,7 +172,7 @@ describe("Facade D3", function () {
 			try {
 				const res = await request(SERVER_URL)
 					.put("/dataset/ubc/sections")
-					.send(sectionsData.toString("base64"))
+					.send(smallSectionsData.toString("base64"))
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
@@ -271,7 +272,7 @@ describe("Facade D3", function () {
 			try {
 				await request(SERVER_URL)
 					.put("/dataset/ubc/sections")
-					.send(sectionsData)
+					.send(smallSectionsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				const res = await request(SERVER_URL).delete("/dataset/ubc");
@@ -288,7 +289,7 @@ describe("Facade D3", function () {
 			try {
 				await request(SERVER_URL)
 					.put("/dataset/ubc/rooms")
-					.send(roomsData)
+					.send(smallRoomsData)
 					.set("Content-Type", "application/x-zip-compressed");
 
 				const res = await request(SERVER_URL).delete("/dataset/ubc2");
@@ -452,7 +453,7 @@ describe("Facade D3", function () {
 					.send({
 						WHERE: {},
 						OPTIONS: {
-							COLUMNS: ["sections_id"]
+							COLUMNS: ["sections_id"],
 						},
 					})
 					.set("Content-Type", "application/json");
@@ -464,14 +465,14 @@ describe("Facade D3", function () {
 			}
 		});
 
-        it("should return error for invalid query", async function () {
+		it("should return error for invalid query", async function () {
 			try {
 				const res = await request(SERVER_URL)
 					.post("/query")
 					.send({
 						WHERE: {},
 						OPTIONS: {
-							COLUMNS: ["sections_id", "rooms_id"]
+							COLUMNS: ["sections_id", "rooms_id"],
 						},
 					})
 					.set("Content-Type", "application/json");
