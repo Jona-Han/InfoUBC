@@ -1,6 +1,6 @@
-import {NextFunction, Request, Response} from "express";
+import {Request, Response} from "express";
 import InsightFacade from "../controller/InsightFacade";
-import {InsightDatasetKind, InsightError, NotFoundError} from "../controller/IInsightFacade";
+import {InsightDatasetKind, InsightError, NotFoundError, ResultTooLargeError} from "../controller/IInsightFacade";
 
 export default class RouteHandlers {
 	public static async putNewDataset(req: Request, res: Response) {
@@ -52,7 +52,7 @@ export default class RouteHandlers {
 			const results = await fc.performQuery(req.body);
 			res.status(200).json({result: results});
 		} catch (err: any) {
-			if (err instanceof InsightError) {
+			if (err instanceof InsightError || err instanceof ResultTooLargeError) {
 				res.status(400).json({err: err.message});
 			} else {
 				res.status(500).json({err: err.message});
