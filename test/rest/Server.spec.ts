@@ -72,7 +72,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -106,7 +106,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -120,7 +120,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -134,7 +134,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -148,7 +148,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -162,7 +162,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -176,7 +176,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/x-zip-compressed");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -295,7 +295,7 @@ describe.only("Facade D3", function () {
 				const res = await request(SERVER_URL).delete("/dataset/ubc2");
 
 				expect(res.status).to.equal(404);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -311,7 +311,7 @@ describe.only("Facade D3", function () {
 				const res = await request(SERVER_URL).delete("/dataset/ubc2");
 
 				expect(res.status).to.equal(404);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -327,7 +327,7 @@ describe.only("Facade D3", function () {
 				const res = await request(SERVER_URL).delete("/dataset/ubc_d");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -459,7 +459,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/json");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
@@ -478,7 +478,7 @@ describe.only("Facade D3", function () {
 					.set("Content-Type", "application/json");
 
 				expect(res.status).to.equal(400);
-				expect(res.body).to.have.property("err");
+				expect(res.body).to.have.property("error");
 			} catch (err: any) {
 				expect.fail(err.message);
 			}
