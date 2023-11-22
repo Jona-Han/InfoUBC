@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
+import {distanceQuery, filterQueryResult} from '../QueryUtil/distanceQuery'
 
 const GetClosestBuildingsForm: React.FC = () => {
   const [distance, setDistance] = useState('0');
-  const [tableRows, setTableRows] = useState([]);
+  const [tableRows, setTableRows] = useState([{fullname: '', shortname: '', address: ''}]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const busLoop = {lat: 49.2675373, lon: -123.2474431}
 
   const submit = async () => {
     // let query = {};
@@ -17,9 +17,16 @@ const GetClosestBuildingsForm: React.FC = () => {
     // })
     setLoading(true);
     try {
-      const result = await fetch("http://localhost:4321/datasets");
+      let query: string = JSON.stringify(distanceQuery(parseInt(distance)));
+      const result = await fetch("http://localhost:4321/query",
+      {
+        method: "Post",
+        body: query,
+        headers: { 'Content-Type': 'application/json' }
+      });
       const data = await result.json();
-      setTableRows(data["result"]);
+      const filteredData = filterQueryResult(parseInt(distance), data["result"])
+      setTableRows(filteredData);
       setSubmitted(true);
     } catch (err) {
       console.log(err)
@@ -34,9 +41,9 @@ const GetClosestBuildingsForm: React.FC = () => {
       tableRows.map((row) => {
         return(
           <tr>
-            <td>{row["id"]}</td>
-            <td>{row["kind"]}</td>
-            <td>{row["numRows"]}</td>
+            <td>{row["fullname"]}</td>
+            <td>{row["shortname"]}</td>
+            <td>{row["address"]}</td>
           </tr>
         )
       })
@@ -56,9 +63,9 @@ const GetClosestBuildingsForm: React.FC = () => {
       <table style={{visibility: submitted ? "visible":"hidden"}}>
         <thead>
         <tr>
-          <th>ID</th>
-          <th>Kind</th>
-          <th>Number of Rows</th>
+          <th>Building</th>
+          <th>Code</th>
+          <th>Address</th>
         </tr>
         </thead>
         <tbody>{renderTable()}</tbody>
