@@ -28,7 +28,7 @@ describe("InsightFacade", async function () {
 	});
 
 	afterEach(function () {
-		// clearDisk();
+		clearDisk();
 	});
 
 	describe("addDataset", function () {
@@ -461,7 +461,7 @@ describe("InsightFacade", async function () {
 		});
 
 		context("when adding many rooms", function () {
-			it.only("should successfully add 364 rooms", async function () {
+			it.("should successfully add 364 rooms", async function () {
 				try {
 					const zip = getContentFromArchives("campus.zip");
 					const add = await facade.addDataset("rooms", zip, InsightDatasetKind.Rooms);
