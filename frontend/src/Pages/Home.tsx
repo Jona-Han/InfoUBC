@@ -9,7 +9,7 @@ const HomePage: React.FC = () => {
         <Link to="/GetCloseBuildingsForm">
           <button>Find buildings closest to the bus loop</button>
         </Link>
-        <Link to="./getBestProffsForm">
+        <Link to="./GetBestProfsForm">
           <button>Find Proffs with the highest class averages</button>
         </Link>
       </div>
