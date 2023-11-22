@@ -60,7 +60,9 @@ const GetClosestBuildingsForm: React.FC = () => {
         <button onClick={submit}>Submit</button>
       </div>
       <div style={{visibility: loading ? "visible":"hidden"}}>loading...</div>
-      <table style={{visibility: submitted ? "visible":"hidden"}}>
+      <div style={{visibility: submitted ? "visible":"hidden"}}>
+        <div>Showing {tableRows.length} results</div>
+      <table>
         <thead>
         <tr>
           <th>Building</th>
@@ -71,6 +73,7 @@ const GetClosestBuildingsForm: React.FC = () => {
         <tbody>{renderTable()}</tbody>
         
       </table>
+      </div>
     </div>
     );
 };

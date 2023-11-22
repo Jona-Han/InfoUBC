@@ -73,10 +73,17 @@ export function filterQueryResult(dist: number, result: any[]): any[] {
 }
 
 function distanceFromBusLoop(building: any): number {
-  const dLat = busLoop.lat - building.avgLat;
-  const dLon = busLoop.lon - building.avgLon;
-  const a = Math.pow(Math.sin(dLat / 2), 2) + Math.cos(busLoop.lat)*Math.cos(building.avgLat)*Math.pow(Math.sin(dLon/2), 2)
+  const R = 6371e3;
+  const lat1 = busLoop.lat * Math.PI/180;
+  const lat2 = building.avgLat * Math.PI/180;
+
+  const dLat = (busLoop.lat - building.avgLat) * Math.PI/180;
+  const dLon = (busLoop.lon - building.avgLon) * Math.PI/180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+            Math.cos(lat1) * Math.cos(lat2) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  const dist = 6371*c
-  return dist
+  const d = R * c;
+
+  return d
 }
