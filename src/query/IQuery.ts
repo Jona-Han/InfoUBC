@@ -35,8 +35,8 @@ export interface Negation {
 export type Columns = AnyKey[];
 
 export interface Sort {
-	dir: Direction,
-    keys: AnyKey[];
+	dir: Direction;
+	keys: AnyKey[];
 }
 
 export interface Options {
@@ -64,5 +64,5 @@ export interface JSONQuery {
 export interface IQuery extends JSONQuery {
 	datasetName: string;
 
-    execute(): InsightResult[];
+	execute(): InsightResult[];
 }
