@@ -5,6 +5,11 @@ Please keep your repository private.
 
 For information about the project, autotest, and the checkpoints, see the course webpage.
 
+## Project Demo
+
+This is the link to the project demo:
+https://drive.google.com/file/d/1YdI-VeYWh0UMjuxx52mlbzrDuzC_7cgJ/view?usp=sharing
+
 ## Configuring your environment
 
 To start using this project, you need to get your development environment configured so that you can build and execute the code.
