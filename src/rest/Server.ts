@@ -37,14 +37,16 @@ export default class Server {
 				console.error("Server::start() - server already listening");
 				reject();
 			} else {
-				this.server = this.express.listen(this.port, () => {
-					console.info(`Server::start() - server listening on port: ${this.port}`);
-					resolve();
-				}).on("error", (err: Error) => {
-					// catches errors in server start
-					console.error(`Server::start() - server ERROR: ${err.message}`);
-					reject(err);
-				});
+				this.server = this.express
+					.listen(this.port, () => {
+						console.info(`Server::start() - server listening on port: ${this.port}`);
+						resolve();
+					})
+					.on("error", (err: Error) => {
+						// catches errors in server start
+						console.error(`Server::start() - server ERROR: ${err.message}`);
+						reject(err);
+					});
 			}
 		});
 	}
@@ -105,7 +107,7 @@ export default class Server {
 			res.status(400).json({error: err});
 		}
 	}
-
+  
 	private static performEcho(msg: string): string {
 		if (typeof msg !== "undefined" && msg !== null) {
 			return `${msg}...${msg}`;

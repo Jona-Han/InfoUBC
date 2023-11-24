@@ -7,11 +7,35 @@ const GetBestProfsForm: React.FC = () => {
   const [tableRows, setTableRows] = useState([{sections_instructor: '', classAverage: 0, timesTaught: 0}]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const tableStyle = `
+  #buildings {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  #buildings td, #buildings th {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  
+  #buildings tr:nth-child(even){background-color: #f2f2f2;}
+  
+  #buildings tr:hover {background-color: #ddd;}
+  
+  #buildings th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #04AA6D;
+    color: white;
+  }
+  `
 
   const submit = async () => {
     setLoading(true);
     try {
-      let query: string = JSON.stringify(getBestProfs(courseDept, courseNumber));
+      let query: string = JSON.stringify(getBestProfs(courseDept.toLocaleLowerCase(), courseNumber.toLocaleLowerCase()));
       const result = await fetch("http://localhost:4321/query",
       {
         method: "Post",
@@ -56,7 +80,10 @@ const GetBestProfsForm: React.FC = () => {
       <div style={{visibility: loading ? "visible":"hidden"}}>loading...</div>
       <div style={{visibility: submitted ? "visible":"hidden"}}>
         <div>Showing {tableRows.length} results</div>
-      <table>
+        <style>
+{tableStyle}
+</style>
+      <table id='buildings'>
         <thead>
         <tr>
           <th>Name</th>

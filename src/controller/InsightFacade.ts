@@ -55,7 +55,6 @@ export default class InsightFacade implements IInsightFacade {
 		} else {
 			return Promise.reject(new InsightError("Invalid dataset kind: must be sections or rooms"));
 		}
-
 	}
 
 	// 1. Check valid id

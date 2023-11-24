@@ -814,10 +814,7 @@ describe("QueryValidator", () => {
 				GROUP: [],
 				APPLY: {},
 			};
-			expect(() => QV.validateTransformations(transformations)).to.throw(
-				InsightError,
-				"APPLY must be an array"
-			);
+			expect(() => QV.validateTransformations(transformations)).to.throw(InsightError, "APPLY must be an array");
 		});
 
 		it("should throw if not all elements in GROUP are strings", () => {

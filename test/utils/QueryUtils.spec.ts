@@ -1,8 +1,4 @@
-import {
-	validateKeyMatchesKind,
-	orderEntriesByString,
-	orderEntriesBySortObject,
-} from "../../src/utils/SortUtils";
+import {validateKeyMatchesKind, orderEntriesByString, orderEntriesBySortObject} from "../../src/utils/SortUtils";
 import {expect} from "chai";
 import {InsightDatasetKind, InsightError} from "../../src/controller/IInsightFacade";
 
@@ -96,5 +92,4 @@ describe("Validation and Ordering Functions", () => {
 			).to.throw(InsightError);
 		});
 	});
-
 });

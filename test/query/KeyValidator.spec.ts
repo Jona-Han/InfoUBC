@@ -78,21 +78,20 @@ describe("KeyValidator", () => {
 	});
 
 	it("should throw for duplicate applyKey", () => {
-        // Assuming the `keys` set has a value 'duplicateKey' already
+		// Assuming the `keys` set has a value 'duplicateKey' already
 		KV.addToTransformationKeys("duplicateKey");
-		expect(() => KV.validateApplyKey("duplicateKey"))
-			.to.throw(InsightError, "Duplicate APPLY key duplicateKey");
+		expect(() => KV.validateApplyKey("duplicateKey")).to.throw(InsightError, "Duplicate APPLY key duplicateKey");
 	});
 
 	describe("validateApplyRuleTargetKey", () => {
 		it("should return true for valid mKey", () => {
-            // Assuming "someDataset_avg" is a valid mKey
+			// Assuming "someDataset_avg" is a valid mKey
 			const result = KV.validateApplyRuleTargetKey("someDataset_avg");
 			expect(result).to.be.true;
 		});
 
 		it("should return true for valid sKey", () => {
-            // Assuming "someDataset_dept" is a valid sKey
+			// Assuming "someDataset_dept" is a valid sKey
 			const result = KV.validateApplyRuleTargetKey("someDataset_dept");
 			expect(result).to.be.true;
 		});

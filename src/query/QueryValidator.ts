@@ -43,8 +43,8 @@ export default class QueryValidator {
 		}
 
 		if (
-			("TRANSFORMATIONS" in query && (!query.TRANSFORMATIONS || typeof query.TRANSFORMATIONS !== "object") ||
-			Array.isArray(query.TRANSFORMATIONS))
+			("TRANSFORMATIONS" in query && (!query.TRANSFORMATIONS || typeof query.TRANSFORMATIONS !== "object")) ||
+			Array.isArray(query.TRANSFORMATIONS)
 		) {
 			throw new InsightError("TRANSFORMATIONS must be object");
 		}

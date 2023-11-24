@@ -2,6 +2,7 @@ import Server from "../../src/rest/Server";
 import InsightFacade from "../../src/controller/InsightFacade";
 
 import {expect} from "chai";
+
 import request from "supertest";
 import fs from "fs-extra";
 import {clearDisk} from "../TestUtil";
