@@ -18,3 +18,7 @@ temp/
 .DS_Store
 .env
 *.log
+.vscode/
+.nyc_output/
+.idea/
+
