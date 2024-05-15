@@ -1,8 +1,7 @@
 # InfoUBC
 
 This is a fullstack web app that enables the user to gain insightful information about UBC courses and rooms. The backend contains a data parser that parses course data from JSON documents in zip files and rooms data from HTML documents.
-In addition, a query controller allows for SQL-like querying of data through JSON objects. The backend provides functionality through a REST API.
-
+In addition, a query controller allows for SQL-like querying of data through JSON objects. The backend provides functionality through a REST API interface.
 
 
 ## Getting Started
@@ -34,11 +33,6 @@ yarn install
 ```
 yarn build
 ```
-
-## Project Demo
-
-This is the link to the project demo:
-https://drive.google.com/file/d/1YdI-VeYWh0UMjuxx52mlbzrDuzC_7cgJ/view?usp=sharing
 
 
 ## Project commands
